@@ -9,7 +9,7 @@
   },
   "routes": [
     {
-      "pattern": "agenticengineerin.online",
+      "pattern": "agenticengineering.online",
       "custom_domain": true
     }
   ]
