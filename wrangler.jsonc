@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "curia-landing",
+  "account_id": "48f381bf59212dbd98d2b424ba4b9a04",
   "compatibility_date": "2026-05-12",
   "assets": {
     "directory": "./dist/",
