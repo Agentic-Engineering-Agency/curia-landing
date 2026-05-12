@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "cf:deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",
@@ -28,6 +29,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.8.3",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "wrangler": "^4.90.0"
   }
 }

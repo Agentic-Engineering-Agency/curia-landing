@@ -115,6 +115,32 @@ const trustPoints = [
   "Rastro auditable y trazabilidad de decisiones de IA para un entorno regulado.",
 ] as const;
 
+const proofPoints = [
+  "Fuentes verificadas: SJF · DOF · LeyesBiblio",
+  "Sincronización nativa con Outlook",
+  "Canal operativo en Telegram",
+  "KLGV Abogados · socio de diseño",
+] as const;
+
+const morningSequence = [
+  {
+    title: "08:12 — Boletines consolidados",
+    body: "Curia encuentra movimientos relevantes en fuentes federales y estatales antes de que inicie la jornada.",
+  },
+  {
+    title: "08:19 — Plazo convertido en tarea",
+    body: "El acuerdo deja de ser texto: se vuelve fecha, responsable y contexto listo para actuar.",
+  },
+  {
+    title: "08:24 — Calendario sincronizado",
+    body: "Outlook recibe el evento con la referencia del expediente y la urgencia correcta.",
+  },
+  {
+    title: "08:31 — Cita con estado de confianza",
+    body: "Si la IA propone una referencia, Curia la etiqueta según su verificación antes de que llegue al escrito.",
+  },
+] as const;
+
 export default function App() {
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -218,6 +244,14 @@ export default function App() {
                 </a>
               </div>
 
+              <div className="flex flex-wrap gap-3">
+                {proofPoints.map((item) => (
+                  <span key={item} className="curia-proof-pill">
+                    {item}
+                  </span>
+                ))}
+              </div>
+
               <div className="grid gap-3 sm:grid-cols-3">
                 {highlights.map((item) => (
                   <article key={item.value} className="curia-stat-card">
@@ -247,6 +281,30 @@ export default function App() {
                     <Sparkles className="mt-0.5 h-4 w-4 text-[var(--curia-primary)]" aria-hidden="true" />
                     <p>Lanzamiento objetivo: 16 de julio de 2026.</p>
                   </div>
+                </div>
+              </div>
+
+              <div className="curia-dossier-card">
+                <div className="flex items-center justify-between gap-4 border-b border-[color:rgba(13,115,119,0.14)] pb-4">
+                  <div>
+                    <p className="curia-caption text-[var(--curia-primary-text)]">Una mañana con Curia</p>
+                    <p className="mt-2 text-lg tracking-[-0.02em]">Del boletín al criterio operativo en menos de una hora.</p>
+                  </div>
+                  <span className="curia-status-badge">Calma operativa</span>
+                </div>
+
+                <div className="mt-5 space-y-4">
+                  {morningSequence.map((item, index) => (
+                    <article key={item.title} className="curia-dossier-step">
+                      <div className="curia-dossier-marker" aria-hidden="true">
+                        0{index + 1}
+                      </div>
+                      <div>
+                        <h3 className="text-[1.02rem] font-medium tracking-[-0.02em]">{item.title}</h3>
+                        <p className="mt-2 text-sm leading-7 text-[var(--curia-text-secondary)]">{item.body}</p>
+                      </div>
+                    </article>
+                  ))}
                 </div>
               </div>
 

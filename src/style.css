@@ -158,6 +158,65 @@ button {
   padding: 1.4rem;
   box-shadow: var(--curia-shadow-sm);
 }
+.curia-proof-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(13, 115, 119, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--curia-primary-text);
+  font-size: 0.84rem;
+  line-height: 1.35;
+  box-shadow: var(--curia-shadow-xs);
+}
+
+.curia-dossier-card {
+  border: 1px solid color-mix(in srgb, var(--curia-primary) 16%, var(--curia-border));
+  border-radius: 1.6rem;
+  padding: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(243, 239, 231, 0.72) 100%);
+  box-shadow: var(--curia-shadow-md);
+}
+
+.curia-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(13, 115, 119, 0.1);
+  color: var(--curia-primary-text);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.curia-dossier-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.curia-dossier-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: rgba(13, 115, 119, 0.1);
+  color: var(--curia-primary-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 
 .curia-phase-card {
   background: rgba(255, 255, 255, 0.88);
