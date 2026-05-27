@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState, type FormEvent } from "react";
 import {
   ArrowRight,
   BookOpenText,
@@ -7,6 +7,7 @@ import {
   Files,
   Gavel,
   Landmark,
+  Loader2,
   Mail,
   MessageCircleMore,
   Phone,
@@ -15,6 +16,19 @@ import {
   Sparkles,
   Workflow,
 } from "lucide-react";
+
+type ContactResponse =
+  | { ok: true; id?: string | null }
+  | { ok: false; error: string; details?: string[] };
+
+type SubmitState =
+  | { kind: "idle" }
+  | { kind: "submitting" }
+  | { kind: "success" }
+  | { kind: "error"; message: string };
+
+const GENERIC_ERROR =
+  "No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos a info@agenticengineering.agency.";
 
 const highlights = [
   {
@@ -142,44 +156,50 @@ const morningSequence = [
 ] as const;
 
 export default function App() {
-  const formRef = useRef<HTMLFormElement>(null);
+  const [submitState, setSubmitState] = useState<SubmitState>({ kind: "idle" });
 
-  const buildMailtoHref = (form: HTMLFormElement) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (submitState.kind === "submitting") return;
+
+    const form = event.currentTarget;
     const data = new FormData(form);
     const name = String(data.get("name") ?? "").trim();
     const firm = String(data.get("firm") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
     const message = String(data.get("message") ?? "").trim();
-    const subjectContext = firm || name || "Nuevo contacto";
-    const subject = `Consulta sobre Curia — ${subjectContext}`;
-    const body = [
-      `Nombre: ${name || "No especificado"}`,
-      `Despacho: ${firm || "No especificado"}`,
-      `Correo: ${email || "No especificado"}`,
-      "",
-      "Mensaje:",
-      message || "Hola, me interesa conocer más sobre Curia.",
-    ].join("\n");
 
-    return `mailto:info@agenticengineering.agency?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
-
-  const prepareInquiryLink = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    const form = formRef.current;
-    if (!form) {
-      event.preventDefault();
+    if (!name || !email || !message) {
+      setSubmitState({ kind: "error", message: "Completa nombre, correo y mensaje." });
       return;
     }
 
-    const requiredFields = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[required]"));
-    const firstMissing = requiredFields.find((field) => field.value.trim().length === 0);
-    if (firstMissing) {
-      event.preventDefault();
-      firstMissing.focus();
-      return;
-    }
+    setSubmitState({ kind: "submitting" });
 
-    event.currentTarget.href = buildMailtoHref(form);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          company: firm || undefined,
+        }),
+      });
+
+      const body = (await res.json().catch(() => null)) as ContactResponse | null;
+
+      if (res.ok && body?.ok) {
+        setSubmitState({ kind: "success" });
+        form.reset();
+        return;
+      }
+
+      setSubmitState({ kind: "error", message: GENERIC_ERROR });
+    } catch {
+      setSubmitState({ kind: "error", message: GENERIC_ERROR });
+    }
   };
 
   return (
@@ -519,46 +539,73 @@ export default function App() {
               </div>
             </div>
 
-            <form ref={formRef} className="curia-card-editorial p-6 md:p-8">
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="curia-field">
-                  <span>Nombre</span>
-                  <input required name="name" autoComplete="name" placeholder="Tu nombre" />
+            <form onSubmit={handleSubmit} className="curia-card-editorial p-6 md:p-8">
+              <fieldset disabled={submitState.kind === "submitting"} className="contents">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="curia-field">
+                    <span>Nombre</span>
+                    <input required name="name" autoComplete="name" placeholder="Tu nombre" />
+                  </label>
+                  <label className="curia-field">
+                    <span>Despacho</span>
+                    <input name="firm" placeholder="Nombre del despacho" />
+                  </label>
+                </div>
+
+                <label className="curia-field mt-4">
+                  <span>Correo de contacto</span>
+                  <input required name="email" type="email" autoComplete="email" placeholder="tu@despacho.com" />
                 </label>
-                <label className="curia-field">
-                  <span>Despacho</span>
-                  <input name="firm" placeholder="Nombre del despacho" />
+
+                <label className="curia-field mt-4">
+                  <span>¿Qué te gustaría explorar con Curia?</span>
+                  <textarea
+                    required
+                    name="message"
+                    rows={6}
+                    placeholder="Cuéntanos qué tipo de casos monitorean, cómo coordinan plazos o qué problema quieren resolver primero."
+                  />
                 </label>
-              </div>
 
-              <label className="curia-field mt-4">
-                <span>Correo de contacto</span>
-                <input required name="email" type="email" autoComplete="email" placeholder="tu@despacho.com" />
-              </label>
+                <div className="mt-6 flex flex-col gap-3 border-t border-[var(--curia-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="max-w-md text-sm leading-6 text-[var(--curia-text-secondary)]">
+                    {submitState.kind === "success"
+                      ? "Recibimos tu mensaje. Te responderemos en menos de 48 horas hábiles."
+                      : "Al enviar, registramos tu mensaje en nuestro CRM y te responderemos en menos de 48 horas hábiles."}
+                  </p>
+                  <button
+                    type="submit"
+                    className="curia-button curia-button-primary"
+                    aria-busy={submitState.kind === "submitting"}
+                  >
+                    {submitState.kind === "submitting" ? (
+                      <>
+                        Enviando
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                      </>
+                    ) : submitState.kind === "success" ? (
+                      <>
+                        Mensaje enviado
+                        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <>
+                        Enviar mensaje
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </>
+                    )}
+                  </button>
+                </div>
 
-              <label className="curia-field mt-4">
-                <span>¿Qué te gustaría explorar con Curia?</span>
-                <textarea
-                  required
-                  name="message"
-                  rows={6}
-                  placeholder="Cuéntanos qué tipo de casos monitorean, cómo coordinan plazos o qué problema quieren resolver primero."
-                />
-              </label>
-
-              <div className="mt-6 flex flex-col gap-3 border-t border-[var(--curia-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-md text-sm leading-6 text-[var(--curia-text-secondary)]">
-                  Al enviar, abriremos tu cliente de correo con un mensaje dirigido a Agentic Engineering para que puedas continuar la conversación de inmediato.
-                </p>
-                <a
-                  className="curia-button curia-button-primary"
-                  href="mailto:info@agenticengineering.agency"
-                  onClick={prepareInquiryLink}
-                >
-                  Redactar correo de interés
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </div>
+                {submitState.kind === "error" && (
+                  <p
+                    role="alert"
+                    className="mt-4 rounded-lg border border-[color:rgba(220,38,38,0.25)] bg-[color:rgba(220,38,38,0.05)] px-4 py-3 text-sm leading-6 text-[color:rgb(153,27,27)]"
+                  >
+                    {submitState.message}
+                  </p>
+                )}
+              </fieldset>
             </form>
           </div>
         </section>

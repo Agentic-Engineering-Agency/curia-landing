@@ -1,3 +1,9 @@
 dist/
 node_modules/
 .vite/
+
+# Wrangler / Cloudflare local secrets and state
+.dev.vars
+.dev.vars.local
+.wrangler/
+worker-configuration.d.ts

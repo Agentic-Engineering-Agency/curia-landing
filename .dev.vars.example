@@ -1,0 +1,9 @@
+# Local development secrets for `wrangler dev`. Copy to `.dev.vars` and fill in.
+# DO NOT commit `.dev.vars` (already in .gitignore).
+#
+# In production these are set via:
+#   wrangler secret put TWENTY_API_KEY
+#   wrangler secret put TWENTY_BASE_URL
+
+TWENTY_API_KEY="your-twenty-bearer-token"
+TWENTY_BASE_URL="https://twenty.agenticengineering.lat"
