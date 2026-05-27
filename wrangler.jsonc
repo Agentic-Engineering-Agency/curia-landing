@@ -19,7 +19,7 @@
   },
 
   "routes": [
-    { "pattern": "agenticengineering.online", "custom_domain": true }
+    { "pattern": "agenticengineering.online/*", "zone_name": "agenticengineering.online" }
   ],
 
   "observability": {
