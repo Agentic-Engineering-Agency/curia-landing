@@ -43,7 +43,6 @@ The `/api/contact` Worker reads these. Local development uses `.dev.vars`; produ
 | ---------------------- | -------------------- | -------- | -------------------------------------------------------------------------------------------- |
 | `TWENTY_API_KEY`       | `wrangler secret put` | yes     | Bearer token from Twenty → Settings → API & Webhooks                                         |
 | `TWENTY_BASE_URL`      | `wrangler secret put` | yes     | e.g. `https://twenty.agenticengineering.lat` — no trailing slash                             |
-| `TURNSTILE_SECRET_KEY` | `wrangler secret put` | no      | When set, the Worker enforces Cloudflare Turnstile verification on every submission          |
 | `CONTACT_SOURCE`       | `wrangler.jsonc` var | no      | Fallback `sourceUrl` written to Twenty when the request has no Origin/Referer (e.g. testing) |
 
 ## Getting Started
@@ -87,8 +86,6 @@ npx wrangler login
 # 3. Store production secrets (paste each value when prompted)
 npx wrangler secret put TWENTY_API_KEY
 npx wrangler secret put TWENTY_BASE_URL
-# Optional anti-spam (skip until you create a Turnstile site):
-# npx wrangler secret put TURNSTILE_SECRET_KEY
 
 # 4. Verify
 npx wrangler secret list
@@ -125,7 +122,7 @@ curl -i -X POST "https://agenticengineering.online/api/contact" \
 └──────────┬─────────────┘
            ↓ (same-origin)
 ┌────────────────────────┐
-│ Worker fetch handler   │  Zod validation → optional Turnstile → POST Twenty
+│ Worker fetch handler   │  Zod validation → POST Twenty
 └──────────┬─────────────┘
            ↓
 ┌────────────────────────┐
@@ -150,7 +147,7 @@ If a custom field is missing in Twenty, the Worker still creates the Person but 
 ## Topology notes
 
 - `wrangler.jsonc` sets `assets.run_worker_first = ["/api/*"]` so the Worker only intercepts `/api/*` paths; everything else goes through the Static Assets binding with `not_found_handling: "single-page-application"` (SPA fallback).
-- Both Twenty calls and Turnstile siteverify are subrequests; each counts against the Workers subrequest cap (1000/request on paid plans).
+- The Twenty call is a subrequest and counts against the Workers subrequest cap (1000/request on paid plans).
 - Logs are kept PII-free (no name/email/message bodies in `console.error`).
 
 ## Links

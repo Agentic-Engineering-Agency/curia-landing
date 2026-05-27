@@ -2,10 +2,6 @@
 /**
  * Cloudflare Worker entry for the Curia landing page.
  *
- * Mirrors the handler in the Agentic Engineering landing page repo so both
- * sites share an identical /api/contact contract against the self-hosted
- * Twenty CRM.
- *
  * Topology:
  *   - Static assets in ./dist are served by the Workers Static Assets binding
  *     (ASSETS) with single-page-application 404 handling.
@@ -13,13 +9,12 @@
  *     `assets.run_worker_first`). Everything else is delegated to env.ASSETS.
  *
  * Routes:
- *   - POST /api/contact -> validate -> (optional Turnstile) -> POST Twenty CRM
+ *   - POST /api/contact -> validate -> POST Twenty CRM /rest/people
  *   - Any other /api/*  -> 404 JSON
  *
  * Env (set via wrangler secret put / vars / .dev.vars):
  *   TWENTY_API_KEY        (secret, required)
  *   TWENTY_BASE_URL       (secret OR var, required) e.g. https://twenty.agenticengineering.lat
- *   TURNSTILE_SECRET_KEY  (secret, optional) - when set, Turnstile verification is enforced
  *   CONTACT_SOURCE        (var, optional) fallback `sourceUrl` when no Origin/Referer header
  */
 
@@ -29,7 +24,6 @@ interface Env {
   ASSETS: Fetcher;
   TWENTY_API_KEY?: string;
   TWENTY_BASE_URL?: string;
-  TURNSTILE_SECRET_KEY?: string;
   CONTACT_SOURCE?: string;
 }
 
@@ -41,7 +35,6 @@ const ContactSchema = z.object({
   projectType: z.string().trim().max(200).optional(),
   budget: z.string().trim().max(200).optional(),
   howDidYouHear: z.string().trim().max(500).optional(),
-  turnstileToken: z.string().max(2048).optional(),
 });
 
 type ContactInput = z.infer<typeof ContactSchema>;
@@ -52,17 +45,6 @@ export default {
 
     if (url.pathname === "/api/contact") {
       if (request.method === "POST") return handleContact(request, env);
-      if (request.method === "OPTIONS") {
-        return new Response(null, {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin": request.headers.get("Origin") ?? "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Max-Age": "86400",
-          },
-        });
-      }
       return jsonResponse({ ok: false, error: "method_not_allowed" }, 405);
     }
 
@@ -101,18 +83,6 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return jsonResponse({ ok: false, error: "bad_request", details }, 400);
   }
   const input = parsed.data;
-
-  if (env.TURNSTILE_SECRET_KEY) {
-    if (!input.turnstileToken) {
-      return jsonResponse({ ok: false, error: "bot" }, 400);
-    }
-    const ok = await verifyTurnstile({
-      secret: env.TURNSTILE_SECRET_KEY,
-      token: input.turnstileToken,
-      remoteip: request.headers.get("CF-Connecting-IP") ?? undefined,
-    });
-    if (!ok) return jsonResponse({ ok: false, error: "bot" }, 400);
-  }
 
   const upstream = await postPersonToTwenty(input, request, env);
 
@@ -206,28 +176,6 @@ function splitName(full: string): { firstName: string; lastName: string } {
   if (parts.length === 0) return { firstName: "", lastName: "" };
   if (parts.length === 1) return { firstName: parts[0], lastName: "" };
   return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
-}
-
-async function verifyTurnstile(args: {
-  secret: string;
-  token: string;
-  remoteip?: string;
-}): Promise<boolean> {
-  const form = new FormData();
-  form.set("secret", args.secret);
-  form.set("response", args.token);
-  if (args.remoteip) form.set("remoteip", args.remoteip);
-  try {
-    const res = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      { method: "POST", body: form },
-    );
-    if (!res.ok) return false;
-    const data = (await res.json()) as { success?: boolean };
-    return data.success === true;
-  } catch {
-    return false;
-  }
 }
 
 function jsonResponse(body: unknown, status: number): Response {

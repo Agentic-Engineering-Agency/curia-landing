@@ -539,7 +539,7 @@ export default function App() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="curia-card-editorial p-6 md:p-8" noValidate>
+            <form onSubmit={handleSubmit} className="curia-card-editorial p-6 md:p-8">
               <fieldset disabled={submitState.kind === "submitting"} className="contents">
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="curia-field">

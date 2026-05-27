@@ -31,5 +31,4 @@
   // Secrets (set via `wrangler secret put`, NOT here):
   //   TWENTY_API_KEY          (required) - bearer token for self-hosted Twenty CRM
   //   TWENTY_BASE_URL         (required) - https://twenty.agenticengineering.lat
-  //   TURNSTILE_SECRET_KEY    (optional) - enable bot verification when set
 }
