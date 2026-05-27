@@ -18,20 +18,14 @@
     "CONTACT_SOURCE": "agenticengineering.online"
   },
 
+  "routes": [
+    { "pattern": "agenticengineering.online", "custom_domain": true }
+  ],
+
   "observability": {
     "enabled": true
   }
 
-  // Custom domain (agenticengineering.online) attachment is currently blocked
-  // by externally-managed DNS records on the hostname. Re-attach by either
-  // deleting the conflicting DNS records in the Cloudflare dashboard and then
-  // re-adding the route block below, or by manually attaching the domain via
-  // dashboard → Workers & Pages → curia-landing → Triggers → Custom Domains.
-  //
-  //   "routes": [
-  //     { "pattern": "agenticengineering.online", "custom_domain": true }
-  //   ]
-  //
   // Secrets (set via `wrangler secret put`, NOT here):
   //   TWENTY_API_KEY          (required) - bearer token for self-hosted Twenty CRM
   //   TWENTY_BASE_URL         (required) - https://twenty.agenticengineering.lat
