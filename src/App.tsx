@@ -239,7 +239,7 @@ export default function App() {
 
       <main id="inicio">
         <section className="curia-shell relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:items-end">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:items-start">
             <div className="space-y-7 curia-fade-up">
               <div className="space-y-4">
                 <p className="curia-caption text-[var(--curia-primary-text)]">Inteligencia legal para despachos mexicanos</p>
@@ -523,17 +523,17 @@ export default function App() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <a className="curia-contact-card" href="tel:+523322412595">
-                  <Phone className="h-5 w-5 text-[var(--curia-primary)]" aria-hidden="true" />
-                  <div>
+                  <Phone className="h-5 w-5 shrink-0 text-[var(--curia-primary)]" aria-hidden="true" />
+                  <div className="min-w-0">
                     <p className="curia-caption">Teléfono</p>
                     <p className="mt-2 text-lg tracking-[-0.02em]">+52 33 2241 2595</p>
                   </div>
                 </a>
                 <a className="curia-contact-card" href="mailto:info@agenticengineering.agency">
-                  <Mail className="h-5 w-5 text-[var(--curia-primary)]" aria-hidden="true" />
-                  <div>
+                  <Mail className="h-5 w-5 shrink-0 text-[var(--curia-primary)]" aria-hidden="true" />
+                  <div className="min-w-0">
                     <p className="curia-caption">Correo</p>
-                    <p className="mt-2 text-lg tracking-[-0.02em]">info@agenticengineering.agency</p>
+                    <p className="mt-2 break-all text-base tracking-[-0.02em] sm:text-[0.95rem] lg:text-base">info@agenticengineering.agency</p>
                   </div>
                 </a>
               </div>
