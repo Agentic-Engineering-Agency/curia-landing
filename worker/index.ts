@@ -133,7 +133,11 @@ async function postPersonToTwenty(
   if (input.howDidYouHear) personBody.howDidYouHear = input.howDidYouHear;
   if (sourceUrl) personBody.sourceUrl = sourceUrl;
 
-  const twentyUrl = `${env.TWENTY_BASE_URL!.replace(/\/$/, "")}/rest/people`;
+  // ?upsert=true makes Twenty restore-and-update an existing Person (matched on
+  // email) instead of returning 400 "duplicate entry detected". Without it, a
+  // returning visitor whose email is already in the CRM — visible OR soft-
+  // deleted — gets a 400 that the worker translates into "failed to publish".
+  const twentyUrl = `${env.TWENTY_BASE_URL!.replace(/\/$/, "")}/rest/people?upsert=true`;
 
   let upstream: Response;
   try {
