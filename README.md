@@ -25,9 +25,11 @@ curia-landing/
 │   ├── main.tsx            # React entry point
 │   └── style.css           # Tailwind + design tokens
 ├── worker/
-│   └── index.ts            # Cloudflare Worker: handles POST /api/contact → Twenty CRM
+│   ├── index.ts            # Cloudflare Worker: handles POST /api/contact → Twenty CRM
+│   └── index.test.ts       # Vitest unit tests (mocked fetch, no live Twenty calls)
 ├── index.html              # Vite HTML entry
 ├── wrangler.jsonc          # Workers config (Static Assets + worker)
+├── vitest.config.ts        # Vitest: node env, `worker/**/*.test.ts`
 ├── tsconfig.json           # TypeScript config for the SPA
 ├── tsconfig.worker.json    # TypeScript config for the Worker (WebWorker lib)
 ├── vite.config.ts          # Vite + Tailwind plugin
@@ -67,6 +69,7 @@ pnpm cf:dev                         # build SPA + run `wrangler dev` (http://127
 | `pnpm build`      | Production build (SPA → `dist/`)                                         |
 | `pnpm preview`    | Preview production build locally                                         |
 | `pnpm typecheck`  | TypeScript check for both `tsconfig.json` and `tsconfig.worker.json`     |
+| `pnpm test`       | Vitest unit tests for the Worker (`worker/index.test.ts`)                |
 | `pnpm cf:dev`     | Build + run the Worker locally with `wrangler dev` (reads `.dev.vars`)   |
 | `pnpm cf:deploy`  | Build + deploy the Worker via `wrangler deploy`                          |
 | `pnpm cf:tail`    | Stream Worker logs from production (`wrangler tail`)                     |
@@ -114,6 +117,16 @@ curl -i -X POST "https://agenticengineering.online/api/contact" \
 # Expect: HTTP/2 201   {"ok":true,"id":"<uuid>"}
 ```
 
+## Testing
+
+Worker behavior is covered by Vitest unit tests that stub `global.fetch` — no live Twenty or Cloudflare calls.
+
+```bash
+pnpm test
+```
+
+`worker/index.test.ts` exercises validation, routing (`405` / `404`), misconfigured secrets (`500`), upstream failures (`502`), and the Twenty payload shape including `?upsert=true`. Run tests before changing `worker/index.ts` or the contact API contract.
+
 ## How the contact form works
 
 ```
@@ -126,23 +139,55 @@ curl -i -X POST "https://agenticengineering.online/api/contact" \
 └──────────┬─────────────┘
            ↓
 ┌────────────────────────┐
-│ Twenty CRM             │  POST /rest/people  → creates Person
+│ Twenty CRM             │  POST /rest/people?upsert=true  → create or update Person
 └────────────────────────┘
 ```
 
+### API contract (`POST /api/contact`)
+
+| Status | Body shape | When |
+| ------ | ---------- | ---- |
+| `201` | `{ "ok": true, "id": "<uuid>" \| null }` | Twenty accepted the Person |
+| `400` | `{ "ok": false, "error": "bad_request", "details": [...] }` | Invalid JSON or Zod validation |
+| `405` | `{ "ok": false, "error": "method_not_allowed" }` | Non-`POST` on `/api/contact` |
+| `404` | `{ "ok": false, "error": "not_found" }` | Unknown `/api/*` route |
+| `500` | `{ "ok": false, "error": "server_misconfigured" }` | Missing `TWENTY_API_KEY` or `TWENTY_BASE_URL` |
+| `502` | `{ "ok": false, "error": "upstream_error" }` | Twenty HTTP error or network failure |
+
+The SPA maps all `502` / `500` responses to a single user-facing error string; check `pnpm cf:tail` and Twenty logs when debugging production failures.
+
+### Twenty upsert (returning leads)
+
+The Worker calls `POST {TWENTY_BASE_URL}/rest/people?upsert=true`. With upsert enabled, Twenty matches on email and updates an existing Person (including soft-deleted rows it can restore) instead of returning `400 duplicate entry detected`.
+
+Without `?upsert=true`, a returning visitor whose email already exists in Twenty gets a `400` from Twenty, which the Worker surfaces as `502 upstream_error` — the form looks broken even though validation passed.
+
 ### Twenty `Person` field mapping
 
-The Worker creates a Twenty Person per submission. The custom fields below must already exist in Twenty (Settings → Data Model → Person → + Add Field, type Text unless noted):
+The Worker creates or updates a Twenty Person per submission. Custom fields must already exist in Twenty (Settings → Data Model → Person → + Add Field, type Text unless noted):
 
-| Form field             | Twenty field (API name)        | Standard? |
-| ---------------------- | ------------------------------ | --------- |
-| `name`                 | `name.firstName` / `lastName`  | standard (split on first space) |
-| `email`                | `emails.primaryEmail`          | standard  |
-| `firm` (sent as `company`) | `companyName`              | **custom** (Text) |
-| `message`              | `message`                      | **custom** (Text — Multiline) |
-| (server-set) Origin    | `sourceUrl`                    | **custom** (Text) |
+| Request JSON field | Twenty field (API name)        | Standard? | Notes |
+| ------------------ | ------------------------------ | --------- | ----- |
+| `name`             | `name.firstName` / `lastName`  | standard  | Split on first space |
+| `email`            | `emails.primaryEmail`          | standard  | Normalized to lowercase |
+| `company`          | `companyName`                  | **custom** (Text) | SPA sends the firm name as `company` |
+| `message`          | `message`                      | **custom** (Text — Multiline) | |
+| `projectType`      | `projectType`                  | **custom** (Text) | Optional; not sent by the SPA today |
+| `budget`           | `budget`                       | **custom** (Text) | Optional |
+| `howDidYouHear`    | `howDidYouHear`                | **custom** (Text) | Optional |
+| (server-set) `Origin` / `Referer` / `CONTACT_SOURCE` | `sourceUrl` | **custom** (Text) | First non-empty wins |
 
-If a custom field is missing in Twenty, the Worker still creates the Person but Twenty silently drops the unknown key.
+If a custom field is missing in Twenty, the Worker still posts the Person but Twenty silently drops unknown keys.
+
+### Troubleshooting
+
+| Symptom | Likely cause | What to check |
+| ------- | ------------ | ------------- |
+| Form shows generic error, `502` in Network tab | Twenty rejected the payload or is unreachable | `pnpm cf:tail`; Twenty admin → API logs; confirm `?upsert=true` is present in Worker code |
+| `500 server_misconfigured` | Secrets not set in the target environment | `pnpm cf:secrets` / `wrangler secret list`; redeploy after `wrangler secret put` |
+| `400` with `details` | Client sent invalid JSON or failed Zod (empty name, bad email) | Browser devtools → request payload |
+| Lead created but custom fields empty | Field not defined in Twenty data model | Settings → Data Model → Person |
+| `pnpm dev` contact submit fails | Vite-only dev has no Worker | Use `pnpm cf:dev` on port 8787 |
 
 ## Topology notes
 
