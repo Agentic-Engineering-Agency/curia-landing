@@ -142,6 +142,19 @@ describe("POST /api/contact — Twenty CRM upsert", () => {
     expect(await res.json()).toEqual({ ok: false, error: "upstream_error" });
   });
 
+  it("returns 201 with a null id when Twenty succeeds without a person id in the body", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("ok", { status: 201 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const res = await worker.fetch(
+      postContact({ name: "Sin Id", email: "sin-id@example.test", message: "Hola" }),
+      contactEnv(),
+    );
+
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({ ok: true, id: null });
+  });
+
   it("returns 502 when the upstream network fails", async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error("connection reset"));
     vi.stubGlobal("fetch", fetchMock);
