@@ -9,13 +9,16 @@ type ContactEnv = {
   CONTACT_SOURCE?: string;
 };
 
-const assetsStub: Fetcher = {
+// The worker only ever calls env.ASSETS.fetch, so the stub implements just that
+// surface. @cloudflare/workers-types' Fetcher also requires connect(), so we
+// declare the narrowed shape and widen at the assignment boundary.
+const assetsStub: Pick<Fetcher, "fetch"> = {
   fetch: () => Promise.resolve(new Response("asset", { status: 404 })),
 };
 
 function contactEnv(overrides: Partial<ContactEnv> = {}): ContactEnv {
   return {
-    ASSETS: assetsStub,
+    ASSETS: assetsStub as Fetcher,
     TWENTY_API_KEY: "test-twenty-key",
     TWENTY_BASE_URL: "https://twenty.example.test",
     ...overrides,
