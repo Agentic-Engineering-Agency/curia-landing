@@ -9,8 +9,16 @@ type ContactEnv = {
   CONTACT_SOURCE?: string;
 };
 
+// The worker only ever calls env.ASSETS.fetch. @cloudflare/workers-types'
+// Fetcher also requires connect(), which these tests never exercise, so we stub
+// it with a typed thrower. Typing assetsStub as the full Fetcher (rather than
+// casting a Pick<...>) keeps the stub honest: if Fetcher grows a new required
+// member, this fails to compile instead of silently masking the gap.
 const assetsStub: Fetcher = {
   fetch: () => Promise.resolve(new Response("asset", { status: 404 })),
+  connect: () => {
+    throw new Error("assetsStub.connect() should never be called in worker tests");
+  },
 };
 
 function contactEnv(overrides: Partial<ContactEnv> = {}): ContactEnv {
