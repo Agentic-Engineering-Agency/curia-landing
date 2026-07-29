@@ -1,4 +1,5 @@
 import { CheckCircle2, CircleDotDashed, Handshake, Landmark, Route } from "lucide-react";
+import Reveal from "../components/Reveal";
 
 const statuses = [
   {
@@ -51,47 +52,49 @@ export default function EstadoActual() {
           </p>
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-[1.5rem] border border-[var(--curia-border)] bg-white shadow-[var(--curia-shadow-sm)]">
-          <div className="flex items-center justify-between gap-4 border-b border-[var(--curia-border)] bg-white px-5 py-4 sm:px-6">
-            <p className="text-sm font-semibold text-[var(--curia-text)]">Estado de incorporación</p>
-            <span className="text-xs font-medium text-[var(--curia-text-muted)]">Alcance actual</span>
-          </div>
+        <Reveal y={12} className="mt-8">
+          <div className="overflow-hidden rounded-[1.5rem] border border-[var(--curia-border)] bg-white shadow-[var(--curia-shadow-sm)]">
+            <div className="flex items-center justify-between gap-4 border-b border-[var(--curia-border)] bg-white px-5 py-4 sm:px-6">
+              <p className="text-sm font-semibold text-[var(--curia-text)]">Estado de incorporación</p>
+              <span className="text-xs font-medium text-[var(--curia-text-muted)]">Alcance actual</span>
+            </div>
 
-          <ol className="divide-y divide-[var(--curia-border)] lg:grid lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-            {statuses.map((item, index) => {
-              const Icon = item.icon;
-              const StatusIcon = item.statusIcon;
+            <ol className="divide-y divide-[var(--curia-border)] lg:grid lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+              {statuses.map((item, index) => {
+                const Icon = item.icon;
+                const StatusIcon = item.statusIcon;
 
-              return (
-                <li key={item.title} className="flex flex-col p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[rgba(13,115,119,0.09)] text-[var(--curia-primary-text)]">
-                        <Icon className="h-5 w-5" aria-hidden="true" />
+                return (
+                  <li key={item.title} className="flex flex-col p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[rgba(13,115,119,0.09)] text-[var(--curia-primary-text)]">
+                          <Icon className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <span className="font-mono text-[0.65rem] font-semibold text-[var(--curia-text-muted)]">
+                          0{index + 1}
+                        </span>
                       </div>
-                      <span className="font-mono text-[0.65rem] font-semibold text-[var(--curia-text-muted)]">
-                        0{index + 1}
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold ${
+                          item.complete
+                            ? "bg-[#dff4e8] text-[#276344]"
+                            : "bg-[var(--curia-bg-subtle)] text-[var(--curia-primary-text)]"
+                        }`}
+                      >
+                        <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                        {item.status}
                       </span>
                     </div>
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold ${
-                        item.complete
-                          ? "bg-[#dff4e8] text-[#276344]"
-                          : "bg-[var(--curia-bg-subtle)] text-[var(--curia-primary-text)]"
-                      }`}
-                    >
-                      <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                      {item.status}
-                    </span>
-                  </div>
 
-                  <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[var(--curia-text)]">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[var(--curia-text-secondary)]">{item.body}</p>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+                    <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[var(--curia-text)]">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-[var(--curia-text-secondary)]">{item.body}</p>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

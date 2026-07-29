@@ -11,6 +11,29 @@ import {
   ShieldCheck,
   Workflow,
 } from "lucide-react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
+import Reveal from "../components/Reveal";
+
+const HERO_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const HERO_GROUP_VARIANTS: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+};
+const HERO_ITEM_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.48,
+      ease: HERO_EASE,
+    },
+  },
+};
 
 const highlights = [
   {
@@ -202,20 +225,42 @@ function ProductVisual() {
 }
 
 export default function Hero() {
+  const shouldReduceMotion = useReducedMotion();
   return (
     <section id="inicio" className="relative overflow-hidden bg-white py-16 md:py-24">
       <div className="pointer-events-none absolute -right-28 top-12 h-96 w-96 rounded-full bg-[rgba(13,115,119,0.065)] blur-3xl" aria-hidden="true" />
       <div className="curia-shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(33rem,1.08fr)] lg:gap-14">
-          <div>
-            <p className="curia-caption text-[var(--curia-primary-text)]">Inteligencia legal para despachos mexicanos</p>
-            <h1 className="curia-display mt-5 max-w-3xl text-[3.25rem] leading-[0.94] tracking-[-0.035em] text-[var(--curia-text)] sm:text-[4.1rem] lg:text-[4.9rem]">
+          <motion.div
+            initial={shouldReduceMotion ? false : "hidden"}
+            whileInView={shouldReduceMotion ? undefined : "visible"}
+            variants={HERO_GROUP_VARIANTS}
+            viewport={{ once: true, amount: 0.15 }}
+          >
+            <motion.p className="curia-caption text-[var(--curia-primary-text)]" variants={HERO_ITEM_VARIANTS}>
+              Inteligencia legal para despachos mexicanos
+            </motion.p>
+            <motion.h1
+              className="curia-display mt-5 max-w-3xl text-[3.25rem] leading-[0.94] tracking-[-0.035em] text-[var(--curia-text)] sm:text-[4.1rem] lg:text-[4.9rem]"
+              variants={HERO_ITEM_VARIANTS}
+            >
               Inteligencia legal que trabaja mientras tú no estás.
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--curia-text-secondary)]">
-              Curia reúne monitoreo judicial, gestión de plazos, calendario Outlook, análisis documental e investigación jurídica con estados de confianza para las citas, todo dentro del expediente.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            </motion.h1>
+            <motion.div variants={HERO_ITEM_VARIANTS}>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--curia-text-secondary)]">
+                Curia reúne monitoreo judicial, gestión de plazos, calendario Outlook, análisis documental e investigación jurídica con estados de confianza para las citas, todo dentro del expediente.
+              </p>
+              <div className="mt-5 flex max-w-2xl items-start gap-2.5">
+                <ShieldCheck
+                  className="mt-1 h-4 w-4 shrink-0 text-[var(--curia-primary-text)]"
+                  aria-hidden="true"
+                />
+                <p className="min-w-0 text-base font-medium leading-6 text-[var(--curia-text-secondary)]">
+                  Piloto con KLGV Abogados, socio de diseño y primer cliente · Jalisco CJJ operativo · demás estados en incorporación · toda salida requiere revisión profesional.
+                </p>
+              </div>
+            </motion.div>
+            <motion.div className="mt-7 flex flex-col gap-3 sm:flex-row" variants={HERO_ITEM_VARIANTS}>
               <a href="#contacto" className="curia-button curia-button-primary">
                 Conversemos sobre tu operación
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -223,19 +268,24 @@ export default function Hero() {
               <a href="#estado-actual" className="curia-button curia-button-secondary">
                 Ver Curia hoy
               </a>
-            </div>
+            </motion.div>
 
-            <dl className="mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+            <motion.dl
+              className="mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3"
+              variants={HERO_ITEM_VARIANTS}
+            >
               {highlights.map((item) => (
                 <div key={item.value} className="border-l-2 border-[var(--curia-primary)] pl-4">
                   <dt className="text-lg font-bold tracking-[-0.02em] text-[var(--curia-text)]">{item.value}</dt>
                   <dd className="mt-1 text-xs leading-5 text-[var(--curia-text-muted)]">{item.label}</dd>
                 </div>
               ))}
-            </dl>
-          </div>
+            </motion.dl>
+          </motion.div>
 
-          <ProductVisual />
+          <Reveal y={18} delay={0.1}>
+            <ProductVisual />
+          </Reveal>
         </div>
 
         <div className="mt-20 grid gap-8 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-start lg:gap-14">

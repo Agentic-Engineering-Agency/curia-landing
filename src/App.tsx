@@ -1,3 +1,5 @@
+import { MotionConfig } from "motion/react";
+import AmbientBackground from "./components/AmbientBackground";
 import Header from "./sections/Header";
 import Hero from "./sections/Hero";
 import EstadoActual from "./sections/EstadoActual";
@@ -15,27 +17,31 @@ import Footer from "./sections/Footer";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[var(--curia-bg)] text-[var(--curia-text)]">
-      <div className="curia-grid-halo" aria-hidden="true" />
+    <MotionConfig reducedMotion="user">
+      <div className="relative isolate min-h-screen bg-[var(--curia-bg)] text-[var(--curia-text)]">
+        <AmbientBackground />
 
-      <Header />
+        <div className="relative z-10">
+          <Header />
 
-      <main>
-        <Hero />
-        <EstadoActual />
-        <Monitoreo />
-        <PlazosOutlook />
-        <Biblioteca />
-        <Ocr />
-        <Asistentes />
-        <EvaluadorReferencias />
-        <Fuentes />
-        <Privacidad />
-        <Despacho />
-        <Contacto />
-      </main>
+          <main>
+            <Hero />
+            <EstadoActual />
+            <Monitoreo />
+            <PlazosOutlook />
+            <Biblioteca />
+            <Ocr />
+            <Asistentes />
+            <EvaluadorReferencias />
+            <Fuentes />
+            <Privacidad />
+            <Despacho />
+            <Contacto />
+          </main>
 
-      <Footer />
-    </div>
+          <Footer />
+        </div>
+      </div>
+    </MotionConfig>
   );
 }

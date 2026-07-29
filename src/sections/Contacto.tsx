@@ -9,6 +9,8 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import Reveal from "../components/Reveal";
 
 type RequiredField = "name" | "email" | "message";
 
@@ -47,6 +49,7 @@ export default function Contacto() {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
     kind: "idle",
   });
+  const shouldReduceMotion = useReducedMotion();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -109,11 +112,14 @@ export default function Contacto() {
   return (
     <section id="contacto" className="py-16 md:py-24">
       <div className="curia-shell">
-        <div className="max-w-4xl space-y-4">
+        <Reveal className="max-w-4xl space-y-4" y={12}>
           <p className="curia-caption text-[var(--curia-primary-text)]">
             Contacto
           </p>
-          <h2 className="curia-display text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
+          <h2
+            id="contacto-heading"
+            className="curia-display text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]"
+          >
             Si tu despacho quiere conectar monitoreo, plazos y documentos,
             conversemos.
           </h2>
@@ -123,7 +129,7 @@ export default function Contacto() {
             Curia corresponde a su operación y qué requisitos necesita el flujo
             de Microsoft 365.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-start">
           <div className="space-y-5">
@@ -148,7 +154,7 @@ export default function Contacto() {
               ))}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <a className="curia-contact-card" href="tel:+523322412595">
                 <Phone
                   className="h-5 w-5 shrink-0 text-[var(--curia-primary)]"
@@ -171,7 +177,7 @@ export default function Contacto() {
                 />
                 <div className="min-w-0">
                   <p className="curia-caption">Correo</p>
-                  <p className="mt-2 break-all text-base tracking-[-0.02em] sm:text-[0.95rem] lg:text-base">
+                  <p className="mt-2 break-words text-base tracking-[-0.02em] sm:text-[0.95rem] lg:text-base">
                     info@agenticengineering.agency
                   </p>
                 </div>
@@ -181,6 +187,7 @@ export default function Contacto() {
 
           <form
             onSubmit={handleSubmit}
+            aria-labelledby="contacto-heading"
             className="curia-card-editorial p-6 md:p-8"
           >
             <fieldset
@@ -251,10 +258,13 @@ export default function Contacto() {
                     ? "Recibimos tu mensaje. El equipo de Curia dará seguimiento por correo."
                     : "Al enviar, registraremos tu mensaje en nuestro CRM para darle seguimiento."}
                 </p>
-                <button
+                <motion.button
                   type="submit"
                   className="curia-button curia-button-primary"
                   aria-busy={submitStatus.kind === "submitting"}
+                  whileHover={shouldReduceMotion ? undefined : { y: -1 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
+                  transition={{ duration: 0.14 }}
                 >
                   {submitStatus.kind === "submitting" ? (
                     <>
@@ -275,7 +285,7 @@ export default function Contacto() {
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </>
                   )}
-                </button>
+                </motion.button>
               </div>
 
               {submitStatus.kind === "error" && (

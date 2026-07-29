@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Menu, X } from "lucide-react";
 
 const navigation = [
@@ -9,90 +10,174 @@ const navigation = [
   { label: "Contacto", href: "#contacto" },
 ] as const;
 
+const MENU_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const FOCUSABLE_ELEMENTS =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const headerRef = useRef<HTMLElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+  const skipScrollRestoreRef = useRef(false);
+  const shouldReduceMotion = useReducedMotion();
 
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenuForNavigation = () => {
+    skipScrollRestoreRef.current = true;
+    setMenuOpen(false);
+  };
 
-  // `md:hidden` drops the panel and the toggle at the desktop breakpoint, so clear
-  // the open state (and with it the focus trap below) when the viewport crosses it.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!menuOpen) return;
 
-    const desktop = window.matchMedia("(min-width: 48rem)");
-    if (desktop.matches) {
-      setMenuOpen(false);
-      return;
+    skipScrollRestoreRef.current = false;
+
+    const body = document.body;
+    const bodyStyle = body.getAttribute("style");
+    const scrollPosition = { x: window.scrollX, y: window.scrollY };
+    const backgroundLandmarks = Array.from(
+      document.querySelectorAll<HTMLElement>("main, footer"),
+      (element) => ({
+        element,
+        inertAttribute: element.getAttribute("inert"),
+        ariaHidden: element.getAttribute("aria-hidden"),
+      }),
+    );
+
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    const bodyPaddingRight =
+      Number.parseFloat(window.getComputedStyle(body).paddingRight) || 0;
+
+    body.style.position = "fixed";
+    body.style.inset = `${-scrollPosition.y}px 0 0 ${-scrollPosition.x}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
     }
 
-    const onChange = (event: MediaQueryListEvent) => {
-      if (event.matches) setMenuOpen(false);
-    };
+    for (const { element } of backgroundLandmarks) {
+      element.inert = true;
+      element.setAttribute("aria-hidden", "true");
+    }
 
-    desktop.addEventListener("change", onChange);
-    return () => desktop.removeEventListener("change", onChange);
-  }, [menuOpen]);
+    const focusableElements = Array.from(
+      menuPanelRef.current?.querySelectorAll<HTMLElement>(
+        FOCUSABLE_ELEMENTS,
+      ) ?? [],
+    );
 
-  // The mobile panel covers the viewport, so keep keyboard focus inside it while
-  // open, close it with Escape, and hand focus back to the toggle when it closes.
-  useEffect(() => {
-    if (!menuOpen) return;
+    focusableElements[0]?.focus({ preventScroll: true });
 
-    // Keep the visible header controls (logo, toggle) in the cycle and skip the
-    // desktop-only links, which are display:none on the mobile breakpoint.
-    const getFocusable = () =>
-      Array.from(
-        headerRef.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? [],
-      ).filter((element) => element.offsetParent !== null);
-
-    panelRef.current?.querySelector<HTMLElement>("a[href]")?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         setMenuOpen(false);
-        toggleRef.current?.focus();
         return;
       }
 
       if (event.key !== "Tab") return;
 
-      const focusable = getFocusable();
-      if (focusable.length === 0) return;
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements.at(-1);
 
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement as HTMLElement | null;
-
-      if (event.shiftKey) {
-        if (!active || active === first || !focusable.includes(active)) {
-          event.preventDefault();
-          last.focus();
-        }
+      if (!firstElement || !lastElement) {
+        event.preventDefault();
+        menuPanelRef.current?.focus({ preventScroll: true });
         return;
       }
 
-      if (!active || active === last || !focusable.includes(active)) {
+      const activeElement = document.activeElement;
+      if (
+        event.shiftKey &&
+        (activeElement === firstElement ||
+          !menuPanelRef.current?.contains(activeElement))
+      ) {
         event.preventDefault();
-        first.focus();
+        lastElement.focus();
+      } else if (
+        !event.shiftKey &&
+        (activeElement === lastElement ||
+          !menuPanelRef.current?.contains(activeElement))
+      ) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [menuOpen]);
+    const preventBackgroundScroll = (event: Event) => {
+      const target = event.target;
+      if (
+        event.cancelable &&
+        (!(target instanceof Node) ||
+          !menuPanelRef.current?.contains(target))
+      ) {
+        event.preventDefault();
+      }
+    };
 
+    const desktopMediaQuery = window.matchMedia("(min-width: 768px)");
+    const handleDesktopChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("wheel", preventBackgroundScroll, {
+      passive: false,
+    });
+    document.addEventListener("touchmove", preventBackgroundScroll, {
+      passive: false,
+    });
+    desktopMediaQuery.addEventListener("change", handleDesktopChange);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("wheel", preventBackgroundScroll);
+      document.removeEventListener("touchmove", preventBackgroundScroll);
+      desktopMediaQuery.removeEventListener("change", handleDesktopChange);
+
+      if (bodyStyle === null) {
+        const styleAttribute = body.getAttributeNode("style");
+        if (styleAttribute) body.removeAttributeNode(styleAttribute);
+      } else {
+        body.setAttribute("style", bodyStyle);
+      }
+
+      for (const {
+        element,
+        inertAttribute,
+        ariaHidden,
+      } of backgroundLandmarks) {
+        if (inertAttribute === null) {
+          element.removeAttribute("inert");
+        } else {
+          element.setAttribute("inert", inertAttribute);
+        }
+
+        if (ariaHidden === null) {
+          element.removeAttribute("aria-hidden");
+        } else {
+          element.setAttribute("aria-hidden", ariaHidden);
+        }
+      }
+
+      if (!skipScrollRestoreRef.current) {
+        window.scrollTo(scrollPosition.x, scrollPosition.y);
+      }
+
+      if (menuButtonRef.current?.isConnected) {
+        menuButtonRef.current.focus({ preventScroll: true });
+      }
+    };
+  }, [menuOpen]);
   return (
-    <header ref={headerRef} className="sticky top-0 z-50 border-b border-[var(--curia-border)] bg-white/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[var(--curia-border)] bg-white/90 backdrop-blur-xl">
       <div className="curia-shell flex min-h-18 items-center justify-between gap-5 py-3">
         <a
           href="#inicio"
           className="inline-flex shrink-0 items-center gap-3"
           aria-label="Curia, ir al inicio"
-          onClick={closeMenu}
+          onClick={closeMenuForNavigation}
         >
           <span className="curia-logo-mark" aria-hidden="true">
             C
@@ -123,9 +208,9 @@ export default function Header() {
         </a>
 
         <button
-          ref={toggleRef}
           type="button"
           className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden"
+          ref={menuButtonRef}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
           aria-controls="curia-mobile-menu"
@@ -135,34 +220,64 @@ export default function Header() {
         </button>
       </div>
 
-      {menuOpen ? (
-        <div
-          ref={panelRef}
-          id="curia-mobile-menu"
-          className="absolute inset-x-0 top-full min-h-[calc(100dvh-4.5rem)] border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
-        >
-          <nav className="curia-shell flex flex-col gap-1 py-3" aria-label="Navegación móvil">
-            {navigation.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="rounded-xl border border-transparent bg-white/70 px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] transition-[background-color,border-color,color] hover:border-[var(--curia-border)] hover:bg-white hover:text-[var(--curia-text)]"
-                onClick={closeMenu}
-              >
-                {item.label}
-              </a>
-            ))}
-            <a
-              href="#contacto"
-              className="curia-button curia-button-primary mt-2 w-full shadow-[var(--curia-shadow-sm)]"
-              onClick={closeMenu}
+      <AnimatePresence
+        initial={false}
+        onExitComplete={() => {
+          if (!menuOpen && menuButtonRef.current?.isConnected) {
+            menuButtonRef.current.focus({ preventScroll: true });
+          }
+        }}
+      >
+        {menuOpen ? (
+          <motion.div
+            key="curia-mobile-menu"
+            ref={menuPanelRef}
+            id="curia-mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navegación móvil"
+            tabIndex={-1}
+            className="absolute inset-x-0 top-full max-h-[calc(100dvh-4.5rem)] min-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
+            initial={
+              shouldReduceMotion ? false : { opacity: 0, y: -8 }
+            }
+            animate={{ opacity: 1, y: 0 }}
+            exit={
+              shouldReduceMotion
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0, y: -8 }
+            }
+            transition={{
+              duration: shouldReduceMotion ? 0 : 0.22,
+              ease: MENU_EASE,
+            }}
+          >
+            <nav
+              className="curia-shell flex flex-col gap-1 py-3"
+              aria-label="Navegación móvil"
             >
-              Conversemos sobre tu operación
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </nav>
-        </div>
-      ) : null}
+              {navigation.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-xl border border-transparent bg-white/70 px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] transition-[background-color,border-color,color] hover:border-[var(--curia-border)] hover:bg-white hover:text-[var(--curia-text)]"
+                  onClick={closeMenuForNavigation}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <a
+                href="#contacto"
+                className="curia-button curia-button-primary mt-2 w-full shadow-[var(--curia-shadow-sm)]"
+                onClick={closeMenuForNavigation}
+              >
+                Conversemos sobre tu operación
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </nav>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </header>
   );
 }

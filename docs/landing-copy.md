@@ -218,7 +218,7 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 - **Kicker / caption:** Reference Evaluator
 - **H2:** La confianza de una cita debe verse antes de usarla.
-- **Intro:** Reference Evaluator contrasta referencias jurídicas mediante caché, base autoritativa y evaluación asistida. Sólo una coincidencia en la base autoritativa puede otorgar el estado de verificada; un modelo de IA no puede concederlo por sí solo.
+- **Intro:** Reference Evaluator contrasta referencias jurídicas con una base autoritativa y muestra el estado de la evaluación. Sólo una coincidencia en la base autoritativa puede otorgar el estado de verificada; un modelo de IA no puede concederlo por sí solo.
 
 ### Estados de confianza
 

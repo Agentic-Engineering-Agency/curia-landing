@@ -6,6 +6,7 @@ import {
   ExternalLink,
   ShieldCheck,
 } from "lucide-react";
+import Reveal from "../components/Reveal";
 
 export default function EvaluadorReferencias() {
   return (
@@ -34,7 +35,11 @@ export default function EvaluadorReferencias() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-[1.75rem] border border-white/15 bg-white/[0.075] p-2 shadow-2xl shadow-black/25 ring-1 ring-black/10 sm:p-3">
+        <Reveal
+          className="overflow-hidden rounded-[1.75rem] border border-white/15 bg-white/[0.075] p-2 shadow-2xl shadow-black/25 ring-1 ring-black/10 sm:p-3"
+          delay={0.06}
+          y={14}
+        >
           <div className="flex items-center justify-between gap-4 rounded-t-[1.2rem] border border-white/10 bg-black/10 px-4 py-3.5 sm:px-5">
             <div className="flex min-w-0 items-center gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-teal-300/25 bg-teal-300/10 text-teal-200">
@@ -113,7 +118,7 @@ export default function EvaluadorReferencias() {
               </p>
             </article>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

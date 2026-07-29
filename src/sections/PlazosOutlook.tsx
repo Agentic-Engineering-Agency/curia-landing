@@ -1,4 +1,6 @@
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { BadgeAlert, Calculator, CalendarPlus, Clock3, MapPin } from "lucide-react";
+import Reveal from "../components/Reveal";
 
 const steps = [
   {
@@ -21,7 +23,30 @@ const steps = [
   },
 ];
 
+const MOTION_EASE = [0.22, 1, 0.36, 1] as const;
+const MOTION_VIEWPORT = { once: true, amount: 0.15 } as const;
+const STEP_GROUP_VARIANTS: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+const STEP_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: MOTION_EASE,
+    },
+  },
+};
+
 export default function PlazosOutlook() {
+  const shouldReduceMotion = useReducedMotion();
   return (
     <section
       id="plazos-outlook"
@@ -41,64 +66,85 @@ export default function PlazosOutlook() {
         </div>
 
         <div className="relative mt-12">
-          <div
+          <motion.div
             aria-hidden="true"
             className="absolute top-6 right-[16.66%] left-[16.66%] hidden h-px bg-[var(--curia-border-strong)] md:block"
+            initial={shouldReduceMotion ? false : { scaleX: 0 }}
+            style={{ transformOrigin: "left center" }}
+            transition={{ duration: 0.42, ease: MOTION_EASE }}
+            viewport={MOTION_VIEWPORT}
+            whileInView={shouldReduceMotion ? undefined : { scaleX: 1 }}
           />
-          <ol className="grid gap-5 md:grid-cols-3 md:gap-6">
-          {steps.map(({ label, icon: Icon, title, body }, index) => (
-            <li key={label} className="relative z-10 flex flex-col">
-              <div className="flex items-center gap-3 md:flex-col md:items-start">
-                <span className="flex size-12 items-center justify-center rounded-full border border-[var(--curia-primary)] bg-white text-sm font-semibold text-[var(--curia-primary-text)] shadow-[var(--curia-shadow-xs)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="curia-caption text-[var(--curia-primary-text)] md:mt-1">
-                  {label}
-                </span>
-              </div>
-              <article className="curia-card-editorial mt-4 flex-1 p-6">
-                <Icon
-                  aria-hidden="true"
-                  className="size-5 text-[var(--curia-primary-text)]"
-                  strokeWidth={1.8}
-                />
-                <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em]">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--curia-text-secondary)]">
-                  {body}
-                </p>
-              </article>
-            </li>
-          ))}
-          </ol>
+          <motion.ol
+            className="grid gap-5 md:grid-cols-3 md:gap-6"
+            initial={shouldReduceMotion ? false : "hidden"}
+            variants={STEP_GROUP_VARIANTS}
+            viewport={MOTION_VIEWPORT}
+            whileInView={shouldReduceMotion ? undefined : "visible"}
+          >
+            {steps.map(({ label, icon: Icon, title, body }, index) => (
+              <motion.li
+                key={label}
+                className="relative z-10 flex flex-col"
+                variants={STEP_VARIANTS}
+              >
+                <div className="flex items-center gap-3 md:flex-col md:items-start">
+                  <span className="flex size-12 items-center justify-center rounded-full border border-[var(--curia-primary)] bg-white text-sm font-semibold text-[var(--curia-primary-text)] shadow-[var(--curia-shadow-xs)]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="curia-caption text-[var(--curia-primary-text)] md:mt-1">
+                    {label}
+                  </span>
+                </div>
+                <article className="curia-card-editorial mt-4 flex-1 p-6">
+                  <Icon
+                    aria-hidden="true"
+                    className="size-5 text-[var(--curia-primary-text)]"
+                    strokeWidth={1.8}
+                  />
+                  <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-[var(--curia-text-secondary)]">
+                    {body}
+                  </p>
+                </article>
+              </motion.li>
+            ))}
+          </motion.ol>
         </div>
 
-        <div
-          role="group"
-          aria-label="Ejemplo de evento de Outlook creado por Curia"
-          className="curia-card-editorial mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:ml-auto md:max-w-3xl"
-        >
-          <div className="flex min-w-0 items-center gap-4">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#1468b7] text-white">
-              <CalendarPlus aria-hidden="true" className="size-5" strokeWidth={1.8} />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold tracking-[0.08em] text-[var(--curia-primary-text)] uppercase">
-                Outlook
-              </p>
-              <p className="mt-1 truncate font-semibold">[Curia] Vencimiento — Exp. 123/2026</p>
+        <Reveal delay={0.21} y={10}>
+          <div
+            role="group"
+            aria-label="Ejemplo de evento de Outlook creado por Curia"
+            className="curia-card-editorial mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:ml-auto md:max-w-3xl"
+          >
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#1468b7] text-white">
+                <CalendarPlus aria-hidden="true" className="size-5" strokeWidth={1.8} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold tracking-[0.08em] text-[var(--curia-primary-text)] uppercase">
+                  Outlook
+                </p>
+                <p className="mt-1 truncate font-semibold">
+                  [Curia] Vencimiento — Exp. 123/2026
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--curia-text-secondary)] sm:justify-end">
+              <span className="inline-flex items-center gap-1.5">
+                <Clock3 aria-hidden="true" className="size-4" />
+                recordatorio 24 h
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin aria-hidden="true" className="size-4" />
+                América/Ciudad de México
+              </span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--curia-text-secondary)] sm:justify-end">
-            <span className="inline-flex items-center gap-1.5">
-              <Clock3 aria-hidden="true" className="size-4" />
-              recordatorio 24 h
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin aria-hidden="true" className="size-4" />
-              América/Ciudad de México
-            </span>
-          </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

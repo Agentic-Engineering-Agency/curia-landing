@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { BellRing, FileClock, FolderSearch } from "lucide-react";
 
 const cards = [
@@ -18,7 +20,48 @@ const cards = [
   },
 ];
 
+const MOTION_EASE = [0.22, 1, 0.36, 1] as const;
+const MOTION_VIEWPORT = { once: true, amount: 0.15 } as const;
+const CARD_GROUP_VARIANTS: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+const CARD_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: MOTION_EASE,
+    },
+  },
+};
+
+function useDesktopViewport() {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    const updateViewport = () => setIsDesktop(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  return isDesktop;
+}
+
 export default function Monitoreo() {
+  const shouldReduceMotion = useReducedMotion();
+  const isDesktop = useDesktopViewport();
   return (
     <section id="monitoreo" className="bg-[var(--curia-bg)] py-16 md:py-24">
       <div className="curia-shell grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
@@ -34,11 +77,21 @@ export default function Monitoreo() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <motion.div
+          className="grid gap-4 sm:grid-cols-2"
+          initial={shouldReduceMotion ? false : isDesktop ? "hidden" : false}
+          variants={CARD_GROUP_VARIANTS}
+          viewport={MOTION_VIEWPORT}
+          whileInView={!shouldReduceMotion && isDesktop ? "visible" : undefined}
+        >
           {cards.map(({ icon: Icon, title, body }, index) => (
-            <article
+            <motion.article
               key={title}
               className={`curia-card p-6 md:p-7 ${index === 2 ? "sm:col-span-2" : ""}`}
+              initial={!shouldReduceMotion && !isDesktop ? "hidden" : undefined}
+              variants={CARD_VARIANTS}
+              viewport={MOTION_VIEWPORT}
+              whileInView={!shouldReduceMotion && !isDesktop ? "visible" : undefined}
             >
               <div className="flex items-start gap-4">
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
@@ -51,9 +104,9 @@ export default function Monitoreo() {
                   </p>
                 </div>
               </div>
-            </article>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
