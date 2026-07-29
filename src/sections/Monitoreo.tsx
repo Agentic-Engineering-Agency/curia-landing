@@ -9,7 +9,7 @@ const cards = [
   {
     icon: BellRing,
     title: "Cada aviso en contexto",
-    body: "La notificación puede reunir expediente, juzgado, partes, tipo de aviso, urgencia, fundamento y plazo para facilitar la revisión operativa.",
+    body: "La notificación reúne el aviso con el expediente y su fuente para facilitar la revisión operativa.",
   },
   {
     icon: FileClock,

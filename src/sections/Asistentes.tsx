@@ -18,7 +18,7 @@ export default function Asistentes() {
             Una superficie de ayuda para cada momento, con límites explícitos.
           </h2>
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
-            Curia ofrece asistencia dentro del expediente, una vista general y un copiloto del sitio. Cada modalidad resuelve el contexto de forma explícita, respeta el aislamiento entre despachos y casos, y sigue un contrato de no fabricación.
+            Curia ofrece asistencia dentro del expediente, una vista general y un copiloto del sitio. Cada modalidad resuelve el contexto de forma explícita, respeta el aislamiento entre despachos y casos, y sigue una regla explícita de no inventar información.
           </p>
         </div>
 
@@ -44,16 +44,22 @@ export default function Asistentes() {
                   <FileText aria-hidden="true" className="size-4 text-[var(--curia-primary-text)]" />
                   Documento seleccionado
                 </div>
-                <span className="text-xs text-[var(--curia-text-muted)]">
+                <span className="text-xs text-[var(--curia-text-secondary)]">
                   Acuerdo judicial
                 </span>
               </div>
 
-              <div className="mt-4 space-y-3" aria-label="Ejemplo de consulta al agente del expediente">
+              <div
+                role="group"
+                className="mt-4 space-y-3"
+                aria-label="Ejemplo de consulta al agente del expediente"
+              >
                 <div className="ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-[var(--curia-primary-deep)] px-4 py-3 text-sm leading-6 text-white">
+                  <span className="sr-only">Pregunta de la persona usuaria: </span>
                   ¿Qué establece el acuerdo sobre el plazo?
                 </div>
                 <div className="max-w-[94%] rounded-2xl rounded-bl-md border border-[var(--curia-border)] bg-white px-4 py-3 text-sm leading-6 text-[var(--curia-text-secondary)]">
+                  <p className="sr-only">Respuesta del agente:</p>
                   <p>
                     El acuerdo establece el plazo descrito en el documento seleccionado.
                   </p>
@@ -78,7 +84,7 @@ export default function Asistentes() {
                 Asistente general
               </h3>
               <p className="mt-2 text-sm leading-6 text-[var(--curia-text-secondary)]">
-                Atiende consultas jurídicas y ayuda a preparar texto copiable sin perder de vista el estado de confianza de las referencias.
+                Atiende consultas jurídicas en la vista general y mantiene visible el estado de confianza de las referencias.
               </p>
             </article>
 

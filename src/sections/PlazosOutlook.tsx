@@ -72,7 +72,11 @@ export default function PlazosOutlook() {
           </ol>
         </div>
 
-        <div className="curia-card-editorial mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:ml-auto md:max-w-3xl">
+        <div
+          role="group"
+          aria-label="Ejemplo de evento de Outlook creado por Curia"
+          className="curia-card-editorial mt-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:ml-auto md:max-w-3xl"
+        >
           <div className="flex min-w-0 items-center gap-4">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#1468b7] text-white">
               <CalendarPlus aria-hidden="true" className="size-5" strokeWidth={1.8} />

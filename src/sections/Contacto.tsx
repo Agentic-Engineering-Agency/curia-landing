@@ -10,11 +10,17 @@ import {
   Phone,
 } from "lucide-react";
 
+type RequiredField = "name" | "email" | "message";
+
 type SubmitStatus =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success" }
-  | { kind: "error"; message: string };
+  | {
+      kind: "error";
+      message: string;
+      invalidFields?: readonly RequiredField[];
+    };
 
 const CONTACT_ERROR_MESSAGE =
   "No pudimos enviar tu mensaje. Intenta de nuevo o escríbenos por correo.";
@@ -53,10 +59,16 @@ export default function Contacto() {
     const email = String(formData.get("email") ?? "").trim();
     const message = String(formData.get("message") ?? "").trim();
 
-    if (!name || !email || !message) {
+    const invalidFields: RequiredField[] = [];
+    if (!name) invalidFields.push("name");
+    if (!email) invalidFields.push("email");
+    if (!message) invalidFields.push("message");
+
+    if (invalidFields.length > 0) {
       setSubmitStatus({
         kind: "error",
         message: "Completa nombre, correo y mensaje.",
+        invalidFields,
       });
       return;
     }
@@ -89,6 +101,10 @@ export default function Contacto() {
       setSubmitStatus({ kind: "error", message: CONTACT_ERROR_MESSAGE });
     }
   };
+
+  const isFieldInvalid = (field: RequiredField) =>
+    submitStatus.kind === "error" &&
+    submitStatus.invalidFields?.includes(field);
 
   return (
     <section id="contacto" className="py-16 md:py-24">
@@ -171,6 +187,9 @@ export default function Contacto() {
               disabled={submitStatus.kind === "submitting"}
               className="contents"
             >
+              <legend className="sr-only">
+                Datos para solicitar una conversación
+              </legend>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="curia-field rounded-[1.25rem] border border-[var(--curia-border-strong)] bg-white/75 p-4 shadow-[0_1px_0_rgba(26,32,40,0.04)] transition-[border-color,box-shadow] focus-within:border-[var(--curia-primary)] focus-within:ring-4 focus-within:ring-[color:rgba(13,115,119,0.14)]">
                   <span>Nombre</span>
@@ -179,6 +198,10 @@ export default function Contacto() {
                     name="name"
                     autoComplete="name"
                     placeholder="Tu nombre"
+                    aria-invalid={isFieldInvalid("name") || undefined}
+                    aria-describedby={
+                      isFieldInvalid("name") ? "contact-form-error" : undefined
+                    }
                   />
                 </label>
                 <label className="curia-field rounded-[1.25rem] border border-[var(--curia-border-strong)] bg-white/75 p-4 shadow-[0_1px_0_rgba(26,32,40,0.04)] transition-[border-color,box-shadow] focus-within:border-[var(--curia-primary)] focus-within:ring-4 focus-within:ring-[color:rgba(13,115,119,0.14)]">
@@ -195,6 +218,10 @@ export default function Contacto() {
                   type="email"
                   autoComplete="email"
                   placeholder="tu@despacho.com"
+                  aria-invalid={isFieldInvalid("email") || undefined}
+                  aria-describedby={
+                    isFieldInvalid("email") ? "contact-form-error" : undefined
+                  }
                 />
               </label>
 
@@ -205,11 +232,21 @@ export default function Contacto() {
                   name="message"
                   rows={6}
                   placeholder="Cuéntanos qué expedientes monitorean, cómo coordinan plazos o qué problema quieren resolver primero."
+                  aria-invalid={isFieldInvalid("message") || undefined}
+                  aria-describedby={
+                    isFieldInvalid("message")
+                      ? "contact-form-error"
+                      : undefined
+                  }
                 />
               </label>
 
               <div className="mt-6 flex flex-col gap-3 border-t border-[var(--curia-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-md text-sm leading-6 text-[var(--curia-text-secondary)]">
+                <p
+                  role="status"
+                  aria-atomic="true"
+                  className="max-w-md text-sm leading-6 text-[var(--curia-text-secondary)]"
+                >
                   {submitStatus.kind === "success"
                     ? "Recibimos tu mensaje. El equipo de Curia dará seguimiento por correo."
                     : "Al enviar, registraremos tu mensaje en nuestro CRM para darle seguimiento."}
@@ -243,6 +280,7 @@ export default function Contacto() {
 
               {submitStatus.kind === "error" && (
                 <p
+                  id="contact-form-error"
                   role="alert"
                   className="mt-4 rounded-lg border border-[color:rgba(220,38,38,0.25)] bg-[color:rgba(220,38,38,0.05)] px-4 py-3 text-sm leading-6 text-[color:rgb(153,27,27)]"
                 >

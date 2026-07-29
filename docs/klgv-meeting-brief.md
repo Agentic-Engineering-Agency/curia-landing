@@ -7,17 +7,17 @@
 
 ## Agenda
 
-**Formato de 30 minutos, alineado con la revisión trimestral de KLGV:** Luci conduce el estado de la compañía y los hitos; Lic. García es dueño de las preguntas abiertas y decisiones. [G-QR; D §KLGV meeting context]
+**Formato de 30 minutos, alineado con la revisión trimestral de KLGV:** Lucy conduce el estado de la compañía y los hitos; Lic. García es dueño de las preguntas abiertas y decisiones. [G-QR; D §KLGV meeting context]
 
 | Minutos | Bloque | Responsable | Resultado buscado |
 |---|---|---|---|
-| 0:00–0:02 | Apertura y marco | Luci | Confirmar que se revisará un piloto, no un despliegue completo; nombrar las dos decisiones esperadas. [W-REL] |
-| 0:02–0:06 | Estado de Curia y del piloto | Luci | Resumir estado sin métricas no verificadas: KLGV es socio de diseño y primer cliente; Jalisco CJJ es la fuente operativa actual; otras jurisdicciones siguen en incorporación. [D §Product truth; W-REL] |
+| 0:00–0:02 | Apertura y marco | Lucy | Confirmar que se revisará un piloto, no un despliegue completo; nombrar las dos decisiones esperadas. [W-REL] |
+| 0:02–0:06 | Estado de Curia y del piloto | Lucy | Resumir estado sin métricas no verificadas: KLGV es socio de diseño y primer cliente; Jalisco CJJ es la fuente operativa actual; otras jurisdicciones siguen en incorporación. [D §Product truth; W-REL] |
 | 0:06–0:09 | Evidencia operativa | Lalo | Revisar únicamente evidencia registrada de uso, confiabilidad, notificaciones, fallas, soporte y revisión por abogados; “sin datos todavía” es una respuesta válida. [W-REL; W-GTM] |
 | 0:09–0:21 | Demo del flujo completo | Lalo, con Fernando observando lenguaje | Recorrer expediente → aviso/plazo → Outlook → Biblioteca/OCR → chat fundamentado → distintivos de confianza, con datos sintéticos. [D §KLGV meeting context; G-ONBOARD] |
-| 0:21–0:25 | Prioridad y límites | Lic. García decide; Luci facilita | Elegir uno de los flujos de mayor frecuencia para la siguiente ventana de evidencia y confirmar qué resultado cuenta como éxito. [W-REL; W-GTM] |
-| 0:25–0:28 | Dos peticiones de esta reunión | Luci | Hacer solamente las dos marcadas **HACER AHORA** en “What to ask”; no añadir referencias, caso de estudio o intros salvo que Lic. García abra el tema. [G-5PATH] |
-| 0:28–0:30 | Recap y cierre | Luci | Repetir decisiones, responsables, dependencias y fecha de comprobación; no improvisar compromisos de alcance o precio. [G-QR; W-REL] |
+| 0:21–0:25 | Prioridad y límites | Lic. García decide; Lucy facilita | Elegir uno de los flujos de mayor frecuencia para la siguiente ventana de evidencia y confirmar qué resultado cuenta como éxito. [W-REL; W-GTM] |
+| 0:25–0:28 | Dos peticiones de esta reunión | Lucy | Hacer solamente las dos marcadas **HACER AHORA** en “What to ask”; no añadir referencias, caso de estudio o intros salvo que Lic. García abra el tema. [G-5PATH] |
+| 0:28–0:30 | Recap y cierre | Lucy | Repetir decisiones, responsables, dependencias y fecha de comprobación; no improvisar compromisos de alcance o precio. [G-QR; W-REL] |
 
 **Disciplina durante la reunión**
 
@@ -61,14 +61,14 @@ Completar y registrar este checklist antes de abrir la sesión:
 **3. Crear el expediente Jalisco CJJ**
 
 - **Acción:** crear un expediente con un número exacto, sintético y preparado; seleccionar Jalisco CJJ.
-- **Qué decir:** “Jalisco CJJ es la fuente judicial operativa hoy y el alcance release-blocking del piloto KLGV.” [D §Product truth; G-ALPHA]
+- **Qué decir:** “Jalisco CJJ es la fuente judicial operativa hoy y el alcance crítico para esta etapa del piloto KLGV.” [D §Product truth; G-ALPHA]
 - **Límite que debe decirse:** “No prometemos cobertura nacional. Otras fuentes aparecen en el registro o están en incorporación, pero están fuera de este recorrido y no equivalen a cobertura operativa.” [D §Product truth; G-ALPHA]
 
 **4. Mostrar monitoreo y avisos**
 
 - **Acción:** abrir los avisos asociados al expediente y mostrar el documento judicial original disponible.
 - **Qué decir:** “La cadena comienza con el monitoreo del expediente; el objetivo del piloto es comprobar si la revisión diaria puede reemplazar el chequeo manual del boletín.” [D §KLGV meeting context; G-SUCCESS]
-- **Límite que debe decirse:** “Una demo de avisos no confirma todavía reemplazo operativo. Necesitamos evidencia semanal de entrega, fallas y uso; el documento de onboarding describe latencia típica dentro de 24 horas, no una garantía.” [G-ONBOARD; W-REL]
+- **Límite que debe decirse:** “Una demo de avisos no confirma todavía reemplazo operativo. Necesitamos evidencia semanal de entrega, fallas y uso; el tiempo de entrega debe confirmarse con evidencia del entorno y no es una garantía.” [G-ONBOARD; W-REL]
 
 **5. Revisar el plazo calculado**
 
@@ -134,7 +134,7 @@ Completar y registrar este checklist antes de abrir la sesión:
 
 **Regla:** hacer sólo las dos preguntas marcadas **HACER AHORA**. Las demás permanecen **CONDICIONALES** y sólo se formulan si Lic. García abre ese tema, si reemplazan una de las dos preguntas principales o en una revisión posterior. No repartirlas en mensajes separados después de la reunión. [G-5PATH]
 
-1. **HACER AHORA — Prioridad + evidencia:** “Lic. García, de los flujos que vio —monitoreo diario, confirmación de plazos, calendario y revisión documental—, ¿cuál uno debemos priorizar durante el siguiente ciclo y qué evidencia concreta aceptaría usted para decir que es confiable: frecuencia de uso, entregas correctas, fallas, revisión por abogado y carga de soporte?” [W-REL; W-GTM]
+1. **HACER AHORA — Prioridad + evidencia:** “Lic. García, de los flujos que vio —monitoreo diario, confirmación de plazos, calendario y revisión documental—, ¿cuál debemos priorizar durante el siguiente ciclo y qué evidencia concreta aceptaría usted para decir que es confiable: frecuencia de uso, entregas correctas, fallas, revisión por abogado y carga de soporte?” [W-REL; W-GTM]
 2. **HACER AHORA — Consentimiento MS365:** “¿Autoriza que coordinemos el consentimiento de administrador de Microsoft 365 para el tenant real y quién será el responsable de KLGV que puede completarlo? No haremos escrituras de calendario sin esa aprobación.” [D §KLGV meeting context; G-MS365]
 3. **CONDICIONAL — Evidencia actual del piloto:** “¿Qué uso real hubo desde el último corte —usuarios, expedientes, sesiones o flujos repetidos— y qué problemas de confiabilidad, notificación, fallback o soporte observaron? Si no existe registro, ¿podemos acordar desde hoy el formato de captura semanal?” [W-REL]
 4. **CONDICIONAL — Confirmación de plazo crítico:** “¿KLGV confirma que Curia ya detectó por lo menos un plazo crítico, que un abogado lo cotejó contra el documento original y que quedó sincronizado en Outlook con rastro de auditoría? Si no, ¿qué falta para ejecutar esa prueba controlada?” [D §KLGV meeting context; G-SUCCESS]
@@ -143,10 +143,10 @@ Completar y registrar este checklist antes de abrir la sesión:
 7. **CONDICIONAL — Dos despachos pares:** “Una vez estabilizado el piloto, ¿podría compartir dos nombres de despachos de GDL o CDMX y el socio principal que podrían evaluar Curia? Pediríamos su autorización antes de mencionar a KLGV.” [G-5PATH; G-SUCCESS]
 8. **CONDICIONAL — Autorización del caso de estudio:** “¿Está dispuesto a revisar una versión del caso de estudio y, sólo después de validar cada afirmación, otorgar autorización escrita para publicarlo? No se publicarán métricas, cita testimonial ni nombre sin su firma.” [G-CASE; W-GTM]
 9. **CONDICIONAL — AMEXCAP / Hi Ventures / Cometa:** “¿Algún cliente o socio del despacho participa en AMEXCAP y podría mediar una presentación con Federico Antoni o Jimena Pardo de Hi Ventures, o con Diego Vargas de Cometa?” [G-5PATH]
-10. **CONDICIONAL — Corresponsal CDMX:** “¿Cuál es el despacho corresponsal de KLGV en CDMX y sería apropiado pedirle una presentación con un partner de un fondo de venture?” [G-5PATH]
+10. **CONDICIONAL — Corresponsal CDMX:** “¿Cuál es el despacho corresponsal de KLGV en CDMX y sería apropiado pedirle una presentación con un socio de un fondo de capital de riesgo?” [G-5PATH]
 11. **CONDICIONAL — Otras rutas del checklist:** “Si las rutas anteriores no encajan, ¿existe una relación pertinente con Tec GDA/EGADE vinculada a Boom AI, con CANACO/COPARMEX para una puerta hacia SEDECO o Reto Zapopan, o con un Endeavor Entrepreneur/mentor para Investor Network?” [G-5PATH]
-12. **CONDICIONAL — Renovación o expansión:** “Con la evidencia disponible, ¿su postura hoy es renovar el piloto, ampliar un flujo, mantener alcance, transitar a autoservicio cuando exista, o pausar? ¿Qué gate objetivo cambiaría esa postura?” [G-QR; W-REL]
-13. **CONDICIONAL — Permisos y responsables:** “¿Quién puede aprobar en KLGV alcance, privacidad, claims, publicación y términos comerciales, y quién debe participar en cada aprobación?” [W-TEAM; W-REL]
+12. **CONDICIONAL — Renovación o expansión:** “Con la evidencia disponible, ¿su postura hoy es renovar el piloto, ampliar un flujo, mantener alcance, transitar a autoservicio cuando exista, o pausar? ¿Qué criterio objetivo cambiaría esa postura?” [G-QR; W-REL]
+13. **CONDICIONAL — Permisos y responsables:** “¿Quién puede aprobar en KLGV alcance, privacidad, afirmaciones públicas, publicación y términos comerciales, y quién debe participar en cada aprobación?” [W-TEAM; W-REL]
 
 **Si Lic. García ofrece una referencia, intro o autorización sin que se la pidamos:** agradecer, confirmar que no se enviará ni publicará nada sin una segunda confirmación del nombre, destinatario, texto y alcance; registrar el permiso por escrito. [G-5PATH; G-CASE]
 
@@ -182,7 +182,8 @@ Completar y registrar este checklist antes de abrir la sesión:
 
 ### “¿Cambiará el precio?”
 
-**Respuesta interna para KLGV:** “Los términos de founding partner ya documentados para KLGV se mantienen y el guion acordado dice ‘sin cambios para usted’. Estos términos son **CONFIDENCIALES**, no son precio de lista ni deben compararse públicamente.” Las cifras exactas **no se reproducen en este repositorio**: consultarlas en la fuente interna antes de la reunión. [D §KLGV meeting context; G-WHATSAPP]
+ **Respuesta interna para KLGV:** “Los términos de socio fundador documentados para KLGV son **CONFIDENCIALES**, no son precio de lista ni deben compararse públicamente.” Las cifras exactas **no se reproducen en este repositorio**: consúltelas en la fuente interna y confirme el contrato vigente antes de describirlas como contratadas o prometer que no cambian. [D §KLGV meeting context; G-WHATSAPP]
+ - **Socio fundador:** las cifras documentadas (implementación única + retainer mensual) **no se replican aquí**; consúltelas en la fuente interna [G-WHATSAPP] y confirme el contrato vigente antes de describirlas como contratadas o prometer que no cambian. [G-WHATSAPP; D §KLGV meeting context]
 
 **Postura externa y futura:** el precio público de Curia sigue **TBD** hasta contar con evidencia de uso, disposición a pagar, carga de soporte, alcance y entidad contratante. No mezclar estos términos con precios históricos del PRD ni con ofertas de servicios de Agentic Engineering. [D §Product truth; W-PRICING]
 
@@ -192,7 +193,8 @@ Completar y registrar este checklist antes de abrir la sesión:
 
 ### Términos actuales de KLGV — sólo para esta conversación confidencial
 
-- **Founding-partner:** las cifras contratadas (implementación única + retainer mensual) **no se replican aquí**; leerlas en la fuente interna [G-WHATSAPP] antes de la reunión. El guion de KLGV las describe como “los términos contratados” y “sin cambios para usted”. [G-WHATSAPP; D §KLGV meeting context]
+ **Respuesta interna para KLGV:** “Los términos de socio fundador documentados para KLGV son **CONFIDENCIALES**, no son precio de lista ni deben compararse públicamente.” Las cifras exactas **no se reproducen en este repositorio**: consúltelas en la fuente interna y confirme el contrato vigente antes de describirlas como contratadas o prometer que no cambian. [D §KLGV meeting context; G-WHATSAPP]
+ - **Socio fundador:** las cifras documentadas (implementación única + retainer mensual) **no se replican aquí**; consúltelas en la fuente interna [G-WHATSAPP] y confirme el contrato vigente antes de describirlas como contratadas o prometer que no cambian. [G-WHATSAPP; D §KLGV meeting context]
 - Son términos de socio de diseño, no precio de mercado y no evidencia de precio repetible. KLGV es cliente pagado en piloto; no describir la relación como gratuita ni como despliegue completo en producción. [G-KLGV; W-REL]
 - No copiar esas cifras a este repositorio, la landing, propuesta genérica, caso de estudio, deck de inversionistas ni conversación con otro despacho. La política pública vigente para Curia es **pricing TBD**. [D §Product truth; G-PRICING]
 - No mezclar precios preliminares de los PRD, términos de KLGV o la escalera de ofertas de la agencia: son instrumentos distintos y los números históricos no están aprobados como precio público de Curia. [G-PRICING; W-PRICING]
@@ -220,7 +222,7 @@ No promover Curia como despliegue completo ni ampliar alcance hasta tener eviden
 
 ## Next steps
 
-Las siguientes son acciones propuestas; Luci debe confirmarlas en voz alta al cierre y registrar cualquier cambio decidido por Lic. García.
+Las siguientes son acciones propuestas; Lucy debe confirmarlas en voz alta al cierre y registrar cualquier cambio decidido por Lic. García.
 
 | Cuándo | Owner | Acción concreta | Evidencia de cierre |
 |---|---|---|---|

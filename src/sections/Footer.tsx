@@ -10,7 +10,7 @@ export default function Footer() {
           apoyo: toda salida de IA requiere revisión profesional.
         </p>
         <p className="shrink-0">
-          © 2026 Agentic Engineering · KLGV Abogados socio de diseño.
+          © 2026 · KLGV Abogados, socio de diseño.
         </p>
       </div>
     </footer>

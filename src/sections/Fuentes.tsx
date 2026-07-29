@@ -64,7 +64,7 @@ export default function Fuentes() {
 
         <div className="mt-12 overflow-hidden rounded-3xl border border-[var(--curia-border)] bg-white shadow-[var(--curia-shadow-xs)]">
           <div
-            className="hidden grid-cols-[0.72fr_1.65fr_0.7fr] gap-6 border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-6 py-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)] md:grid lg:px-8"
+            className="hidden grid-cols-[0.72fr_1.65fr_0.7fr] gap-6 border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-6 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-secondary)] md:grid lg:px-8"
             aria-hidden="true"
           >
             <span>Registro</span>
@@ -72,7 +72,10 @@ export default function Fuentes() {
             <span>Estado</span>
           </div>
 
-          <ul className="divide-y divide-[var(--curia-border)]">
+          <ul
+            aria-label="Fuentes judiciales y jurídicas mexicanas"
+            className="divide-y divide-[var(--curia-border)]"
+          >
             {sources.map((source) => {
               const Icon = source.icon;
 
@@ -86,7 +89,7 @@ export default function Fuentes() {
                       <Icon aria-hidden="true" className="size-5" />
                     </span>
                     <div>
-                      <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)] md:hidden">
+                      <span className="block text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)] md:sr-only">
                         Registro
                       </span>
                       <span className="mt-0.5 block font-semibold tracking-[-0.01em]">
@@ -97,6 +100,7 @@ export default function Fuentes() {
 
                   <div>
                     <h3 className="font-semibold tracking-[-0.01em]">
+                      <span className="sr-only">Función: </span>
                       {source.title}
                     </h3>
                     <p className="mt-1.5 text-sm leading-6 text-[var(--curia-text-secondary)]">
@@ -105,6 +109,7 @@ export default function Fuentes() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 md:flex-col md:items-start">
+                    <span className="sr-only">Estado: </span>
                     <span
                       className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-semibold ${source.statusClass}`}
                     >

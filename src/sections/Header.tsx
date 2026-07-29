@@ -64,13 +64,16 @@ export default function Header() {
       </div>
 
       {menuOpen ? (
-        <div id="curia-mobile-menu" className="border-t border-[var(--curia-border)] bg-white md:hidden">
-          <nav className="curia-shell flex flex-col gap-1 py-4" aria-label="Navegación móvil">
+        <div
+          id="curia-mobile-menu"
+          className="absolute inset-x-0 top-full min-h-[calc(100dvh-4.5rem)] border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
+        >
+          <nav className="curia-shell flex flex-col gap-1 py-3" aria-label="Navegación móvil">
             {navigation.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="rounded-xl px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] hover:bg-[var(--curia-bg-subtle)] hover:text-[var(--curia-text)]"
+                className="rounded-xl border border-transparent bg-white/70 px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] transition-[background-color,border-color,color] hover:border-[var(--curia-border)] hover:bg-white hover:text-[var(--curia-text)]"
                 onClick={closeMenu}
               >
                 {item.label}
@@ -78,7 +81,7 @@ export default function Header() {
             ))}
             <a
               href="#contacto"
-              className="curia-button curia-button-primary mt-3 w-full"
+              className="curia-button curia-button-primary mt-2 w-full shadow-[var(--curia-shadow-sm)]"
               onClick={closeMenu}
             >
               Conversemos sobre tu operación

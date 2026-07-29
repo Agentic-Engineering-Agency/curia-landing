@@ -54,14 +54,14 @@ export default function Privacidad() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[color:rgba(13,115,119,0.16)] bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <span>
-                  <span className="block text-lg font-medium tracking-[-0.02em]">
+                <div>
+                  <h3 className="text-lg font-medium tracking-[-0.02em]">
                     {title}
-                  </span>
-                  <span className="mt-2 block text-sm leading-7 text-[var(--curia-text-secondary)]">
+                  </h3>
+                  <p className="mt-2 text-sm leading-7 text-[var(--curia-text-secondary)]">
                     {body}
-                  </span>
-                </span>
+                  </p>
+                </div>
               </li>
             ))}
           </ul>

@@ -33,7 +33,7 @@ const cards = [
   {
     icon: LockKeyhole,
     title: "Resultado cifrado y fallos recuperables",
-    body: "Curia conserva metadatos del proveedor y del fallo, permite reintentar el OCR y cifra el contenido procesado.",
+    body: "Curia permite reintentar el OCR después de un fallo y cifra el contenido procesado.",
   },
 ];
 
@@ -58,12 +58,12 @@ export default function Ocr() {
           </p>
         </div>
 
-        <div
+        <ol
           aria-label="Flujo de procesamiento OCR"
           className="curia-card-editorial mt-10 flex flex-col gap-2 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center md:flex-nowrap"
         >
           {pipeline.map((step, index) => (
-            <div key={step} className="contents">
+            <li key={step} className="contents">
               <div className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-[var(--curia-bg-subtle)] px-3 py-2 text-center text-xs font-semibold text-[var(--curia-text)] md:text-sm">
                 {step}
               </div>
@@ -74,9 +74,9 @@ export default function Ocr() {
                   strokeWidth={2}
                 />
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {cards.map(({ icon: Icon, title, body }) => (

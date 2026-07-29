@@ -37,8 +37,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ### Highlights
 
-- **Valor:** 10:00
-  - **Etiqueta:** Hora objetivo para entregar monitoreo y contexto al despacho.
+- **Valor:** Cada mañana
+  - **Etiqueta:** Monitoreo y contexto para el despacho.
 - **Valor:** 4 formatos
   - **Etiqueta:** PDF, DOCX, JPEG y PNG en la Biblioteca del expediente.
 - **Valor:** 4 estados
@@ -80,7 +80,7 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ### Timeline `morningSequence`
 
-1. **Título:** Antes de las 10:00 — Monitoreo con contexto
+1. **Título:** Antes de iniciar la jornada — Monitoreo con contexto
    - **Cuerpo:** El objetivo operativo es presentar los movimientos detectados en Jalisco CJJ junto con el expediente y la fuente que corresponde.
 2. **Título:** Del aviso al plazo — Revisión antes de actuar
    - **Cuerpo:** El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento judicial original y la legislación aplicable.
@@ -108,7 +108,7 @@ Copy en español de México, organizado por los identificadores de sección acor
    - **Cuerpo:** El despacho registra el número exacto del expediente y la fuente judicial correspondiente. Curia usa esos datos para identificar avisos relacionados.
 2. **Icono sugerido:** `BellRing`
    - **Título:** Cada aviso en contexto
-   - **Cuerpo:** La notificación puede reunir expediente, juzgado, partes, tipo de aviso, urgencia, fundamento y plazo para facilitar la revisión operativa.
+   - **Cuerpo:** La notificación reúne el aviso con el expediente y su fuente para facilitar la revisión operativa.
 3. **Icono sugerido:** `FileClock`
    - **Título:** Procedencia consultable
    - **Cuerpo:** La fuente y el documento de origen permanecen ligados al movimiento para que el equipo pueda comprobarlo antes de actuar.
@@ -143,7 +143,7 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 - **Kicker / caption:** Biblioteca por expediente
 - **H2:** Los documentos del asunto, listos para leer y consultar en su contexto.
-- **Intro:** Cada expediente cuenta con una Biblioteca para cargar, visualizar y descargar documentos. El análisis parte de los archivos del caso, no de una conversación desconectada del asunto.
+- **Intro:** Cada expediente cuenta con una Biblioteca para cargar y visualizar documentos. El análisis parte de los archivos del caso, no de una conversación desconectada del asunto.
 
 ### Tarjetas
 
@@ -152,7 +152,7 @@ Copy en español de México, organizado por los identificadores de sección acor
    - **Cuerpo:** La Biblioteca recibe PDF, DOCX, JPEG y PNG, además de los documentos obtenidos automáticamente por los flujos judiciales habilitados.
 2. **Icono sugerido:** `BookOpenText`
    - **Título:** Espacio propio por expediente
-   - **Cuerpo:** Los archivos, su visualización, el estado de procesamiento y el historial de consulta permanecen ligados al caso correspondiente.
+   - **Cuerpo:** Los archivos, su visualización y el estado de procesamiento permanecen ligados al caso correspondiente.
 3. **Icono sugerido:** `ListChecks`
    - **Título:** Fuentes elegidas por la persona abogada
    - **Cuerpo:** Sólo los documentos ya procesados y seleccionados de forma explícita se convierten en fuentes para el asistente del expediente.
@@ -183,7 +183,7 @@ Copy en español de México, organizado por los identificadores de sección acor
    - **Cuerpo:** El OCR usa Gemini 2.5 Flash como proveedor principal y Mistral OCR como alternativa cuando el primer intento no concluye correctamente.
 4. **Icono sugerido:** `LockKeyhole`
    - **Título:** Resultado cifrado y fallos recuperables
-   - **Cuerpo:** Curia conserva metadatos del proveedor y del fallo, permite reintentar el OCR y cifra el contenido procesado.
+   - **Cuerpo:** Curia permite reintentar el OCR después de un fallo y cifra el contenido procesado.
 
 ---
 
@@ -193,7 +193,7 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 - **Kicker / caption:** Asistentes con contexto
 - **H2:** Una superficie de ayuda para cada momento, con límites explícitos.
-- **Intro:** Curia ofrece asistencia dentro del expediente, una vista general y un copiloto del sitio. Cada modalidad resuelve el contexto de forma explícita, respeta el aislamiento entre despachos y casos, y sigue un contrato de no fabricación.
+- **Intro:** Curia ofrece asistencia dentro del expediente, una vista general y un copiloto del sitio. Cada modalidad resuelve el contexto de forma explícita, respeta el aislamiento entre despachos y casos, y sigue una regla explícita de no inventar información.
 
 ### Tarjetas
 
@@ -202,7 +202,7 @@ Copy en español de México, organizado por los identificadores de sección acor
    - **Cuerpo:** Trabaja dentro del caso y responde a partir del contexto y de los documentos procesados que la persona abogada selecciona.
 2. **Icono sugerido:** `Scale`
    - **Título:** Asistente general
-   - **Cuerpo:** Atiende consultas jurídicas y ayuda a preparar texto copiable sin perder de vista el estado de confianza de las referencias.
+   - **Cuerpo:** Atiende consultas jurídicas en la vista general y mantiene visible el estado de confianza de las referencias.
 3. **Icono sugerido:** `PanelTopOpen`
    - **Título:** Copiloto del sitio
    - **Cuerpo:** Acompaña la navegación y usa el contexto disponible de manera controlada, sin mezclar información entre despachos o expedientes.

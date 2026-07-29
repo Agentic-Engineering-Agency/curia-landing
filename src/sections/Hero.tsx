@@ -14,8 +14,8 @@ import {
 
 const highlights = [
   {
-    value: "10:00",
-    label: "Hora objetivo para entregar monitoreo y contexto al despacho.",
+    value: "Cada mañana",
+    label: "Monitoreo y contexto para el despacho.",
   },
   {
     value: "4 formatos",
@@ -47,7 +47,7 @@ const capabilities = [
 
 const morningSequence = [
   {
-    title: "Antes de las 10:00 — Monitoreo con contexto",
+    title: "Cada mañana — Monitoreo con contexto",
     body: "El objetivo operativo es presentar los movimientos detectados en Jalisco CJJ junto con el expediente y la fuente que corresponde.",
   },
   {
@@ -92,78 +92,78 @@ const notices = [
 function ProductVisual() {
   return (
     <div className="curia-card-editorial overflow-hidden" aria-label="Vista ilustrativa del producto Curia">
-      <div className="flex items-center justify-between border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-4 py-3">
+      <div className="flex items-center justify-between border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-1.5" aria-hidden="true">
           <span className="h-2.5 w-2.5 rounded-full bg-[#d7a8a0]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#ddc58d]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#91b7aa]" />
         </div>
-        <div className="flex items-center gap-2 text-[0.68rem] font-medium text-[var(--curia-text-muted)]">
-          <LockKeyhole className="h-3 w-3" aria-hidden="true" />
+        <div className="flex items-center gap-2 text-[0.72rem] font-medium text-[var(--curia-text-muted)]">
+          <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
           Operación diaria · Vista ilustrativa
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-[7.5rem_minmax(0,1fr)]">
-        <aside className="hidden border-r border-[var(--curia-border)] bg-[#f5f3ee] p-3 sm:block" aria-label="Secciones ilustrativas">
+      <div className="grid sm:grid-cols-[8.25rem_minmax(0,1fr)]">
+        <aside className="hidden border-r border-[var(--curia-border)] bg-[#f5f3ee] p-4 sm:block" aria-label="Secciones ilustrativas">
           <div className="mb-5 flex items-center gap-2 px-2 py-1">
             <span className="curia-logo-mark !h-7 !w-7 !rounded-lg !text-sm" aria-hidden="true">
               C
             </span>
             <span className="curia-display text-lg">Curia</span>
           </div>
-          <div className="space-y-1 text-[0.68rem] font-medium text-[var(--curia-text-muted)]">
+          <div className="space-y-1.5 text-[0.72rem] font-medium text-[var(--curia-text-secondary)]">
             <div className="flex items-center gap-2 rounded-lg bg-white px-2.5 py-2 text-[var(--curia-primary-text)] shadow-sm">
-              <LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
               Inicio
             </div>
             <div className="flex items-center gap-2 px-2.5 py-2">
-              <FolderSearch className="h-3.5 w-3.5" aria-hidden="true" />
+              <FolderSearch className="h-4 w-4" aria-hidden="true" />
               Expedientes
             </div>
             <div className="flex items-center gap-2 px-2.5 py-2">
-              <Library className="h-3.5 w-3.5" aria-hidden="true" />
+              <Library className="h-4 w-4" aria-hidden="true" />
               Biblioteca
             </div>
             <div className="flex items-center gap-2 px-2.5 py-2">
-              <Search className="h-3.5 w-3.5" aria-hidden="true" />
+              <Search className="h-4 w-4" aria-hidden="true" />
               Investigación
             </div>
           </div>
         </aside>
 
-        <div className="min-w-0 bg-white p-4 sm:p-5">
-          <div className="mb-4 flex items-end justify-between gap-4">
+        <div className="min-w-0 bg-white p-4 sm:p-6">
+          <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-primary-text)]">Monitoreo</p>
-              <p className="mt-1 text-sm font-semibold text-[var(--curia-text)]">Avisos para revisar</p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-primary-text)]">Monitoreo</p>
+              <p className="mt-1.5 text-[0.9rem] font-semibold text-[var(--curia-text)]">Avisos para revisar</p>
             </div>
-            <span className="rounded-full bg-[var(--curia-bg-subtle)] px-2.5 py-1 text-[0.62rem] font-semibold text-[var(--curia-text-muted)]">
+            <span className="rounded-full bg-[var(--curia-bg-subtle)] px-3 py-1.5 text-[0.68rem] font-semibold text-[var(--curia-text-muted)]">
               3 movimientos
             </span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {notices.map((notice, index) => (
               <div
                 key={notice.file}
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2.5 rounded-xl border border-[var(--curia-border)] bg-white p-3 shadow-[0_2px_10px_rgba(26,32,40,0.04)]"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-[var(--curia-border)] bg-white p-3.5 shadow-[0_2px_10px_rgba(26,32,40,0.04)]"
               >
-                <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg bg-[rgba(13,115,119,0.09)] text-[var(--curia-primary-text)]">
-                  <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(13,115,119,0.09)] text-[var(--curia-primary-text)]">
+                  <Clock3 className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="font-mono text-[0.7rem] font-bold text-[var(--curia-text)]">{notice.file}</span>
-                    <span className="truncate text-[0.64rem] text-[var(--curia-text-muted)]">{notice.court}</span>
+                    <span className="font-mono text-[0.75rem] font-bold text-[var(--curia-text)]">{notice.file}</span>
+                    <span className="truncate text-[0.68rem] text-[var(--curia-text-muted)]">{notice.court}</span>
                   </div>
-                  <p className="mt-1 text-[0.68rem] leading-4 text-[var(--curia-text-secondary)]">{notice.detail}</p>
+                  <p className="mt-1 text-[0.72rem] leading-5 text-[var(--curia-text-secondary)]">{notice.detail}</p>
                 </div>
                 <span
-                  className={`rounded-full px-2 py-1 text-[0.58rem] font-bold uppercase tracking-[0.06em] ${
+                  className={`rounded-full px-2.5 py-1 text-[0.64rem] font-bold uppercase tracking-[0.06em] ${
                     index === 0
                       ? "bg-[#fff1dc] text-[#8b5208]"
-                      : "bg-[var(--curia-bg-subtle)] text-[var(--curia-text-muted)]"
+                      : "border border-[var(--curia-border)] bg-white text-[var(--curia-text-secondary)]"
                   }`}
                 >
                   {notice.urgency}
@@ -172,26 +172,26 @@ function ProductVisual() {
             ))}
           </div>
 
-          <div className="mt-3 grid gap-2.5 lg:grid-cols-2">
-            <div className="rounded-xl border border-[rgba(13,115,119,0.2)] bg-[rgba(13,115,119,0.055)] p-3">
-              <div className="flex items-center gap-2 text-[0.62rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-primary-text)]">
-                <CalendarCheck2 className="h-3.5 w-3.5" aria-hidden="true" />
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-xl border border-[rgba(13,115,119,0.2)] bg-[rgba(13,115,119,0.055)] p-4">
+              <div className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-primary-text)]">
+                <CalendarCheck2 className="h-4 w-4" aria-hidden="true" />
                 Plazo calculado
               </div>
-              <p className="mt-2 font-mono text-base font-bold text-[var(--curia-text)]">17 jul 2026</p>
-              <span className="mt-2 inline-flex rounded-md bg-[#dbeafe] px-2 py-1 text-[0.58rem] font-semibold text-[#27569b]">
+              <p className="mt-2.5 font-mono text-lg font-bold text-[var(--curia-text)]">17 jul 2026</p>
+              <span className="mt-2 inline-flex rounded-md bg-[#dbeafe] px-2.5 py-1.5 text-[0.64rem] font-semibold text-[#27569b]">
                 [Curia] Vencimiento · 123/2026
               </span>
             </div>
 
-            <div className="rounded-xl border border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] p-3">
-              <p className="text-[0.62rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-text-muted)]">Referencia jurídica</p>
-              <p className="mt-2 text-[0.68rem] font-medium leading-4 text-[var(--curia-text-secondary)]">
-                Registro digital 0000000 · criterio ilustrativo
+            <div className="rounded-xl border border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] p-4">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-text-muted)]">Referencia jurídica</p>
+              <p className="mt-2.5 text-[0.72rem] font-medium leading-5 text-[var(--curia-text-secondary)]">
+                <span className="block whitespace-nowrap">Referencia ilustrativa</span><span className="block whitespace-nowrap"> · pendiente de evaluar</span>
               </p>
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#dff4e8] px-2 py-1 text-[0.58rem] font-bold text-[#276344]">
-                <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-                Verificada · SJF
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#fff1dc] px-2.5 py-1.5 text-[0.64rem] font-bold text-[#8b5208]">
+                <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                Pendiente
               </span>
             </div>
           </div>

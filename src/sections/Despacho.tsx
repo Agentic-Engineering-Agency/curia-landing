@@ -27,31 +27,7 @@ export default function Despacho() {
   return (
     <section id="despacho" className="py-16 md:py-24">
       <div className="curia-shell grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {operatingModel.map(({ icon: Icon, title, body }, index) => (
-            <article
-              key={title}
-              className={`curia-card p-6 ${index === 0 || index === 3 ? "sm:translate-y-5" : ""}`}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[color:rgba(13,115,119,0.16)] bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span className="curia-caption text-[var(--curia-text-muted)]">
-                  0{index + 1}
-                </span>
-              </div>
-              <h3 className="mt-5 text-xl font-medium tracking-[-0.02em]">
-                {title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-[var(--curia-text-secondary)]">
-                {body}
-              </p>
-            </article>
-          ))}
-        </div>
-
-        <div className="space-y-5 lg:sticky lg:top-28">
+        <div className="space-y-5 lg:order-2 lg:sticky lg:top-28">
           <p className="curia-caption text-[var(--curia-primary-text)]">
             Operación del despacho
           </p>
@@ -65,6 +41,34 @@ export default function Despacho() {
             útiles de casos, plazos, asignaciones y capacidad.
           </p>
         </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:order-1">
+          {operatingModel.map(({ icon: Icon, title, body }, index) => (
+            <article
+              key={title}
+              className={`curia-card p-6 ${index === 0 || index === 3 ? "sm:translate-y-5" : ""}`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[color:rgba(13,115,119,0.16)] bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="curia-caption text-[var(--curia-text-muted)]"
+                >
+                  0{index + 1}
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-medium tracking-[-0.02em]">
+                {title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-[var(--curia-text-secondary)]">
+                {body}
+              </p>
+            </article>
+          ))}
+        </div>
+
       </div>
     </section>
   );
