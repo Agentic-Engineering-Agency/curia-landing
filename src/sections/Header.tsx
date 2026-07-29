@@ -17,6 +17,25 @@ export default function Header() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  // `md:hidden` drops the panel and the toggle at the desktop breakpoint, so clear
+  // the open state (and with it the focus trap below) when the viewport crosses it.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    if (desktop.matches) {
+      setMenuOpen(false);
+      return;
+    }
+
+    const onChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setMenuOpen(false);
+    };
+
+    desktop.addEventListener("change", onChange);
+    return () => desktop.removeEventListener("change", onChange);
+  }, [menuOpen]);
+
   // The mobile panel covers the viewport, so keep keyboard focus inside it while
   // open, close it with Escape, and hand focus back to the toggle when it closes.
   useEffect(() => {
