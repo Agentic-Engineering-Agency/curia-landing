@@ -11,6 +11,8 @@ const navigation = [
 ] as const;
 
 const MENU_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+// Tailwind's `md` breakpoint, used by the `md:hidden` panel and toggle.
+const DESKTOP_BREAKPOINT = "48rem";
 const FOCUSABLE_ELEMENTS =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -28,6 +30,15 @@ export default function Header() {
 
   useLayoutEffect(() => {
     if (!menuOpen) return;
+
+    // Mirror Tailwind's `md` breakpoint exactly: the panel and toggle are
+    // `md:hidden`, so a fixed pixel query would drift from the CSS whenever the
+    // browser's root font size is not 16px and leave the menu state stuck open.
+    const desktopMediaQuery = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT})`);
+    if (desktopMediaQuery.matches) {
+      setMenuOpen(false);
+      return;
+    }
 
     skipScrollRestoreRef.current = false;
 
@@ -116,7 +127,6 @@ export default function Header() {
       }
     };
 
-    const desktopMediaQuery = window.matchMedia("(min-width: 768px)");
     const handleDesktopChange = (event: MediaQueryListEvent) => {
       if (event.matches) setMenuOpen(false);
     };
