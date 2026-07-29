@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 
 const navigation = [
@@ -11,11 +11,63 @@ const navigation = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   const closeMenu = () => setMenuOpen(false);
 
+  // The mobile panel covers the viewport, so keep keyboard focus inside it while
+  // open, close it with Escape, and hand focus back to the toggle when it closes.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    // Keep the visible header controls (logo, toggle) in the cycle and skip the
+    // desktop-only links, which are display:none on the mobile breakpoint.
+    const getFocusable = () =>
+      Array.from(
+        headerRef.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? [],
+      ).filter((element) => element.offsetParent !== null);
+
+    panelRef.current?.querySelector<HTMLElement>("a[href]")?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMenuOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey) {
+        if (!active || active === first || !focusable.includes(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+        return;
+      }
+
+      if (!active || active === last || !focusable.includes(active)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--curia-border)] bg-white/90 backdrop-blur-xl">
+    <header ref={headerRef} className="sticky top-0 z-50 border-b border-[var(--curia-border)] bg-white/90 backdrop-blur-xl">
       <div className="curia-shell flex min-h-18 items-center justify-between gap-5 py-3">
         <a
           href="#inicio"
@@ -52,6 +104,7 @@ export default function Header() {
         </a>
 
         <button
+          ref={toggleRef}
           type="button"
           className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden"
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
@@ -65,6 +118,7 @@ export default function Header() {
 
       {menuOpen ? (
         <div
+          ref={panelRef}
           id="curia-mobile-menu"
           className="absolute inset-x-0 top-full min-h-[calc(100dvh-4.5rem)] border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
         >
