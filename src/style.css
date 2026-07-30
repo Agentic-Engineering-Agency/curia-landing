@@ -19,7 +19,7 @@
   --curia-border-strong: #cec9c3;
   --curia-text: #1a2028;
   --curia-text-secondary: #5e6668;
-  --curia-text-muted: #6b7280;
+  --curia-text-muted: #636f79;
   --curia-shadow-xs: 0 1px 2px rgba(26, 32, 40, 0.04);
   --curia-shadow-sm: 0 1px 2px rgba(26, 32, 40, 0.04), 0 1px 3px rgba(26, 32, 40, 0.05);
   --curia-shadow-md: 0 2px 4px rgba(26, 32, 40, 0.04), 0 4px 8px rgba(26, 32, 40, 0.06);
@@ -28,10 +28,12 @@
   --curia-radius-sm: 0.75rem;
   --curia-radius-pill: 999px;
   --curia-shell: min(1200px, calc(100vw - 2rem));
+  --curia-header-h: 4.5rem;
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--curia-header-h);
 }
 
 body {
@@ -89,12 +91,6 @@ button {
   font-weight: 400;
 }
 
-.curia-display-italic {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-}
-
 .curia-caption {
   font-size: 0.72rem;
   font-weight: 600;
@@ -122,23 +118,9 @@ button {
   line-height: 1;
 }
 
-.curia-grid-halo {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(13, 115, 119, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(13, 115, 119, 0.035) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 88%);
-}
-
 .curia-card,
 .curia-card-editorial,
-.curia-contact-card,
-.curia-phase-card,
-.curia-stat-card {
+.curia-contact-card {
   border: 1px solid var(--curia-border);
   border-radius: 1.5rem;
 }
@@ -151,25 +133,6 @@ button {
 .curia-card-editorial {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(253, 252, 249, 0.96) 100%);
   box-shadow: var(--curia-shadow-sm);
-}
-
-.curia-stat-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 246, 242, 0.98) 100%);
-  padding: 1.4rem;
-  box-shadow: var(--curia-shadow-sm);
-}
-.curia-proof-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.35rem;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid rgba(13, 115, 119, 0.14);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  color: var(--curia-primary-text);
-  font-size: 0.84rem;
-  line-height: 1.35;
-  box-shadow: var(--curia-shadow-xs);
 }
 
 .curia-dossier-card {
@@ -215,13 +178,6 @@ button {
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-}
-
-
-.curia-phase-card {
-  background: rgba(255, 255, 255, 0.88);
-  padding: 1.5rem;
-  box-shadow: var(--curia-shadow-xs);
 }
 
 .curia-contact-card {
@@ -333,30 +289,8 @@ button {
   outline: none;
 }
 
-@keyframes curia-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.curia-fade-up {
-  animation: curia-fade-up 540ms ease both;
-}
-
 @media (max-width: 767px) {
-  .curia-grid-halo {
-    background-size: 54px 54px;
-    opacity: 0.7;
-  }
-
   .curia-contact-card,
-  .curia-phase-card,
-  .curia-stat-card,
   .curia-card,
   .curia-card-editorial {
     border-radius: 1.25rem;
@@ -368,7 +302,6 @@ button {
     scroll-behavior: auto;
   }
 
-  .curia-fade-up,
   .curia-button,
   .curia-contact-card {
     animation: none;
