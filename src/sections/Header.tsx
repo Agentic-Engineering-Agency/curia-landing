@@ -238,14 +238,16 @@ export default function Header() {
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden"
+          className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden ${menuOpen ? "invisible pointer-events-none" : ""}`}
           ref={menuButtonRef}
-          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-label="Abrir menú"
           aria-expanded={menuOpen}
+          aria-hidden={menuOpen || undefined}
+          tabIndex={menuOpen ? -1 : undefined}
           aria-controls="curia-mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          {menuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+          <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -264,7 +266,7 @@ export default function Header() {
             aria-modal="true"
             aria-label="Navegación móvil"
             tabIndex={-1}
-            className="absolute inset-x-0 top-full max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] overflow-y-auto overscroll-contain border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
+            className="absolute inset-x-0 top-full flex max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] flex-col overflow-hidden border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
             initial={
               shouldReduceMotion ? false : { opacity: 0, y: -8 }
             }
@@ -282,10 +284,14 @@ export default function Header() {
             {/* `aria-modal` can hide the header toggle from assistive tech, and
                 the focus trap only cycles elements inside this panel, so the
                 dialog carries its own close control. */}
-            <div className="curia-shell flex justify-end pt-3">
+            <div className="curia-shell flex shrink-0 items-center justify-between pt-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)]">
+                Navegación
+              </span>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 py-2 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
+                aria-label="Cerrar menú"
                 onClick={() => setMenuOpen(false)}
               >
                 Cerrar menú
@@ -294,7 +300,7 @@ export default function Header() {
             </div>
 
             <nav
-              className="curia-shell flex flex-col gap-1 pb-3 pt-2"
+              className="curia-shell flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-3 pt-2"
               aria-label="Navegación móvil"
             >
               {navigation.map((item) => (
