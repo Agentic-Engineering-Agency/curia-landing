@@ -18,12 +18,31 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
+  const desktopNavRef = useRef<HTMLElement>(null);
   const skipScrollRestoreRef = useRef(false);
   const shouldReduceMotion = useReducedMotion();
 
   const closeMenuForNavigation = () => {
     skipScrollRestoreRef.current = true;
     setMenuOpen(false);
+  };
+
+  const restoreFocusAfterClose = () => {
+    const menuButton = menuButtonRef.current;
+
+    // The toggle is `md:hidden`, so crossing the breakpoint with the menu open
+    // (a device rotation, for example) leaves it in the DOM but with
+    // `display: none`, and a hidden control cannot take focus. Detect that via
+    // `offsetParent` and hand focus to the now-visible desktop navigation
+    // instead of stranding it on the document body.
+    if (menuButton?.isConnected && menuButton.offsetParent !== null) {
+      menuButton.focus({ preventScroll: true });
+      return;
+    }
+
+    desktopNavRef.current
+      ?.querySelector<HTMLElement>(FOCUSABLE_ELEMENTS)
+      ?.focus({ preventScroll: true });
   };
 
   useLayoutEffect(() => {
@@ -173,9 +192,7 @@ export default function Header() {
         window.scrollTo(scrollPosition.x, scrollPosition.y);
       }
 
-      if (menuButtonRef.current?.isConnected) {
-        menuButtonRef.current.focus({ preventScroll: true });
-      }
+      restoreFocusAfterClose();
     };
   }, [menuOpen]);
   return (
@@ -198,7 +215,11 @@ export default function Header() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
+        <nav
+          className="hidden items-center gap-1 md:flex"
+          aria-label="Navegación principal"
+          ref={desktopNavRef}
+        >
           {navigation.map((item) => (
             <a
               key={item.href}
@@ -231,9 +252,7 @@ export default function Header() {
       <AnimatePresence
         initial={false}
         onExitComplete={() => {
-          if (!menuOpen && menuButtonRef.current?.isConnected) {
-            menuButtonRef.current.focus({ preventScroll: true });
-          }
+          if (!menuOpen) restoreFocusAfterClose();
         }}
       >
         {menuOpen ? (
