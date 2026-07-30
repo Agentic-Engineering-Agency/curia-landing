@@ -7,6 +7,7 @@ Marketing landing page for [Curia](https://agenticengineering.online), an intell
 - [`src/`](src/) owns the SPA. Page-level content is split into sections, while shared presentation and behavior belong in the component layer.
 - [`worker/index.ts`](worker/index.ts) owns the `POST /api/contact` boundary, request validation, and the handoff to Twenty CRM.
 - [`docs/landing-copy.md`](docs/landing-copy.md) is the source of truth for approved public copy and product-claim boundaries.
+- [`docs/klgv-meeting-brief.md`](docs/klgv-meeting-brief.md) contains the public KLGV meeting agenda, demo script, questions, objection handling, commercials, and follow-up actions.
 - [`worker/index.test.ts`](worker/index.test.ts) covers the contact Worker without making live CRM calls.
 - [`wrangler.jsonc`](wrangler.jsonc) owns the Worker, Static Assets routing, public variables, and deployment configuration. Vite and Vitest configuration remain with their respective root config files.
 
