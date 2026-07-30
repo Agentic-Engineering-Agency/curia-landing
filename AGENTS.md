@@ -2,8 +2,7 @@
 
 Marketing SPA and contact-form Worker for Curia's Mexican legal-services audience.
 
-Workspace standards apply here: [../docs/standards/README.md](../docs/standards/README.md).
-This file adds only what is specific to this repo. Where they conflict, this file wins, and the conflict is recorded under `## Deviations`.
+Workspace standards apply when this repository is checked out inside the Agentic Engineering multi-repo workspace, where they live at `docs/standards/README.md` in the workspace root (the directory containing this repository). That baseline is not vendored here, so in a standalone checkout treat the rules below as the complete set rather than looking for a file that is absent. Where the two conflict, this file wins, and the conflict is recorded under `## Deviations`.
 
 ## Stack
 
