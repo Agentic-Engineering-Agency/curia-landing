@@ -101,7 +101,7 @@ describe("POST /api/contact — Twenty CRM upsert", () => {
         name: "Juan Pérez García",
         email: "Juan@Example.TEST",
         message: "Necesito una demo",
-        company: "KLGV",
+        company: "Despacho Ejemplo",
         projectType: "Litigio",
       }),
       contactEnv(),
@@ -130,7 +130,7 @@ describe("POST /api/contact — Twenty CRM upsert", () => {
     expect(payload.name).toEqual({ firstName: "Juan", lastName: "Pérez García" });
     expect(payload.emails.primaryEmail).toBe("juan@example.test");
     expect(payload.message).toBe("Necesito una demo");
-    expect(payload.companyName).toBe("KLGV");
+    expect(payload.companyName).toBe("Despacho Ejemplo");
     expect(payload.projectType).toBe("Litigio");
     expect(payload.sourceUrl).toBe("https://curia.example.test");
   });

@@ -1,0 +1,343 @@
+import {
+  ArrowRight,
+  CalendarCheck2,
+  Clock3,
+  FolderSearch,
+  Gavel,
+  LayoutDashboard,
+  Library,
+  LockKeyhole,
+  Search,
+  ShieldCheck,
+  Workflow,
+} from "lucide-react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
+import Reveal from "../components/Reveal";
+import { STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
+
+const HERO_GROUP_VARIANTS: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+};
+const HERO_ITEM_VARIANTS: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.48,
+      ease: STANDARD_EASE,
+    },
+  },
+};
+
+const highlights = [
+  {
+    value: "Cada mañana",
+    label: "Monitoreo y contexto para el despacho.",
+  },
+  {
+    value: "4 formatos",
+    label: "PDF, DOCX, JPEG y PNG en la Biblioteca del expediente.",
+  },
+  {
+    value: "4 estados",
+    label: "Pendiente, verificada, incierta o incorrecta para cada referencia evaluada.",
+  },
+] as const;
+
+const capabilities = [
+  {
+    icon: ShieldCheck,
+    title: "Arquitectura de confianza",
+    body: "Curia conserva la fuente y muestra el estado de las referencias evaluadas para que el equipo revise la evidencia antes de usarla.",
+  },
+  {
+    icon: Gavel,
+    title: "Diseñado para litigio mexicano",
+    body: "La operación parte de expedientes, avisos, acuerdos y plazos del entorno jurídico mexicano, no de una herramienta extranjera traducida.",
+  },
+  {
+    icon: Workflow,
+    title: "Una sola cadena operativa",
+    body: "Monitoreo, calendario, documentos e investigación permanecen ligados al mismo asunto para reducir la fragmentación del trabajo.",
+  },
+] as const;
+
+const morningSequence = [
+  {
+    title: "Cada mañana — Monitoreo con contexto",
+    body: "El objetivo es presentar los movimientos detectados en Jalisco CJJ junto con el expediente y la fuente que corresponde.",
+  },
+  {
+    title: "Del aviso al plazo — Revisión antes de actuar",
+    body: "El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento judicial original y la legislación aplicable.",
+  },
+  {
+    title: "Del plazo a Outlook — Evento con referencia",
+    body: "Cuando Microsoft 365 está conectado y cuenta con los permisos necesarios, el equipo puede crear el evento de calendario con la referencia del expediente y su enlace de origen.",
+  },
+  {
+    title: "Del documento a la consulta — Fuentes elegidas",
+    body: "La Biblioteca procesa los documentos del expediente; sólo los archivos procesados que selecciona la persona abogada se usan como fuentes para responder.",
+  },
+  {
+    title: "De la respuesta al escrito — Confianza visible",
+    body: "Cuando una referencia pasa por Reference Evaluator, Curia muestra su estado antes de que el equipo decida usarla.",
+  },
+] as const;
+
+const notices = [
+  {
+    file: "123/2026",
+    court: "Juzgado Quinto de lo Civil",
+    detail: "Acuerdo disponible para revisión",
+    urgency: "Hoy",
+  },
+  {
+    file: "084/2026",
+    court: "Juzgado Segundo Mercantil",
+    detail: "Nuevo movimiento detectado",
+    urgency: "Revisar",
+  },
+  {
+    file: "217/2026",
+    court: "Juzgado Primero Familiar",
+    detail: "Aviso relacionado con el expediente",
+    urgency: "Nuevo",
+  },
+] as const;
+
+function ProductVisual() {
+  return (
+    <div className="curia-card-editorial overflow-hidden" aria-label="Vista ilustrativa del producto Curia">
+      <div className="flex items-center justify-between border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-4 py-3 sm:px-5 sm:py-3.5">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#d7a8a0]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ddc58d]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#91b7aa]" />
+        </div>
+        <div className="flex items-center gap-2 text-[0.72rem] font-medium text-[var(--curia-text-muted)]">
+          <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
+          Operación diaria · Vista ilustrativa
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-[8.25rem_minmax(0,1fr)]">
+        <aside className="hidden border-r border-[var(--curia-border)] bg-[#f5f3ee] p-4 sm:block" aria-label="Secciones ilustrativas">
+          <div className="mb-5 flex items-center gap-2 px-2 py-1">
+            <span className="curia-logo-mark !h-7 !w-7 !rounded-lg !text-sm" aria-hidden="true">
+              C
+            </span>
+            <span className="curia-display text-lg">Curia</span>
+          </div>
+          <div className="space-y-1.5 text-[0.72rem] font-medium text-[var(--curia-text-secondary)]">
+            <div className="flex items-center gap-2 rounded-lg bg-white px-2.5 py-2 text-[var(--curia-primary-text)] shadow-sm">
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              Inicio
+            </div>
+            <div className="flex items-center gap-2 px-2.5 py-2">
+              <FolderSearch className="h-4 w-4" aria-hidden="true" />
+              Expedientes
+            </div>
+            <div className="flex items-center gap-2 px-2.5 py-2">
+              <Library className="h-4 w-4" aria-hidden="true" />
+              Biblioteca
+            </div>
+            <div className="flex items-center gap-2 px-2.5 py-2">
+              <Search className="h-4 w-4" aria-hidden="true" />
+              Investigación
+            </div>
+          </div>
+        </aside>
+
+        <div className="min-w-0 bg-white p-4 sm:p-6">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-primary-text)]">Monitoreo</p>
+              <p className="mt-1.5 text-[0.9rem] font-semibold text-[var(--curia-text)]">Avisos para revisar</p>
+            </div>
+            <span className="rounded-full bg-[var(--curia-bg-subtle)] px-3 py-1.5 text-[0.68rem] font-semibold text-[var(--curia-text-muted)]">
+              3 movimientos
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {notices.map((notice, index) => (
+              <div
+                key={notice.file}
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-[var(--curia-border)] bg-white p-3.5 shadow-[0_2px_10px_rgba(26,32,40,0.04)]"
+              >
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-[rgba(13,115,119,0.09)] text-[var(--curia-primary-text)]">
+                  <Clock3 className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="font-mono text-[0.75rem] font-bold text-[var(--curia-text)]">{notice.file}</span>
+                    <span className="truncate text-[0.68rem] text-[var(--curia-text-muted)]">{notice.court}</span>
+                  </div>
+                  <p className="mt-1 text-[0.72rem] leading-5 text-[var(--curia-text-secondary)]">{notice.detail}</p>
+                </div>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[0.64rem] font-bold uppercase tracking-[0.06em] ${
+                    index === 0
+                      ? "bg-[#fff1dc] text-[#8b5208]"
+                      : "border border-[var(--curia-border)] bg-white text-[var(--curia-text-secondary)]"
+                  }`}
+                >
+                  {notice.urgency}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-xl border border-[rgba(13,115,119,0.2)] bg-[rgba(13,115,119,0.055)] p-4">
+              <div className="flex items-center gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-primary-text)]">
+                <CalendarCheck2 className="h-4 w-4" aria-hidden="true" />
+                Plazo calculado
+              </div>
+              <p className="mt-2.5 font-mono text-lg font-bold text-[var(--curia-text)]">17 jul 2026</p>
+              <span className="mt-2 inline-flex rounded-md bg-[#dbeafe] px-2.5 py-1.5 text-[0.64rem] font-semibold text-[#27569b]">
+                [Curia] Vencimiento · 123/2026
+              </span>
+            </div>
+
+            <div className="rounded-xl border border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] p-4">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-text-muted)]">Referencia jurídica</p>
+              <p className="mt-2.5 text-[0.72rem] font-medium leading-5 text-[var(--curia-text-secondary)]">
+                <span className="block whitespace-nowrap">Referencia ilustrativa</span><span className="block whitespace-nowrap"> · pendiente de evaluar</span>
+              </p>
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#fff1dc] px-2.5 py-1.5 text-[0.64rem] font-bold text-[#8b5208]">
+                <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                Pendiente
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Hero() {
+  const shouldReduceMotion = useReducedMotion();
+  return (
+    <section id="inicio" className="relative overflow-hidden bg-white py-16 md:py-24">
+      <div className="pointer-events-none absolute -right-28 top-12 h-96 w-96 rounded-full bg-[rgba(13,115,119,0.065)] blur-3xl" aria-hidden="true" />
+      <div className="curia-shell relative">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(33rem,1.08fr)] lg:gap-14">
+          <motion.div
+            initial={shouldReduceMotion ? false : "hidden"}
+            whileInView={shouldReduceMotion ? undefined : "visible"}
+            variants={HERO_GROUP_VARIANTS}
+            viewport={VIEWPORT_ONCE}
+          >
+            <motion.p className="curia-caption text-[var(--curia-primary-text)]" variants={HERO_ITEM_VARIANTS}>
+              Inteligencia legal para despachos mexicanos
+            </motion.p>
+            <motion.h1
+              className="curia-display mt-5 max-w-3xl text-[3.25rem] leading-[0.94] tracking-[-0.035em] text-[var(--curia-text)] sm:text-[4.1rem] lg:text-[4.9rem]"
+              variants={HERO_ITEM_VARIANTS}
+            >
+              Inteligencia legal que trabaja mientras tú no estás.
+            </motion.h1>
+            <motion.div variants={HERO_ITEM_VARIANTS}>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--curia-text-secondary)]">
+                Curia reúne monitoreo judicial, gestión de plazos, calendario Outlook cuando Microsoft 365 está conectado, análisis documental e investigación jurídica con estados de confianza para las citas, todo dentro del expediente.
+              </p>
+              <div className="mt-5 flex max-w-2xl items-start gap-2.5">
+                <ShieldCheck
+                  className="mt-1 h-4 w-4 shrink-0 text-[var(--curia-primary-text)]"
+                  aria-hidden="true"
+                />
+                <p className="min-w-0 text-base font-medium leading-6 text-[var(--curia-text-secondary)]">
+                  Piloto con un despacho socio de diseño · Jalisco CJJ registrado como fuente activa · demás estados en incorporación · toda salida requiere revisión profesional.
+                </p>
+              </div>
+            </motion.div>
+            <motion.div className="mt-7 flex flex-col gap-3 sm:flex-row" variants={HERO_ITEM_VARIANTS}>
+              <a href="#contacto" className="curia-button curia-button-primary">
+                Conversemos sobre tu operación
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <a href="#estado-actual" className="curia-button curia-button-secondary">
+                Ver Curia hoy
+              </a>
+            </motion.div>
+
+            <motion.dl
+              className="mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3"
+              variants={HERO_ITEM_VARIANTS}
+            >
+              {highlights.map((item) => (
+                <div key={item.value} className="border-l-2 border-[var(--curia-primary)] pl-4">
+                  <dt className="text-lg font-bold tracking-[-0.02em] text-[var(--curia-text)]">{item.value}</dt>
+                  <dd className="mt-1 text-xs leading-5 text-[var(--curia-text-muted)]">{item.label}</dd>
+                </div>
+              ))}
+            </motion.dl>
+          </motion.div>
+
+          <Reveal y={18} delay={0.1}>
+            <ProductVisual />
+          </Reveal>
+        </div>
+
+        <div className="mt-20 grid gap-8 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-start lg:gap-14">
+          <div className="lg:sticky lg:top-28">
+            <p className="curia-caption text-[var(--curia-primary-text)]">Una sola cadena operativa</p>
+            <h2 className="curia-display mt-4 text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
+              Del aviso al escrito, el contexto permanece en el expediente.
+            </h2>
+            <p className="mt-6 text-base leading-8 text-[var(--curia-text-secondary)]">
+              Curia conecta tareas que hoy suelen vivir entre boletines, hojas de cálculo, correos y chats de IA. El equipo conserva la fuente, el plazo, los documentos y la investigación en una sola cadena operativa.
+            </p>
+          </div>
+
+          <div className="curia-dossier-card">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--curia-border)] pb-4">
+              <div>
+                <p className="text-sm font-semibold text-[var(--curia-text)]">Secuencia de la mañana</p>
+                <p className="mt-1 text-xs text-[var(--curia-text-muted)]">Del monitoreo a una decisión revisada</p>
+              </div>
+              <span className="curia-status-badge">Flujo operativo</span>
+            </div>
+            <div className="mt-5 space-y-5">
+              {morningSequence.map((item, index) => (
+                <article key={item.title} className="curia-dossier-step">
+                  <div className="curia-dossier-marker" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold leading-6 text-[var(--curia-text)]">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-[var(--curia-text-secondary)]">{item.body}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {capabilities.map((item) => {
+            const Icon = item.icon;
+            return (
+              <article key={item.title} className="curia-card p-6">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(13,115,119,0.1)] text-[var(--curia-primary-text)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[var(--curia-text)]">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[var(--curia-text-secondary)]">{item.body}</p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
