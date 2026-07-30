@@ -7,3 +7,4 @@ node_modules/
 .dev.vars.local
 .wrangler/
 worker-configuration.d.ts
+/.omp/skills
