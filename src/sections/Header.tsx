@@ -279,8 +279,22 @@ export default function Header() {
               ease: STANDARD_EASE,
             }}
           >
+            {/* `aria-modal` can hide the header toggle from assistive tech, and
+                the focus trap only cycles elements inside this panel, so the
+                dialog carries its own close control. */}
+            <div className="curia-shell flex justify-end pt-3">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 py-2 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                Cerrar menú
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+
             <nav
-              className="curia-shell flex flex-col gap-1 py-3"
+              className="curia-shell flex flex-col gap-1 pb-3 pt-2"
               aria-label="Navegación móvil"
             >
               {navigation.map((item) => (
