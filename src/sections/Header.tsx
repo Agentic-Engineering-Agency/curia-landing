@@ -18,31 +18,12 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLDivElement>(null);
-  const desktopNavRef = useRef<HTMLElement>(null);
   const skipScrollRestoreRef = useRef(false);
   const shouldReduceMotion = useReducedMotion();
 
   const closeMenuForNavigation = () => {
     skipScrollRestoreRef.current = true;
     setMenuOpen(false);
-  };
-
-  const restoreFocusAfterClose = () => {
-    const menuButton = menuButtonRef.current;
-
-    // The toggle is `md:hidden`, so crossing the breakpoint with the menu open
-    // (a device rotation, for example) leaves it in the DOM but with
-    // `display: none`, and a hidden control cannot take focus. Detect that via
-    // `offsetParent` and hand focus to the now-visible desktop navigation
-    // instead of stranding it on the document body.
-    if (menuButton?.isConnected && menuButton.offsetParent !== null) {
-      menuButton.focus({ preventScroll: true });
-      return;
-    }
-
-    desktopNavRef.current
-      ?.querySelector<HTMLElement>(FOCUSABLE_ELEMENTS)
-      ?.focus({ preventScroll: true });
   };
 
   useLayoutEffect(() => {
@@ -192,7 +173,9 @@ export default function Header() {
         window.scrollTo(scrollPosition.x, scrollPosition.y);
       }
 
-      restoreFocusAfterClose();
+      if (menuButtonRef.current?.isConnected) {
+        menuButtonRef.current.focus({ preventScroll: true });
+      }
     };
   }, [menuOpen]);
   return (
@@ -215,11 +198,7 @@ export default function Header() {
           </span>
         </a>
 
-        <nav
-          className="hidden items-center gap-1 md:flex"
-          aria-label="Navegación principal"
-          ref={desktopNavRef}
-        >
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
           {navigation.map((item) => (
             <a
               key={item.href}
@@ -238,23 +217,23 @@ export default function Header() {
 
         <button
           type="button"
-          className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden ${menuOpen ? "invisible pointer-events-none" : ""}`}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--curia-border-strong)] bg-white text-[var(--curia-text)] shadow-sm md:hidden"
           ref={menuButtonRef}
-          aria-label="Abrir menú"
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
-          aria-hidden={menuOpen || undefined}
-          tabIndex={menuOpen ? -1 : undefined}
           aria-controls="curia-mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}
         >
-          <Menu className="h-5 w-5" aria-hidden="true" />
+          {menuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
         </button>
       </div>
 
       <AnimatePresence
         initial={false}
         onExitComplete={() => {
-          if (!menuOpen) restoreFocusAfterClose();
+          if (!menuOpen && menuButtonRef.current?.isConnected) {
+            menuButtonRef.current.focus({ preventScroll: true });
+          }
         }}
       >
         {menuOpen ? (
@@ -266,7 +245,7 @@ export default function Header() {
             aria-modal="true"
             aria-label="Navegación móvil"
             tabIndex={-1}
-            className="absolute inset-x-0 top-full flex max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] flex-col overflow-hidden border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
+            className="absolute inset-x-0 top-full max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] overflow-y-auto overscroll-contain border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
             initial={
               shouldReduceMotion ? false : { opacity: 0, y: -8 }
             }
@@ -281,26 +260,8 @@ export default function Header() {
               ease: STANDARD_EASE,
             }}
           >
-            {/* `aria-modal` can hide the header toggle from assistive tech, and
-                the focus trap only cycles elements inside this panel, so the
-                dialog carries its own close control. */}
-            <div className="curia-shell flex shrink-0 items-center justify-between pt-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)]">
-                Navegación
-              </span>
-              <button
-                type="button"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
-                aria-label="Cerrar menú"
-                onClick={() => setMenuOpen(false)}
-              >
-                Cerrar menú
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-
             <nav
-              className="curia-shell flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-3 pt-2"
+              className="curia-shell flex flex-col gap-1 py-3"
               aria-label="Navegación móvil"
             >
               {navigation.map((item) => (

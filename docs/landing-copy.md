@@ -4,6 +4,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## Navegación
 
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md; curia-ai/apps/web/src/i18n/es-MX.ts; curia-landing/src/App.tsx. -->
+
 1. **Inicio** — `#inicio`
 2. **Curia hoy** — `#estado-actual`
 3. **Monitoreo** — `#monitoreo`
@@ -20,6 +22,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 ---
 
 ## `inicio`
+
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md; curia-ai/apps/web/src/i18n/es-MX.ts; curia-ai/docs/public-site-content-plan.md; curia-landing/src/App.tsx. -->
 
 - **Kicker / caption:** Inteligencia legal para despachos mexicanos
 - **H1:** Inteligencia legal que trabaja mientras tú no estás.
@@ -56,6 +60,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `estado-actual`
 
+<!-- Fuentes: curia-ai/docs/launch-execution-plan-2026-06-04.md; curia-ai/packages/shared/src/source-registry.ts; PR curia-ai #720. -->
+
 - **Kicker / caption:** Curia hoy
 - **H2:** Un piloto real, con alcance claro.
 - **Intro:** Curia está en piloto con un despacho socio de diseño desde julio de 2026. Jalisco CJJ está registrado como fuente activa; los demás estados están en incorporación. El alcance se comunica tal como existe hoy.
@@ -89,6 +95,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `monitoreo`
 
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md; curia-ai/packages/shared/src/source-registry.ts; curia-ai/apps/web/src/routes/_authed.index.tsx. -->
+
 - **Kicker / caption:** Monitoreo judicial
 - **H2:** Los movimientos del expediente, sin empezar la mañana desde cero.
 - **Intro:** Curia contrasta los expedientes registrados con los avisos obtenidos de Jalisco CJJ y concentra el resultado en el asunto correcto. El equipo revisa el movimiento con su procedencia, no como una alerta aislada.
@@ -109,6 +117,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `plazos-outlook`
 
+<!-- Fuentes: curia-ai/specs/completed/SPEC-20260629-001-cur-71-outlook-autocreation.md; curia-ai/docs/runbooks/ms365-oauth-calendar.md; PR curia-ai #719; PR curia-ai #720. -->
+
 - **Kicker / caption:** Plazos y Outlook
 - **H2:** Del acuerdo a una fecha que el equipo puede revisar y calendarizar.
 - **Intro:** Curia convierte el movimiento judicial en contexto operativo: plazo calculado, urgencia, expediente y acceso a la fuente. Con Microsoft 365 conectado, esa información puede convertirse en un evento de Outlook.
@@ -128,6 +138,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 ---
 
 ## `biblioteca`
+
+<!-- Fuentes: curia-ai/apps/web/src/routes/_authed.biblioteca.caso.$caseId.tsx; curia-ai/apps/web/src/components/biblioteca/chat-panel.tsx; curia-ai/docs/public-site-content-plan.md; curia-ai/CONTEXT.md. -->
 
 - **Kicker / caption:** Biblioteca por expediente
 - **H2:** Los documentos del asunto, listos para leer y consultar en su contexto.
@@ -152,6 +164,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `ocr`
 
+<!-- Fuentes: curia-ai/docs/runbooks/ocr-pipeline.md; curia-ai/apps/api/src/documents/ocr/adapters/gemini.ts; curia-ai/apps/api/src/documents/ocr/adapters/mistral.ts; curia-ai/packages/shared/src/envelope-encryption.ts; PR curia-ai #700. -->
+
 - **Kicker / caption:** OCR asíncrono
 - **H2:** Documentos que pasan de imagen a texto sin bloquear el trabajo del expediente.
 - **Intro:** Curia entrega los archivos de forma segura al almacenamiento y procesa el OCR en segundo plano. El estado permanece visible, los fallos pueden reintentarse y el resultado procesado se conserva cifrado.
@@ -174,6 +188,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 ---
 
 ## `asistentes`
+
+<!-- Fuentes: curia-ai/docs/runbooks/case-bound-agents.md; curia-ai/specs/completed/SPEC-20260612-001-cur-368-general-legal-agent.md; curia-ai/apps/web/src/components/biblioteca/chat-panel.tsx. -->
 
 - **Kicker / caption:** Asistentes con contexto
 - **H2:** Una superficie de ayuda para cada momento, con límites explícitos.
@@ -198,6 +214,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `evaluador-referencias`
 
+<!-- Fuentes: curia-ai/docs/runbooks/citation-trust-badge.md; curia-ai/apps/api/src/reference-evaluator/verification-pipeline.ts; curia-ai/apps/web/src/components/trust/trust-badge-types.ts; PR curia-ai #647; PR curia-ai #712. -->
+
 - **Kicker / caption:** Reference Evaluator
 - **H2:** La confianza de una cita debe verse antes de usarla.
 - **Intro:** Reference Evaluator contrasta referencias jurídicas con registros del SJF y muestra el estado de la evaluación. Sólo una coincidencia con el SJF puede otorgar el estado de verificada; un modelo de IA no puede concederlo por sí solo.
@@ -220,6 +238,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 ---
 
 ## `fuentes`
+
+<!-- Fuentes: curia-ai/packages/shared/src/source-registry.ts; curia-ai/packages/shared/src/knowledge-sources/index.ts; PR curia-ai #712; PR curia-ai #716. -->
 
 - **Kicker / caption:** Fuentes mexicanas
 - **H2:** Monitoreo judicial y contraste jurídico, sin confundir sus funciones.
@@ -244,6 +264,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `privacidad`
 
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md; curia-ai/packages/shared/src/envelope-encryption.ts; curia-ai/docs/runbooks/ocr-pipeline.md; curia-ai/docs/runbooks/arco-rights-flow.md. -->
+
 - **Kicker / caption:** Privacidad por diseño
 - **H2:** El expediente conserva límites técnicos, no sólo promesas.
 - **Intro:** Curia reduce la exposición de información mediante aislamiento por despacho y caso, sanitización de datos personales, cifrado por cliente y flujos explícitos para derechos ARCO y trazabilidad.
@@ -267,6 +289,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## `despacho`
 
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md; curia-ai/specs/active/SPEC-20260714-001-cur-521-settings-live-capacity-outlook-copy.md; PR curia-ai #718. -->
+
 - **Kicker / caption:** Operación del despacho
 - **H2:** Visibilidad para dirigir el trabajo, sin convertirla en vigilancia individual.
 - **Intro:** Curia organiza la operación alrededor del expediente. Las personas asociadas trabajan sobre sus asuntos y los socios reciben agregados útiles de casos, plazos, asignaciones y capacidad.
@@ -289,6 +313,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 ---
 
 ## `contacto`
+
+<!-- Fuentes: curia-ai/docs/runbooks/ms365-oauth-calendar.md; curia-landing/src/App.tsx; curia-landing/src/worker.ts. -->
 
 - **Kicker / caption:** Contacto
 - **H2:** Si tu despacho quiere conectar monitoreo, plazos y documentos, conversemos.
@@ -324,6 +350,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 
 ## CTA transversal
 
+<!-- Fuentes: curia-ai/README.md; curia-ai/CONTEXT.md. -->
+
 - **Caption:** Una operación legal con contexto
 - **H2:** Revisa si Curia corresponde al flujo real de tu despacho.
 - **Intro:** Sin promesas de cobertura que aún no existe ni respuestas de IA presentadas como criterio profesional. Sólo un recorrido por el monitoreo, los plazos, la Biblioteca y la arquitectura de confianza disponibles hoy.
@@ -331,6 +359,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 - **Destino:** `#contacto`
 
 ## Footer
+
+<!-- Fuentes: curia-ai/README.md; curia-ai/apps/web/src/i18n/es-MX.ts; curia-ai/docs/runbooks/case-bound-agents.md. -->
 
 **Línea:** Curia — inteligencia legal para despachos mexicanos. Herramienta de apoyo: toda salida de IA requiere revisión profesional.
 
