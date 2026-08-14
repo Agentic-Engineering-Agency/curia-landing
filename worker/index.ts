@@ -87,14 +87,14 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   const upstream = await postPersonToTwenty(input, request, env);
 
   if (upstream.kind === "network_error") {
-    console.error("contact.upstream_network_error", { message: upstream.message });
+    console.error("contact.upstream_network_error", { error: "network_failure" });
     return jsonResponse({ ok: false, error: "upstream_error" }, 502);
   }
 
   if (!upstream.ok) {
     console.error("contact.upstream_failed", {
       status: upstream.status,
-      body: upstream.bodyPreview,
+      error: "upstream_rejected",
     });
     return jsonResponse({ ok: false, error: "upstream_error" }, 502);
   }
@@ -104,8 +104,8 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
 type TwentyResult =
   | { kind: "ok"; ok: true; status: number; id: string | null }
-  | { kind: "http_error"; ok: false; status: number; bodyPreview: string }
-  | { kind: "network_error"; ok: false; message: string };
+  | { kind: "http_error"; ok: false; status: number }
+  | { kind: "network_error"; ok: false };
 
 async function postPersonToTwenty(
   input: ContactInput,
@@ -149,17 +149,13 @@ async function postPersonToTwenty(
       },
       body: JSON.stringify(personBody),
     });
-  } catch (err) {
-    return {
-      kind: "network_error",
-      ok: false,
-      message: err instanceof Error ? err.message : String(err),
-    };
+  } catch {
+    return { kind: "network_error", ok: false };
   }
 
   if (!upstream.ok) {
-    const bodyPreview = (await upstream.text().catch(() => "")).slice(0, 500);
-    return { kind: "http_error", ok: false, status: upstream.status, bodyPreview };
+    // Do not read or log the upstream body: CRM errors can contain lead PII.
+    return { kind: "http_error", ok: false, status: upstream.status };
   }
 
   let id: string | null = null;
