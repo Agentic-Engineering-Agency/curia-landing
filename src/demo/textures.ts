@@ -29,6 +29,53 @@ function finish(canvas: HTMLCanvasElement, repeat: Repeat, color: boolean): Canv
 
 const hex = (value: number) => `#${value.toString(16).padStart(6, "0")}`;
 
+/**
+ * Deriva un mapa de normales del propio mapa de color, tratando la luminancia
+ * como altura (Sobel). Es lo que da relieve real: sin normales, la veta y la
+ * trama son sólo manchas de color y la superficie sigue siendo un plano
+ * perfecto ante la luz rasante.
+ *
+ * Se calcula una vez al arrancar. No requiere ningún asset externo.
+ */
+export function normalFromTexture(source: CanvasTexture, strength = 2.4): CanvasTexture {
+  const src = source.image as HTMLCanvasElement;
+  const size = src.width;
+  const pixels = src.getContext("2d")!.getImageData(0, 0, size, size).data;
+
+  const height = new Float32Array(size * size);
+  for (let index = 0; index < height.length; index += 1) {
+    const offset = index * 4;
+    height[index] =
+      (pixels[offset] * 0.299 + pixels[offset + 1] * 0.587 + pixels[offset + 2] * 0.114) / 255;
+  }
+
+  // Envolvente en los bordes: la textura se repite, así que el gradiente
+  // también debe cerrar o aparece una costura visible en cada tile.
+  const sample = (x: number, y: number) =>
+    height[((y + size) % size) * size + ((x + size) % size)];
+
+  const { canvas, ctx } = surface(size);
+  const image = ctx.createImageData(size, size);
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const dx = (sample(x + 1, y) - sample(x - 1, y)) * strength;
+      const dy = (sample(x, y + 1) - sample(x, y - 1)) * strength;
+      const length = Math.sqrt(dx * dx + dy * dy + 1);
+      const offset = (y * size + x) * 4;
+      image.data[offset] = ((-dx / length) * 0.5 + 0.5) * 255;
+      image.data[offset + 1] = ((-dy / length) * 0.5 + 0.5) * 255;
+      image.data[offset + 2] = ((1 / length) * 0.5 + 0.5) * 255;
+      image.data[offset + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+
+  // Un mapa de normales es dato vectorial, no color: nunca lleva sRGB, y su
+  // repetición tiene que coincidir con la del mapa de color o el relieve se
+  // desalinea de la veta.
+  return finish(canvas, [source.repeat.x, source.repeat.y], false);
+}
+
 /** Veta de madera: bandas longitudinales con deriva, más poro fino. */
 export function woodTexture(base: number, repeat: Repeat = 1): CanvasTexture {
   const size = 512;

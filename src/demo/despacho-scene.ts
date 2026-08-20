@@ -57,6 +57,7 @@ import {
 } from "./rooms";
 import {
   fabricTexture,
+  normalFromTexture,
   plankTexture,
   plasterTexture,
   roughnessNoise,
@@ -123,6 +124,29 @@ export function createDespacho(
     return texture;
   }
 
+  // Cache aparte: el mapa de normales se deriva del de color, así que hay uno
+  // por textura y se reutiliza igual que ella.
+  const normalCache = new Map<CanvasTexture, CanvasTexture>();
+
+  /** Relieve por tipo de material: la duela marca junta, el yeso casi nada. */
+  const NORMAL_STRENGTH: Record<Grain, number> = {
+    wood: 2.6,
+    plank: 4.2,
+    fabric: 2.2,
+    plaster: 1.1,
+    none: 0,
+  };
+
+  function normalFor(grain: Grain, map: CanvasTexture | null) {
+    if (!map || grain === "none") return null;
+    const cached = normalCache.get(map);
+    if (cached) return cached;
+    const normal = normalFromTexture(map, NORMAL_STRENGTH[grain]);
+    normalCache.set(map, normal);
+    disposables.push(normal);
+    return normal;
+  }
+
   function material(surface: Surface): MeshStandardMaterial {
     const {
       color,
@@ -136,9 +160,11 @@ export function createDespacho(
     if (cached) return cached;
 
     const map = grainTexture(grain, color, repeat);
+    const normalMap = normalFor(grain, map);
     const result = new MeshStandardMaterial({
       color: map ? 0xffffff : color,
       map: map ?? null,
+      normalMap,
       roughnessMap,
       // Sube la contribución del environment map: es lo que produce el brillo
       // especular que distingue madera barnizada y metal de pintura mate.
@@ -232,6 +258,7 @@ export function createDespacho(
     return mesh;
   }
 
+
   const WALL: Surface = { color: PALETTE.subtle, roughness: 0.96, grain: "plaster", repeat: 4 };
   // Rugosidades bajadas a propósito: con 0.55 la madera no devolvía ningún
   // reflejo y se leía como pintura mate. Un barniz de oficina tiene brillo.
@@ -299,15 +326,21 @@ export function createDespacho(
     for (const offset of [-width / 2, width / 2]) {
       group.add(box(0.3, height, 0.1, x - side * 0.15, centerY, z + offset, WALL, false));
     }
-    // Parteluz.
-    for (const offset of [-1.05, 1.05]) {
-      group.add(box(0.05, height, 0.05, x - side * 0.2, centerY, z + offset, DARK, false));
+    // Parteluz. Es la única pieza de la ventana que proyecta sombra: el sol
+    // atraviesa el muro (que no proyecta) y estas barras dibujan en el piso el
+    // rectángulo de luz partido. Antes se intentó pintar ese charco con un
+    // plano aditivo y se leía como calca; esto es la sombra real.
+    for (const offset of [-1.05, 0, 1.05]) {
+      group.add(box(0.06, height, 0.06, x - side * 0.2, centerY, z + offset, DARK, true));
     }
+    // Peinazo horizontal, para que la sombra tenga también una barra cruzada.
+    group.add(box(0.06, 0.06, width, x - side * 0.2, centerY, z, DARK, true));
     // Repisa interior.
     group.add(box(0.22, 0.06, width, x - side * 0.34, centerY - height / 2 - 0.03, z, WOOD_FINE, false));
 
     return group;
   }
+
 
   /** Luminaria empotrada: da interés al techo y justifica el relleno. */
   function ceilingFixture(z: number): Group {
@@ -694,10 +727,15 @@ export function createDespacho(
   sun.shadow.camera.right = 7;
   sun.shadow.camera.top = 6;
   sun.shadow.camera.bottom = -6;
-  sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 30;
-  sun.shadow.bias = -0.0009;
-  sun.shadow.normalBias = 0.024;
+  // El sol se coloca a ~11m de su objetivo, así que un far de 30 desperdiciaba
+  // la mitad del rango de profundidad y las barras finas del parteluz salían
+  // con shadow acne. Con 19 el mapa gana precisión donde importa.
+  sun.shadow.camera.near = 3;
+  sun.shadow.camera.far = 19;
+  sun.shadow.bias = -0.00035;
+  sun.shadow.normalBias = 0.05;
+  // Penumbra: una barra de 6cm proyecta borde suave, no una línea dura.
+  sun.shadow.radius = 2.5;
   scene.add(sun);
   scene.add(sun.target);
 
