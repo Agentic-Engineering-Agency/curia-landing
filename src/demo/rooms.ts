@@ -44,12 +44,21 @@ export type Chapter = {
   accent: number;
   /** Desplazamiento lateral de la cámara dentro de la sala. */
   cameraX: number;
+  /**
+   * Distancia de la cámara al centro de la sala. Por capítulo, no global:
+   * la oficina se acerca para que la vista de Curia en el monitor se lea.
+   */
+  cameraZ: number;
   /** Punto al que mira la cámara, relativo al centro de la sala. */
   focus: { x: number; y: number; z: number };
   /** Lado del muro con ventana: 1 = derecha, -1 = izquierda. */
   windowSide: 1 | -1;
+  /**
+   * Mitad del encuadre que queda libre de mobiliario. Ahí se coloca el
+   * contenido real de la landing, para que nunca compita con el sujeto.
+   */
+  safe: "left" | "right";
 };
-
 /**
  * Los cinco capítulos siguen el `morningSequence` que ya vive en el copy de
  * producción (`docs/landing-copy.md`), en el mismo orden.
@@ -62,8 +71,10 @@ export const CHAPTERS: Chapter[] = [
     body: "Los movimientos detectados llegan junto con el expediente y la fuente que les corresponde.",
     accent: PALETTE.teal,
     cameraX: -1.1,
+    cameraZ: 3.05,
     focus: { x: 2.1, y: 1.15, z: -2.6 },
     windowSide: 1,
+    safe: "left",
   },
   {
     id: "plazos",
@@ -71,9 +82,13 @@ export const CHAPTERS: Chapter[] = [
     title: "Del aviso al plazo",
     body: "El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento original.",
     accent: PALETTE.amber,
-    cameraX: 1.2,
-    focus: { x: -1.9, y: 1.0, z: -2.4 },
+    // La cámara se acerca y se centra: aquí la vista de Curia dentro del
+    // monitor tiene que leerse, no insinuarse.
+    cameraX: -0.45,
+    cameraZ: 0.8,
+    focus: { x: -1.9, y: 1.28, z: -2.86 },
     windowSide: -1,
+    safe: "right",
   },
   {
     id: "biblioteca",
@@ -82,8 +97,10 @@ export const CHAPTERS: Chapter[] = [
     body: "La Biblioteca procesa los archivos del expediente; sólo los que selecciona la persona abogada se usan como fuentes.",
     accent: PALETTE.tealDeep,
     cameraX: -1.3,
+    cameraZ: 3.0,
     focus: { x: 2.5, y: 1.3, z: -2.2 },
     windowSide: 1,
+    safe: "left",
   },
   {
     id: "asistentes",
@@ -91,9 +108,13 @@ export const CHAPTERS: Chapter[] = [
     title: "Una superficie de ayuda para cada momento",
     body: "Cada modalidad resuelve el contexto de forma explícita y respeta el aislamiento entre despachos y casos.",
     accent: PALETTE.tealLight,
-    cameraX: 0.9,
-    focus: { x: -0.4, y: 1.05, z: -2.8 },
+    // Encuadre desde un extremo de la mesa: empuja el sujeto a la izquierda y
+    // deja la mitad derecha realmente libre para el contenido de la landing.
+    cameraX: 1.85,
+    cameraZ: 3.5,
+    focus: { x: -1.25, y: 1.05, z: -2.95 },
     windowSide: -1,
+    safe: "right",
   },
   {
     id: "evaluador",
@@ -101,9 +122,11 @@ export const CHAPTERS: Chapter[] = [
     title: "De la respuesta al escrito",
     body: "La confianza de una cita debe verse antes de usarla: Curia muestra su estado contrastado con el SJF.",
     accent: PALETTE.teal,
-    cameraX: 0,
-    focus: { x: 0, y: 1.4, z: -3.2 },
+    cameraX: 0.35,
+    cameraZ: 3.0,
+    focus: { x: -0.15, y: 1.4, z: -3.2 },
     windowSide: 1,
+    safe: "left",
   },
 ];
 

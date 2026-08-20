@@ -81,14 +81,60 @@ body {
   mix-blend-mode: multiply;
 }
 
-/* ---- Copy, abajo a la izquierda, en zona segura ---- */
+/* ---- Copy: se coloca en la mitad libre que declara cada capítulo ---- */
 
 .copy {
   position: absolute;
-  left: clamp(1.25rem, 5vw, 4.5rem);
   bottom: clamp(2rem, 8vh, 5.5rem);
   z-index: 10;
-  max-width: min(30rem, 44vw);
+  max-width: min(30rem, 40vw);
+  padding: 1rem 1.2rem 1.1rem;
+  border-radius: 0.85rem;
+  /* Scrim muy leve: el texto cae sobre madera y estantería, y sin él el gris
+     secundario pierde contraste según la sala. */
+  background: linear-gradient(
+    to top,
+    rgba(248, 246, 242, 0.72),
+    rgba(248, 246, 242, 0.38)
+  );
+  backdrop-filter: blur(3px);
+  transition:
+    left 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    right 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stage[data-safe="left"] .copy {
+  left: clamp(1.25rem, 5vw, 4.5rem);
+  right: auto;
+}
+
+.stage[data-safe="right"] .copy {
+  right: clamp(1.25rem, 5vw, 4.5rem);
+  left: auto;
+}
+
+/* Con el copy a la derecha, las marcas se van al lado opuesto. */
+.stage[data-safe="right"] .panel {
+  right: auto;
+  left: clamp(1rem, 3vw, 2.75rem);
+  align-items: flex-start;
+}
+
+.stage[data-safe="right"] .panel__marks {
+  align-items: flex-start;
+}
+
+.stage[data-safe="right"] .mark {
+  flex-direction: row-reverse;
+}
+
+.stage[data-safe="right"] .mark__label {
+  transform: translateX(-0.4rem);
+}
+
+.stage[data-safe="right"] .mark:hover .mark__label,
+.stage[data-safe="right"] .mark.is-active .mark__label {
+  transform: translateX(0);
 }
 
 .copy__kicker {
@@ -334,4 +380,308 @@ body {
     animation: none;
     opacity: 0.6;
   }
+}
+
+/* ---- Capa CSS3D y pantalla del monitor ---- */
+
+.stage__css3d {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Medidas fijas en px: el renderer CSS3D mapea 1px a 1 unidad de escena, y la
+   escena escala por 0.001, asi que 1320x825px es una pantalla de 1.32x0.825 m. */
+.app {
+  width: 1320px;
+  height: 825px;
+  display: flex;
+  flex-direction: column;
+  background: var(--curia-bg-subtle);
+  color: var(--curia-text);
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  overflow: hidden;
+  /* El HTML del CSS3D no pasa por el tone mapping del render, asi que salia a
+     blanco puro: 4.4% de pixeles quemados medidos en la oficina. Bajarlo lo
+     integra a la exposicion de la sala sin perder legibilidad. */
+  filter: brightness(0.9) saturate(0.97);
+  /* Sin sombra ni radio: los bordes los da el bisel del monitor en 3D. */
+}
+
+/* Reflejo de pantalla: una pantalla real devuelve algo de la luz de la sala.
+   Sin esto el HTML se lee como una calca pegada sobre el bisel. Contenido
+   deliberadamente tenue: con 0.16 de blanco el reflejo ganaba realismo pero
+   apagaba el texto, y aquí la interfaz tiene que poder leerse. */
+.app::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    108deg,
+    rgba(255, 255, 255, 0.085) 0%,
+    rgba(255, 255, 255, 0.03) 22%,
+    transparent 38%,
+    transparent 100%
+  );
+}
+
+.app__chrome {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.4rem 1.8rem;
+  background: var(--curia-bg-subtle);
+  border-bottom: 1px solid var(--curia-border);
+}
+
+.app__dots {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.app__dots i {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: var(--curia-border-strong);
+}
+
+.app__dots i:first-child {
+  background: #d98b7a;
+}
+
+.app__dots i:nth-child(2) {
+  background: #d9bb7a;
+}
+
+.app__dots i:nth-child(3) {
+  background: #8fbf9a;
+}
+
+.app__chrome-label {
+  margin-left: auto;
+  font-size: 1.05rem;
+  color: var(--curia-text-secondary);
+}
+
+.app__body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  min-height: 0;
+}
+
+.app__side {
+  padding: 1.9rem 1.5rem;
+  border-right: 1px solid var(--curia-border);
+  background: var(--curia-bg-subtle);
+}
+
+.app__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 2.2rem;
+  font-family: var(--serif);
+  font-size: 1.9rem;
+}
+
+.app__badge {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.8rem;
+  background: var(--curia-primary);
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.app__nav {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  font-size: 1.15rem;
+  color: var(--curia-text-secondary);
+}
+
+.app__nav li {
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.65rem;
+}
+
+.app__nav li.is-active {
+  background: var(--curia-bg);
+  color: var(--curia-text);
+  border: 1px solid var(--curia-border);
+  font-weight: 500;
+}
+
+.app__main {
+  padding: 1.9rem 2.1rem;
+  min-width: 0;
+}
+
+.app__kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--curia-primary);
+}
+
+.app__headrow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.app__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 2.15rem;
+}
+
+.app__count {
+  margin-left: auto;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  background: var(--curia-primary-light, #e6f4f4);
+  color: #0a5e61;
+  font-size: 1rem;
+}
+
+.app__list {
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.15rem 1.3rem;
+  border: 1px solid var(--curia-border);
+  border-radius: 0.9rem;
+  background: var(--curia-bg);
+}
+
+.row__mark {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  background: var(--curia-bg-subtle-2);
+  border: 1px solid var(--curia-border);
+}
+
+.row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.row__head {
+  font-size: 1.15rem;
+  color: var(--curia-text-secondary);
+}
+
+.row__head b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  color: var(--curia-text);
+  margin-right: 0.5rem;
+}
+
+.row__sub {
+  font-size: 1.05rem;
+  color: var(--curia-text-muted, #636f79);
+}
+
+.row__tag {
+  margin-left: auto;
+  flex: none;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--curia-border-strong);
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--curia-text-secondary);
+}
+
+.row__tag--hoy {
+  background: #f6e6c4;
+  border-color: #e6d0a4;
+  color: #6b4f18;
+}
+
+.app__cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+
+.card {
+  padding: 1.3rem 1.4rem;
+  border: 1px solid var(--curia-border);
+  border-radius: 0.9rem;
+  background: var(--curia-bg-subtle);
+}
+
+.card--plazo {
+  background: #eef6f5;
+  border-color: #cfe4e2;
+}
+
+.card__label {
+  margin: 0 0 0.7rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--curia-text-secondary);
+}
+
+.card__date {
+  margin: 0 0 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+
+.card__note {
+  margin: 0 0 0.8rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--curia-text-secondary);
+}
+
+.card__chip {
+  margin: 0;
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  background: #dceceb;
+  font-size: 0.95rem;
+  color: #0a5e61;
+}
+
+.card__chip--pendiente {
+  background: #f6e6c4;
+  color: #6b4f18;
 }

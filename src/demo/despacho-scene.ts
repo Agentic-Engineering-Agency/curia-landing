@@ -37,6 +37,15 @@ import {
   PMREMGenerator,
 } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import {
+  CSS3DObject,
+  CSS3DRenderer,
+} from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import {
   CHAPTERS,
   DOORWAY,
@@ -71,7 +80,14 @@ type Surface = {
   repeat?: Repeat;
 };
 
-export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low"): Despacho {
+/** Pantalla del monitor: HTML real que el renderer CSS3D pone en perspectiva. */
+export type ScreenMount = { element: HTMLElement; host: HTMLElement };
+
+export function createDespacho(
+  canvas: HTMLCanvasElement,
+  quality: "high" | "low",
+  screenMount?: ScreenMount,
+): Despacho {
   const renderer = new WebGLRenderer({
     canvas,
     antialias: quality === "high",
@@ -84,7 +100,7 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   renderer.shadowMap.type = PCFSoftShadowMap;
 
   // Cache por firma: la misma superficie comparte material y textura.
-  const roughnessMap = roughnessNoise(3);
+  const roughnessMap = roughnessNoise(6);
   const textureCache = new Map<string, CanvasTexture>();
   const materialCache = new Map<string, MeshStandardMaterial>();
   const disposables: { dispose(): void }[] = [roughnessMap];
@@ -124,6 +140,9 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
       color: map ? 0xffffff : color,
       map: map ?? null,
       roughnessMap,
+      // Sube la contribución del environment map: es lo que produce el brillo
+      // especular que distingue madera barnizada y metal de pintura mate.
+      envMapIntensity: 1.15,
       roughness,
       metalness,
     });
@@ -145,6 +164,33 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   ): Mesh {
     const mesh = new Mesh(UNIT_BOX, material(surface));
     mesh.scale.set(width, height, depth);
+    mesh.position.set(x, y, z);
+    mesh.castShadow = casts && quality === "high";
+    mesh.receiveShadow = true;
+    return mesh;
+  }
+
+  /**
+   * Caja con filo redondeado, con geometría propia porque el radio no puede
+   * escalarse sin deformarse. Una arista perfectamente viva es uno de los
+   * delatores más fuertes de render sintético: un mueble real tiene canto.
+   * Reservada a las piezas que la cámara ve de cerca.
+   */
+  function rbox(
+    width: number,
+    height: number,
+    depth: number,
+    x: number,
+    y: number,
+    z: number,
+    surface: Surface,
+    casts = true,
+    radius = 0.016,
+  ): Mesh {
+    const safe = Math.min(radius, Math.min(width, height, depth) / 2.05);
+    const geometry = new RoundedBoxGeometry(width, height, depth, 2, safe);
+    disposables.push(geometry);
+    const mesh = new Mesh(geometry, material(surface));
     mesh.position.set(x, y, z);
     mesh.castShadow = casts && quality === "high";
     mesh.receiveShadow = true;
@@ -187,10 +233,12 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   }
 
   const WALL: Surface = { color: PALETTE.subtle, roughness: 0.96, grain: "plaster", repeat: 4 };
-  const WOOD: Surface = { color: PALETTE.amber, roughness: 0.55, grain: "wood", repeat: 2 };
-  const WOOD_FINE: Surface = { color: PALETTE.amber, roughness: 0.5, grain: "wood", repeat: 1 };
-  const DARK: Surface = { color: 0x2b3239, roughness: 0.62, grain: "fabric", repeat: 3 };
-  const METAL: Surface = { color: PALETTE.borderStrong, roughness: 0.34, metalness: 0.62 };
+  // Rugosidades bajadas a propósito: con 0.55 la madera no devolvía ningún
+  // reflejo y se leía como pintura mate. Un barniz de oficina tiene brillo.
+  const WOOD: Surface = { color: PALETTE.amber, roughness: 0.42, grain: "wood", repeat: 2 };
+  const WOOD_FINE: Surface = { color: PALETTE.amber, roughness: 0.38, grain: "wood", repeat: 1 };
+  const DARK: Surface = { color: 0x2b3239, roughness: 0.5, grain: "fabric", repeat: 3 };
+  const METAL: Surface = { color: PALETTE.borderStrong, roughness: 0.24, metalness: 0.7 };
   const PAPER: Surface = { color: PALETTE.bone, roughness: 0.92 };
 
 
@@ -290,15 +338,15 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   function reception(accent: number): Group {
     const group = new Group();
     // Mostrador en L, con frente de madera y cubierta oscura.
-    group.add(box(3.0, 1.06, 0.66, 2.2, 0.53, -2.7, WOOD));
-    group.add(box(0.66, 1.06, 1.7, 3.37, 0.53, -1.75, WOOD));
-    group.add(box(3.14, 0.07, 0.8, 2.2, 1.09, -2.68, DARK));
-    group.add(box(0.8, 0.07, 1.84, 3.37, 1.09, -1.75, DARK));
+    group.add(rbox(3.0, 1.06, 0.66, 2.2, 0.53, -2.7, WOOD));
+    group.add(rbox(0.66, 1.06, 1.7, 3.37, 0.53, -1.75, WOOD));
+    group.add(rbox(3.14, 0.07, 0.8, 2.2, 1.09, -2.68, DARK, true, 0.01));
+    group.add(rbox(0.8, 0.07, 1.84, 3.37, 1.09, -1.75, DARK, true, 0.01));
     group.add(contact(4.6, 3.4, 2.5, -2.3));
 
     // Banca de espera con cojín.
-    group.add(box(2.5, 0.1, 0.66, -2.5, 0.44, -3.0, WOOD_FINE));
-    group.add(box(2.42, 0.1, 0.6, -2.5, 0.52, -3.0, DARK));
+    group.add(rbox(2.5, 0.1, 0.66, -2.5, 0.44, -3.0, WOOD_FINE, true, 0.012));
+    group.add(rbox(2.42, 0.1, 0.6, -2.5, 0.52, -3.0, DARK, true, 0.02));
     for (const offset of [-1.05, 1.05]) {
       group.add(box(0.09, 0.4, 0.58, -2.5 + offset, 0.2, -3.0, METAL));
     }
@@ -339,18 +387,18 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     );
 
     // Escritorio: cubierta, faldón y dos pedestales.
-    group.add(box(2.95, 0.08, 1.4, -1.9, 0.75, -2.45, WOOD));
+    group.add(rbox(2.95, 0.08, 1.4, -1.9, 0.75, -2.45, WOOD, true, 0.012));
     group.add(box(2.6, 0.28, 0.08, -1.9, 0.58, -3.06, WOOD_FINE));
-    group.add(box(0.72, 0.68, 1.22, -3.02, 0.34, -2.45, DARK));
-    group.add(box(0.72, 0.68, 1.22, -0.82, 0.34, -2.45, DARK));
+    group.add(rbox(0.72, 0.68, 1.22, -3.02, 0.34, -2.45, DARK));
+    group.add(rbox(0.72, 0.68, 1.22, -0.82, 0.34, -2.45, DARK));
     for (let drawer = 0; drawer < 3; drawer += 1) {
       group.add(box(0.3, 0.028, 0.03, -0.82, 0.2 + drawer * 0.22, -3.07, METAL));
     }
     group.add(contact(4.2, 2.7, -1.9, -2.45));
 
     // Silla con base de cinco brazos.
-    group.add(box(0.6, 0.1, 0.58, -1.9, 0.47, -1.3, DARK));
-    group.add(box(0.6, 0.7, 0.09, -1.9, 0.87, -1.03, DARK));
+    group.add(rbox(0.6, 0.1, 0.58, -1.9, 0.47, -1.3, DARK, true, 0.022));
+    group.add(rbox(0.6, 0.7, 0.09, -1.9, 0.87, -1.03, DARK, true, 0.022));
     const stem = new Mesh(new CylinderGeometry(0.048, 0.048, 0.4, 16), material(METAL));
     stem.position.set(-1.9, 0.22, -1.3);
     group.add(stem);
@@ -362,10 +410,12 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     }
     group.add(contact(1.7, 1.7, -1.9, -1.3));
 
-    // Monitor a escala real (~27"): el volumen, no la interfaz. La UI va en HTML.
-    group.add(box(1.38, 0.8, 0.045, -1.9, 1.24, -2.92, DARK));
-    const screen = emissive(1.3, 0.72, 0x101519);
-    screen.position.set(-1.9, 1.24, -2.895);
+    // Monitor 16:10 a escala real. El volumen y el bisel son 3D; el contenido
+    // es HTML real puesto en perspectiva por CSS3D, no una textura horneada,
+    // así que el texto sigue siendo texto.
+    group.add(rbox(1.42, 0.92, 0.05, -1.9, 1.3, -2.92, DARK, true, 0.009));
+    const screen = emissive(1.34, 0.84, 0x0e1316);
+    screen.position.set(-1.9, 1.3, -2.892);
     group.add(screen);
     group.add(box(0.22, 0.3, 0.14, -1.9, 0.87, -2.9, DARK));
     group.add(box(0.42, 0.03, 0.2, -1.9, 0.73, -2.9, METAL));
@@ -397,8 +447,8 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     // Archiveros contra el muro derecho, con tiradores.
     for (let index = 0; index < 4; index += 1) {
       const z = -0.8 - index * 1.02;
-      group.add(box(0.88, 1.3, 0.6, 3.05, 0.65, z, DARK));
-      group.add(box(0.9, 0.04, 0.62, 3.05, 1.32, z, WOOD_FINE));
+      group.add(rbox(0.88, 1.3, 0.6, 3.05, 0.65, z, DARK, true, 0.012));
+      group.add(rbox(0.9, 0.04, 0.62, 3.05, 1.32, z, WOOD_FINE, true, 0.008));
       for (let drawer = 0; drawer < 4; drawer += 1) {
         const y = 0.22 + drawer * 0.31;
         group.add(box(0.8, 0.28, 0.02, 3.05, y, z - 0.31, { color: 0x232a31, roughness: 0.6 }));
@@ -408,7 +458,7 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     group.add(contact(2.3, 5.6, 3.05, -2.3));
 
     // Mesa de digitalización con documentos abiertos.
-    group.add(box(1.7, 0.07, 0.85, -2.3, 0.79, -2.9, WOOD));
+    group.add(rbox(1.7, 0.07, 0.85, -2.3, 0.79, -2.9, WOOD, true, 0.01));
     for (const [dx, dz] of [
       [-0.75, -0.34],
       [0.75, -0.34],
@@ -449,9 +499,9 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     );
 
     // Mesa larga con doble pedestal.
-    group.add(box(4.7, 0.09, 1.5, 0, 0.76, -2.6, WOOD));
+    group.add(rbox(4.7, 0.09, 1.5, 0, 0.76, -2.6, WOOD, true, 0.012));
     for (const offset of [-1.5, 1.5]) {
-      group.add(box(0.5, 0.68, 1.1, offset, 0.34, -2.6, DARK));
+      group.add(rbox(0.5, 0.68, 1.1, offset, 0.34, -2.6, DARK));
     }
     group.add(contact(6.0, 3.0, 0, -2.6));
 
@@ -459,8 +509,8 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     for (const side of [-1, 1]) {
       for (const offset of [-1.55, 0, 1.55]) {
         const z = -2.6 + side * 1.16;
-        group.add(box(0.52, 0.09, 0.5, offset, 0.47, z, DARK));
-        group.add(box(0.52, 0.6, 0.08, offset, 0.8, z + side * 0.23, DARK));
+        group.add(rbox(0.52, 0.09, 0.5, offset, 0.47, z, DARK, true, 0.02));
+        group.add(rbox(0.52, 0.6, 0.08, offset, 0.8, z + side * 0.23, DARK, true, 0.02));
         const post = new Mesh(new CylinderGeometry(0.042, 0.042, 0.42, 14), material(METAL));
         post.position.set(offset, 0.23, z);
         group.add(post);
@@ -494,8 +544,8 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
       const x = side * 3.15;
       for (let bay = 0; bay < 3; bay += 1) {
         const z = -1.0 - bay * 1.5;
-        group.add(box(1.4, 2.62, 0.44, x, 1.31, z, WOOD));
-        group.add(box(1.5, 0.07, 0.5, x, 2.66, z, WOOD_FINE));
+        group.add(rbox(1.4, 2.62, 0.44, x, 1.31, z, WOOD, true, 0.014));
+        group.add(rbox(1.5, 0.07, 0.5, x, 2.66, z, WOOD_FINE, true, 0.01));
         for (let shelf = 0; shelf < 5; shelf += 1) {
           const y = 0.36 + shelf * 0.5;
           group.add(box(1.24, 0.03, 0.4, x, y, z, WOOD_FINE, false));
@@ -589,6 +639,22 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   const stops: Vector3[] = [];
   const focuses: Vector3[] = [];
 
+  // La pantalla vive en su propia escena porque CSS3DRenderer mantiene un
+  // grafo aparte. Comparte la cámara, así que sigue la perspectiva exacta.
+  const OFFICE = 1;
+  const screenPosition = new Vector3(-1.9, 1.3, roomCenterZ(OFFICE) - 2.886);
+  const cssScene = new Scene();
+  const cssRenderer = screenMount ? new CSS3DRenderer({ element: screenMount.host }) : null;
+  let screenObject: CSS3DObject | null = null;
+  if (screenMount && cssRenderer) {
+    screenObject = new CSS3DObject(screenMount.element);
+    // El elemento mide 1320x825 px y CSS3D mapea 1px a 1 unidad: 0.001 lo
+    // deja en 1.32 x 0.825 m, justo dentro del bisel del monitor.
+    screenObject.scale.setScalar(0.001);
+    screenObject.position.copy(screenPosition);
+    cssScene.add(screenObject);
+  }
+
   CHAPTERS.forEach((chapter, index) => {
     const z = roomCenterZ(index);
 
@@ -609,7 +675,7 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     daylight.position.set((chapter.windowSide * ROOM.width) / 2 - chapter.windowSide * 1.0, 2.1, z + 0.5);
     scene.add(daylight);
 
-    stops.push(new Vector3(chapter.cameraX, EYE_HEIGHT, z + 3.05));
+    stops.push(new Vector3(chapter.cameraX, EYE_HEIGHT, z + chapter.cameraZ));
     focuses.push(new Vector3(chapter.focus.x, chapter.focus.y, z + chapter.focus.z));
   });
 
@@ -620,7 +686,8 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
   // Sol rasante desde la ventana de la sala activa. El shadow map viaja con la
   // cámara, así que sus 2048px cubren la sala visible en vez de repartirse
   // sobre los cuarenta y seis metros del enfilade.
-  const sun = new DirectionalLight(0xfff2dc, quality === "high" ? 6.4 : 4.2);
+  const sunIntensity = quality === "high" ? 6.4 : 4.2;
+  const sun = new DirectionalLight(0xfff2dc, sunIntensity);
   sun.castShadow = quality === "high";
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.camera.left = -7;
@@ -667,12 +734,28 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     camera.position.copy(position);
     camera.lookAt(target);
 
-    // El sol entra por la ventana de la sala más cercana, rasante y hacia dentro.
-    const room = Math.max(0, Math.min(lastRoom, Math.round(clamped * lastRoom)));
-    const side = CHAPTERS[room].windowSide;
+    // El lado de la ventana alterna sala a sala, así que elegirlo con un
+    // redondeo hacía saltar el sol de un costado del edificio al otro en un
+    // solo fotograma: medido, un pico de diferencia de 74 contra una media de
+    // 3.5 al cruzar el vano. Se conserva el escalón — un sol no interpola su
+    // posición atravesando el edificio — pero la intensidad cae en el umbral,
+    // que además es lo correcto: dentro de un vano no hay ventana.
+    const sideFrom = CHAPTERS[leg].windowSide;
+    const sideTo = CHAPTERS[leg + 1].windowSide;
+    const side = local < 0.5 ? sideFrom : sideTo;
+    const crossing = sideFrom === sideTo ? 1 : 1 - 0.72 * Math.exp(-((local - 0.5) ** 2) / 0.014);
+    sun.intensity = sunIntensity * crossing;
     sun.position.set(side * (ROOM.width / 2 + 5.5), 3.4, position.z + 2.2);
     sun.target.position.set(-side * 2.2, 0.75, position.z - 3.4);
     sun.target.updateMatrixWorld();
+
+    // El DOM siempre se dibuja encima del WebGL, así que la pantalla debe
+    // ocultarse fuera de su sala o se vería atravesando los muros.
+    if (screenObject) {
+      const ahead = position.z > screenPosition.z + 0.4;
+      const near = Math.abs(position.z - screenPosition.z) < 7.5;
+      screenObject.visible = ahead && near;
+    }
   }
 
   function resize(width: number, height: number) {
@@ -686,6 +769,8 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(Math.min(devicePixelRatio, quality === "high" ? 2 : 1.25));
     renderer.setSize(width, height, false);
+    composer?.setSize(width, height);
+    cssRenderer?.setSize(width, height);
   }
 
   function dispose() {
@@ -703,6 +788,29 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     renderer.dispose();
   }
 
+  // Oclusión ambiental. Es lo que separa un render básico de un interior
+  // creíble: sin ella las esquinas, los rincones bajo los muebles y los
+  // encuentros muro-piso reciben la misma luz que una superficie abierta.
+  const composer = quality === "high" ? new EffectComposer(renderer) : null;
+  if (composer) {
+    composer.addPass(new RenderPass(scene, camera));
+    const gtao = new GTAOPass(scene, camera);
+    gtao.updateGtaoMaterial({
+      // Radio en unidades de escena: 62cm capta el encuentro muro-piso y el
+      // hueco bajo un mueble sin ensuciar superficies abiertas.
+      radius: 0.62,
+      distanceExponent: 1.6,
+      thickness: 0.45,
+      scale: 1,
+      samples: 16,
+      distanceFallOff: 1,
+      screenSpaceRadius: false,
+    });
+    gtao.blendIntensity = 1;
+    composer.addPass(gtao);
+    composer.addPass(new OutputPass());
+  }
+
   update(0, 0, false);
 
   return {
@@ -711,7 +819,11 @@ export function createDespacho(canvas: HTMLCanvasElement, quality: "high" | "low
     renderer,
     update,
     resize,
-    render: () => renderer.render(scene, camera),
+    render: () => {
+      if (composer) composer.render();
+      else renderer.render(scene, camera);
+      if (cssRenderer) cssRenderer.render(cssScene, camera);
+    },
     dispose,
   };
 }

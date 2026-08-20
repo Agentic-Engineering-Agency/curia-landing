@@ -36,13 +36,16 @@ export function woodTexture(base: number, repeat: Repeat = 1): CanvasTexture {
   ctx.fillStyle = hex(base);
   ctx.fillRect(0, 0, size, size);
 
-  for (let index = 0; index < 190; index += 1) {
+  // Contraste deliberadamente alto: medido en render, con alfas por debajo de
+  // 0.1 la veta desaparece a la distancia de cámara y la madera se lee como
+  // color plano.
+  for (let index = 0; index < 260; index += 1) {
     const y = Math.random() * size;
-    const dark = Math.random() > 0.5;
+    const dark = Math.random() > 0.42;
     ctx.strokeStyle = dark
-      ? `rgba(58, 42, 22, ${0.03 + Math.random() * 0.09})`
-      : `rgba(255, 244, 226, ${0.02 + Math.random() * 0.07})`;
-    ctx.lineWidth = 0.6 + Math.random() * 2.6;
+      ? `rgba(52, 36, 17, ${0.06 + Math.random() * 0.2})`
+      : `rgba(255, 246, 230, ${0.04 + Math.random() * 0.14})`;
+    ctx.lineWidth = 0.6 + Math.random() * 3.2;
     ctx.beginPath();
     ctx.moveTo(0, y);
     // Tres tramos con deriva: una línea recta se lee como raya, no como veta.
@@ -52,8 +55,23 @@ export function woodTexture(base: number, repeat: Repeat = 1): CanvasTexture {
     ctx.stroke();
   }
 
-  for (let index = 0; index < 2600; index += 1) {
-    ctx.fillStyle = `rgba(46, 34, 18, ${Math.random() * 0.05})`;
+  // Nudos: interrumpen la veta y evitan la lectura de material infinito. Pocos
+  // y suaves: en revisión, cinco nudos marcados se leían como mugre salpicada
+  // en vez de madera.
+  for (let index = 0; index < 3; index += 1) {
+    const cx = Math.random() * size;
+    const cy = Math.random() * size;
+    for (let ring = 0; ring < 5; ring += 1) {
+      ctx.strokeStyle = `rgba(44, 30, 14, ${0.11 - ring * 0.019})`;
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 4 + ring * 3.6, 2 + ring * 1.7, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  for (let index = 0; index < 4200; index += 1) {
+    ctx.fillStyle = `rgba(46, 34, 18, ${Math.random() * 0.09})`;
     ctx.fillRect(Math.random() * size, Math.random() * size, 1, 1);
   }
 
@@ -169,6 +187,27 @@ export function roughnessNoise(repeat: Repeat = 1): CanvasTexture {
     ctx.fillStyle = gradient;
     ctx.fillRect(-radius, -radius, radius * 2, radius * 2);
     ctx.restore();
+  }
+
+  // Uso: rayaduras finas y polvo. Una superficie sin desgaste responde a la
+  // luz de forma perfectamente uniforme, y eso es lo que delata al render.
+  for (let index = 0; index < 90; index += 1) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const length = 6 + Math.random() * 46;
+    const angle = Math.random() * Math.PI;
+    ctx.strokeStyle = `rgba(${Math.random() > 0.5 ? 235 : 105}, 128, 128, ${0.1 + Math.random() * 0.22})`;
+    ctx.lineWidth = 0.5 + Math.random();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+    ctx.stroke();
+  }
+
+  for (let index = 0; index < 1800; index += 1) {
+    const tone = 190 + Math.floor(Math.random() * 60);
+    ctx.fillStyle = `rgba(${tone}, ${tone}, ${tone}, ${Math.random() * 0.3})`;
+    ctx.fillRect(Math.random() * size, Math.random() * size, 1, 1);
   }
 
   return finish(canvas, repeat, false);

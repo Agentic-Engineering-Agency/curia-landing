@@ -16,6 +16,10 @@
       <div class="stage" data-stage data-ready="false">
         <canvas class="stage__canvas" data-canvas></canvas>
 
+        <!-- Capa CSS3D: aqui el renderer coloca la pantalla del monitor en
+             perspectiva. Va detras del texto y no captura el puntero. -->
+        <div class="stage__css3d" data-css3d aria-hidden="true"></div>
+
         <div class="stage__grain" aria-hidden="true"></div>
 
         <div class="copy" data-copy>
@@ -32,6 +36,78 @@
         <p class="hint" aria-hidden="true">Desplaza para recorrer el despacho</p>
       </div>
     </section>
+
+    <!-- La vista de Curia es HTML real, no una textura horneada: el renderer
+         CSS3D la traslada dentro de la pantalla del monitor de la oficina.
+         Asi el texto sigue siendo texto seleccionable y accesible. -->
+    <div hidden data-screen-host>
+      <div class="app" data-screen>
+        <header class="app__chrome">
+          <span class="app__dots"><i></i><i></i><i></i></span>
+          <span class="app__chrome-label">Operación diaria · Vista ilustrativa</span>
+        </header>
+
+        <div class="app__body">
+          <nav class="app__side">
+            <p class="app__brand"><span class="app__badge">C</span>Curia</p>
+            <ul class="app__nav">
+              <li class="is-active">Inicio</li>
+              <li>Expedientes</li>
+              <li>Biblioteca</li>
+              <li>Investigación</li>
+            </ul>
+          </nav>
+
+          <main class="app__main">
+            <p class="app__kicker">Monitoreo</p>
+            <div class="app__headrow">
+              <h3 class="app__title">Avisos para revisar</h3>
+              <span class="app__count">3 movimientos</span>
+            </div>
+
+            <ul class="app__list">
+              <li class="row">
+                <span class="row__mark"></span>
+                <span class="row__text">
+                  <span class="row__head"><b>123/2026</b> Juzgado Quinto de lo Civil</span>
+                  <span class="row__sub">Acuerdo disponible para revisión</span>
+                </span>
+                <span class="row__tag row__tag--hoy">Hoy</span>
+              </li>
+              <li class="row">
+                <span class="row__mark"></span>
+                <span class="row__text">
+                  <span class="row__head"><b>084/2026</b> Juzgado Segundo Mercantil</span>
+                  <span class="row__sub">Nuevo movimiento detectado</span>
+                </span>
+                <span class="row__tag">Revisar</span>
+              </li>
+              <li class="row">
+                <span class="row__mark"></span>
+                <span class="row__text">
+                  <span class="row__head"><b>217/2026</b> Juzgado Primero Familiar</span>
+                  <span class="row__sub">Aviso relacionado con el expediente</span>
+                </span>
+                <span class="row__tag">Nuevo</span>
+              </li>
+            </ul>
+
+            <div class="app__cards">
+              <div class="card card--plazo">
+                <p class="card__label">Plazo calculado</p>
+                <p class="card__date">17 jul 2026</p>
+                <p class="card__chip">[Curia] Vencimiento · 123/2026</p>
+              </div>
+              <div class="card">
+                <p class="card__label">Referencia jurídica</p>
+                <p class="card__note">Referencia ilustrativa · pendiente de evaluar</p>
+                <p class="card__chip card__chip--pendiente">Pendiente</p>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
 
     <section class="after">
       <h2>Aquí continuaría la landing en flujo normal.</h2>

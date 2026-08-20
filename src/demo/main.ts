@@ -17,6 +17,8 @@ import {
 const stage = document.querySelector<HTMLElement>("[data-stage]")!;
 const track = document.querySelector<HTMLElement>("[data-track]")!;
 const canvas = document.querySelector<HTMLCanvasElement>("[data-canvas]")!;
+const css3dHost = document.querySelector<HTMLElement>("[data-css3d]")!;
+const screenElement = document.querySelector<HTMLElement>("[data-screen]")!;
 const kicker = document.querySelector<HTMLElement>("[data-kicker]")!;
 const title = document.querySelector<HTMLElement>("[data-title]")!;
 const body = document.querySelector<HTMLElement>("[data-body]")!;
@@ -41,7 +43,10 @@ function detectQuality(): "high" | "low" {
   return (navigator.hardwareConcurrency ?? 4) >= 4 ? "high" : "low";
 }
 
-const despacho = createDespacho(canvas, detectQuality());
+const despacho = createDespacho(canvas, detectQuality(), {
+  element: screenElement,
+  host: css3dHost,
+});
 
 // Marcas de capítulo: navegación discreta, no un carrusel.
 const marks = CHAPTERS.map((chapter, index) => {
@@ -84,6 +89,9 @@ function paintChapter(index: number) {
   counter.textContent = `${String(index + 1).padStart(2, "0")} / ${String(CHAPTERS.length).padStart(2, "0")}`;
 
   stage.dataset.chapter = chapter.id;
+  // El CSS coloca el contenido en la mitad libre del encuadre, declarada por
+  // el capítulo. Así el texto nunca compite con el sujeto de la sala.
+  stage.dataset.safe = chapter.safe;
   stage.style.setProperty("--accent", `#${chapter.accent.toString(16).padStart(6, "0")}`);
 
   marks.forEach((mark, markIndex) => {
