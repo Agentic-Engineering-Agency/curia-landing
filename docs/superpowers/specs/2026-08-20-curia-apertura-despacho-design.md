@@ -4,9 +4,67 @@ Diseño de la apertura de la landing de Curia: un despacho en 3D que el
 visitante atraviesa con el scroll, con el contenido real de la landing viviendo
 dentro del espacio.
 
-Estado: la secuencia está construida y verificada como demo aislada
-(`/demo/`, commits `7f592d3` → `188094e`). Este documento fija las decisiones
-tomadas y marca la única que queda abierta.
+Estado: **revisado y rechazado por Sebastián el 2026-08-20 — 5/10 contra un
+mínimo de 9.5 para producción.** La secuencia y su arquitectura técnica se
+conservan; la sección 7 (materiales y luz) y la 5 (composición) quedan
+invalidadas por la revisión de la sección 0. Leer la sección 0 primero.
+
+---
+
+## 0. Revisión de Sebastián y tesis corregida
+
+### Qué falló
+
+Verificado que no fue caché: el servidor entregaba el código de los cuatro
+commits (`jacket`, `chair.rotation.y`, `safe:`, `dataset.safe`, `plankTexture`
+presentes en los módulos servidos). Los cambios estaban vivos y aun así no
+registraron. No eran los cambios que importaban.
+
+El error de método: estuve puntuando el avance con un modelo de visión que
+devolvía 7.5/10 mientras el juicio real era 5/10. Optimicé contra un proxy en
+vez de comparar contra la referencia. La comparación lado a lado a igual
+viewport está en `docs/reference/comparacion-referencia-vs-demo.png`.
+
+### La tesis estaba equivocada, no incompleta
+
+La referencia no gana por detalle. Gana por **restricción y dirección de arte**:
+cuatro tonos por escena, seis a ocho objetos protagonistas cuidados, vacío
+deliberado como recurso, tipografía pequeña e integrada en el espacio, y
+encuadres con tensión compositiva.
+
+Perseguir fotorrealismo —veta, oclusión, desgaste, normal maps— fue la
+dirección equivocada. El diagnóstico externo del comparativo es explícito: la
+brecha no es fidelidad de render, es **intencionalidad en cada escala**.
+
+### Los siete puntos de esta vuelta
+
+1. **El contenido va montado sobre los muros**, como arquitectura del espacio,
+   no como bloque de texto flotando en una esquina del viewport. Los muros
+   tienen metros libres; el texto de cada capítulo y las tarjetas de las
+   secciones de Curia se cuelgan en ellos, en perspectiva. El modal con scrim
+   se elimina: hoy lee como UI de videojuego atornillada al fondo.
+2. **La cámara entra de verdad al monitor.** Un capítulo cuyo encuadre final es
+   la interfaz de Curia legible, no una sala donde la pantalla mide 388 px.
+3. **Tiene que leerse como despacho de abogados mexicano.** Falta densidad y
+   falta iconografía legible: libreros con volúmenes distintos y lomos
+   variados, códigos y tomos empastados, cédulas y diplomas enmarcados,
+   expedientes atados, sellos. La biblioteca hoy es un mueble repetido tres
+   veces por lado.
+4. **Menos objetos, mejores.** El comparativo describe el estado actual como
+   inventario disperso. Se sustituye por pocas piezas protagonistas con
+   proporción y factura cuidadas.
+5. **Paleta disciplinada por sala**, con bloques de color decididos y un acento
+   que signifique algo. Hoy es beige sobre beige roto por acentos que se leen
+   añadidos.
+6. **Encuadres compuestos**, no vistas isométricas centradas. Profundidad en
+   capas: primer plano, arquitectura media, fondo.
+7. **La fluidez es requisito, no variable de ajuste.** Bajó de 61 a 54 fps y se
+   siente. Hay que recuperarla y subir calidad a la vez: hornear lo que es
+   estático en vez de recalcularlo por frame.
+
+### Fuera de alcance en esta vuelta
+
+Motion Anything: retirado por indicación de Sebastián hasta nuevo aviso.
 
 ---
 
@@ -223,17 +281,15 @@ contraria.
 - `AmbientBackground` se conserva en el resto de la página. No hay dos fondos
   animados compitiendo: durante la apertura, el fondo es la escena.
 
-## 12. Decisión abierta
+## 12. Decisiones abiertas
 
-**Cuál receta de Motion Anything se integra y en qué parte.** Es la única
-decisión que bloquea el plan de implementación. Requisitos: receta oficial del
-catálogo (no una aproximación propia), con atribución, y que no sea el fondo de
-la landing —ese lugar ya lo ocupa `AmbientBackground`.
+1. **Confirmación de los siete puntos de la sección 0** como brief de la vuelta
+   de rediseño.
+2. **Cómo se injerta en la landing** (sección 11): la propuesta es que la
+   apertura sustituya el rol visual del hero y herede su H1, subhead y CTAs.
 
-Candidatos servidos en local para inspección: 85 recetas web, de las cuales
-`waves`, `line-waves`, `dot-field`, `noise` y `soft-aurora` respetan un fondo
-claro; `decrypted-text`, `count-up` y `true-focus` encajan con los cuatro
-estados de confianza del Reference Evaluator.
+Motion Anything sale de las decisiones abiertas: retirado por indicación de
+Sebastián. Se retomará cuando él lo indique.
 
 ## 13. Gate de aceptación
 
