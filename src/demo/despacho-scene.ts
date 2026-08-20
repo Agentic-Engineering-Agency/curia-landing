@@ -429,19 +429,25 @@ export function createDespacho(
     }
     group.add(contact(4.2, 2.7, -1.9, -2.45));
 
-    // Silla con base de cinco brazos.
-    group.add(rbox(0.6, 0.1, 0.58, -1.9, 0.47, -1.3, DARK, true, 0.022));
-    group.add(rbox(0.6, 0.7, 0.09, -1.9, 0.87, -1.03, DARK, true, 0.022));
+    // Silla girada respecto al escritorio: nadie deja la silla perfectamente
+    // encuadrada al levantarse, y ese pequeño desalineo es lo que separa un
+    // espacio usado de un showroom.
+    const chair = new Group();
+    chair.add(rbox(0.6, 0.1, 0.58, 0, 0.47, 0, DARK, true, 0.022));
+    chair.add(rbox(0.6, 0.7, 0.09, 0, 0.87, 0.27, DARK, true, 0.022));
     const stem = new Mesh(new CylinderGeometry(0.048, 0.048, 0.4, 16), material(METAL));
-    stem.position.set(-1.9, 0.22, -1.3);
-    group.add(stem);
+    stem.position.set(0, 0.22, 0);
+    chair.add(stem);
     for (let arm = 0; arm < 5; arm += 1) {
       const angle = (arm / 5) * Math.PI * 2;
-      group.add(
-        box(0.34, 0.05, 0.07, -1.9 + Math.cos(angle) * 0.19, 0.05, -1.3 + Math.sin(angle) * 0.19, METAL),
+      chair.add(
+        box(0.34, 0.05, 0.07, Math.cos(angle) * 0.19, 0.05, Math.sin(angle) * 0.19, METAL),
       );
     }
-    group.add(contact(1.7, 1.7, -1.9, -1.3));
+    chair.position.set(-1.72, 0, -1.24);
+    chair.rotation.y = -0.34;
+    group.add(chair);
+    group.add(contact(1.7, 1.7, -1.72, -1.24));
 
     // Monitor 16:10 a escala real. El volumen y el bisel son 3D; el contenido
     // es HTML real puesto en perspectiva por CSS3D, no una textura horneada,
@@ -470,6 +476,41 @@ export function createDespacho(
     const bulb = new PointLight(0xffd9a0, 3.2, 3.4, 2);
     bulb.position.set(-2.9, 1.24, -2.8);
     group.add(bulb);
+
+    // Presencia implícita: el despacho se lee como recién dejado, no como
+    // showroom vacío. Sin figuras humanas — el brief las excluye y una figura
+    // 3D genérica abarata la pieza. Estos objetos dan el mismo anclaje.
+    const presence = new Group();
+
+    // Saco sobre el respaldo. Va dentro del grupo de la silla para que la siga
+    // cuando esta gira, en vez de quedar flotando donde estaba antes.
+    const jacket = rbox(0.52, 0.44, 0.1, 0, 0, 0, { color: 0x39424c, roughness: 0.92, grain: "fabric", repeat: 2 }, true, 0.045);
+    jacket.position.set(0.05, 0.9, 0.3);
+    jacket.rotation.set(0.14, 0.05, -0.06);
+    chair.add(jacket);
+
+    // Taza a medio terminar, fuera del eje del teclado.
+    const cup = new Mesh(new CylinderGeometry(0.045, 0.038, 0.095, 18), material(PAPER));
+    cup.position.set(-1.28, 0.845, -2.5);
+    cup.castShadow = quality === "high";
+    presence.add(cup);
+    const coffee = emissive(0.078, 0.078, 0x3b2a1c);
+    coffee.rotation.x = -Math.PI / 2;
+    coffee.position.set(-1.28, 0.888, -2.5);
+    presence.add(coffee);
+
+    // Lentes de lectura dejados abiertos sobre el expediente.
+    presence.add(box(0.13, 0.012, 0.045, -1.02, 0.935, -2.14, DARK));
+    presence.add(box(0.012, 0.012, 0.12, -0.96, 0.935, -2.09, DARK));
+
+    // Hojas abanicadas: alguien estaba revisando y se levantó.
+    for (let sheet = 0; sheet < 4; sheet += 1) {
+      const page = box(0.3, 0.004, 0.21, -2.62, 0.795 + sheet * 0.005, -2.2, PAPER);
+      page.rotation.y = 0.12 + sheet * 0.09;
+      presence.add(page);
+    }
+
+    group.add(presence);
 
     return group;
   }
