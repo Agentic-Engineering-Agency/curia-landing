@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0d7377" />
+    <title>Curia — demo de secuencia del despacho</title>
+  </head>
+  <body>
+    <p class="demo-note">
+      Demo de validación · secuencia de scroll en el despacho · no es la landing
+    </p>
+
+    <section class="track" data-track>
+      <div class="stage" data-stage data-ready="false">
+        <canvas class="stage__canvas" data-canvas></canvas>
+
+        <div class="stage__grain" aria-hidden="true"></div>
+
+        <div class="copy" data-copy>
+          <p class="copy__kicker" data-kicker></p>
+          <h2 class="copy__title" data-title></h2>
+          <p class="copy__body" data-body></p>
+        </div>
+
+        <aside class="panel">
+          <p class="panel__counter" data-counter></p>
+          <nav class="panel__marks" data-marks aria-label="Capítulos del recorrido"></nav>
+        </aside>
+
+        <p class="hint" aria-hidden="true">Desplaza para recorrer el despacho</p>
+      </div>
+    </section>
+
+    <section class="after">
+      <h2>Aquí continuaría la landing en flujo normal.</h2>
+      <p>
+        La apertura cinematográfica termina y el documento sigue con las secciones
+        reales de Curia. Esta demo sólo valida el recorrido.
+      </p>
+    </section>
+
+    <script type="module" src="/src/demo/main.ts"></script>
+  </body>
+</html>

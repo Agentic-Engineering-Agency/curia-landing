@@ -1,0 +1,337 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/instrument-serif";
+
+/* Tokens copiados de la landing en producción, sin variantes nuevas. */
+:root {
+  --curia-primary: #0d7377;
+  --curia-bg: #ffffff;
+  --curia-bg-subtle: #f8f6f2;
+  --curia-bg-subtle-2: #f3efe7;
+  --curia-border: #e4e2de;
+  --curia-border-strong: #cec9c3;
+  --curia-text: #1a2028;
+  --curia-text-secondary: #5e6668;
+  --accent: var(--curia-primary);
+  --serif: "Instrument Serif", Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--curia-bg-subtle-2);
+  color: var(--curia-text);
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.demo-note {
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.4rem 1rem;
+  background: var(--curia-text);
+  color: #fff;
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--curia-bg-subtle-2);
+}
+
+.stage__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+
+.stage[data-ready="true"] .stage__canvas {
+  opacity: 1;
+}
+
+/* Grano y viñeta: rompen la limpieza sintética del render sin coste de GPU. */
+.stage__grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(26, 32, 40, 0.22) 100%),
+    linear-gradient(to bottom, rgba(26, 32, 40, 0.1), transparent 22%);
+  mix-blend-mode: multiply;
+}
+
+/* ---- Copy, abajo a la izquierda, en zona segura ---- */
+
+.copy {
+  position: absolute;
+  left: clamp(1.25rem, 5vw, 4.5rem);
+  bottom: clamp(2rem, 8vh, 5.5rem);
+  z-index: 10;
+  max-width: min(30rem, 44vw);
+}
+
+.copy__kicker {
+  margin: 0 0 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: color 500ms ease;
+}
+
+.copy__title {
+  margin: 0 0 0.9rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+}
+
+.copy__body {
+  margin: 0;
+  max-width: 30rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.06rem);
+  line-height: 1.6;
+  color: var(--curia-text-secondary);
+}
+
+/* Entrada por máscara, no por opacidad repetida. */
+.copy.is-entering .copy__kicker,
+.copy.is-entering .copy__title,
+.copy.is-entering .copy__body {
+  animation: rise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.copy.is-entering .copy__title {
+  animation-delay: 60ms;
+}
+
+.copy.is-entering .copy__body {
+  animation-delay: 120ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.85rem);
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 -10% 0);
+  }
+}
+
+/* ---- Panel anclado a la derecha ---- */
+
+.panel {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  align-items: flex-end;
+}
+
+.panel__counter {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--curia-text-secondary);
+}
+
+.panel__marks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-end;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--curia-text-secondary);
+}
+
+.mark__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateX(0.4rem);
+  transition: opacity 320ms ease, transform 320ms ease;
+  white-space: nowrap;
+}
+
+.mark:hover .mark__label,
+.mark.is-active .mark__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.mark.is-active .mark__label {
+  color: var(--curia-text);
+}
+
+.mark__dot {
+  width: 1.6rem;
+  height: 2px;
+  background: var(--curia-border-strong);
+  transition: background 320ms ease, width 320ms ease;
+}
+
+.mark.is-active .mark__dot {
+  width: 2.6rem;
+  background: var(--accent);
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.1rem;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--curia-text-secondary);
+  animation: fade 2.8s ease-in-out infinite;
+}
+
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.after {
+  padding: clamp(4rem, 14vh, 9rem) clamp(1.25rem, 6vw, 5rem);
+  background: var(--curia-bg);
+  border-top: 1px solid var(--curia-border);
+}
+
+.after h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.after p {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--curia-text-secondary);
+  line-height: 1.65;
+}
+
+/* ---- Móvil: se rediseña, no se comprime ---- */
+
+@media (max-width: 860px) {
+  .copy {
+    left: 1.25rem;
+    right: 1.25rem;
+    /* Deja libre la franja de la navegacion mas su area tactil de 44px. */
+    bottom: 7rem;
+    max-width: none;
+    padding: 1rem 1.15rem 1.15rem;
+    border-radius: 0.9rem;
+    /* Scrim claro, no oscuro: la identidad de Curia es luminosa y el texto
+       es tinta. Sobre la duela el gris secundario perdia contraste. */
+    background: linear-gradient(
+      to top,
+      rgba(248, 246, 242, 0.95),
+      rgba(248, 246, 242, 0.82)
+    );
+    backdrop-filter: blur(7px);
+    box-shadow: 0 1px 2px rgba(26, 32, 40, 0.06);
+  }
+
+  .panel {
+    top: auto;
+    bottom: 1.1rem;
+    right: 50%;
+    transform: translateX(50%);
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .panel__marks {
+    flex-direction: row;
+    gap: 0.4rem;
+  }
+
+  .mark__label {
+    display: none;
+  }
+
+  /* El punto se ve fino pero el area tactil debe llegar a 44px. */
+  .mark {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .mark__dot {
+    width: 1.1rem;
+  }
+
+  .mark.is-active .mark__dot {
+    width: 1.9rem;
+  }
+
+  .hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy.is-entering .copy__kicker,
+  .copy.is-entering .copy__title,
+  .copy.is-entering .copy__body {
+    animation: none;
+  }
+
+  .hint {
+    animation: none;
+    opacity: 0.6;
+  }
+}
