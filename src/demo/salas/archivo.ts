@@ -10,13 +10,17 @@ import type { SceneKit, Surface } from "../scene-kit";
 
 export function build(kit: SceneKit, accent: number): Group {
   const group = new Group();
-  const archiveTone: Surface = { color: PALETTE.borderStrong, roughness: 0.88 };
+  const archiveTone: Surface = { color: 0xd2ccc4, roughness: 0.95, grain: "plaster", repeat: 1 };
   const spineTone: Surface = {
     color: accent,
-    roughness: 0.82,
+    roughness: 0.9,
     grain: "fabric",
-    repeat: 2,
+    repeat: 1,
   };
+  const shelvingWood: Surface = { color: 0xb08a57, roughness: 0.66, grain: "wood", repeat: [1, 5] };
+  const longShelfWood: Surface = { color: 0xc5a36a, roughness: 0.64, grain: "wood", repeat: [1, 6] };
+  const tableWood: Surface = { color: 0xb89560, roughness: 0.64, grain: "wood", repeat: [3, 2] };
+  const smallWood: Surface = { color: 0xc8aa70, roughness: 0.66, grain: "wood", repeat: 1 };
   const wheelGeometry = new CylinderGeometry(0.07, 0.07, 0.045, 14);
   const railGeometry = new CylinderGeometry(0.032, 0.032, 1.92, 10);
   const sealGeometry = new CylinderGeometry(0.12, 0.12, 0.12, 18);
@@ -26,17 +30,17 @@ export function build(kit: SceneKit, accent: number): Group {
 
   // El archivo vive en el muro derecho para dejar el izquierdo como plano de
   // lectura. Su silueta ahora tiene zócalo, corona, montantes y rieles de manejo.
-  group.add(kit.box(0.06, 2.28, 3.86, 4.2, 1.17, -2.28, kit.S.wood, false));
+  group.add(kit.box(0.06, 2.28, 3.86, 4.2, 1.17, -2.28, shelvingWood, false));
   group.add(kit.rbox(0.88, 0.18, 3.98, 3.86, 0.12, -2.28, kit.S.dark, true, 0.012));
-  group.add(kit.rbox(0.88, 0.16, 4.0, 3.86, 2.45, -2.28, kit.S.woodFine, true, 0.012));
+  group.add(kit.rbox(0.88, 0.16, 4.0, 3.86, 2.45, -2.28, longShelfWood, true, 0.012));
   for (const z of [-4.22, -0.34]) {
-    group.add(kit.rbox(0.82, 2.34, 0.08, 3.84, 1.18, z, kit.S.wood, true, 0.012));
+    group.add(kit.rbox(0.82, 2.34, 0.08, 3.84, 1.18, z, smallWood, true, 0.012));
   }
   for (const y of [0.46, 0.98, 1.52, 2.05]) {
-    group.add(kit.box(0.8, 0.045, 3.78, 3.84, y, -2.28, kit.S.woodFine, y > 0.46));
+    group.add(kit.box(0.8, 0.045, 3.78, 3.84, y, -2.28, longShelfWood, y > 0.46));
   }
   for (const z of [-3.46, -2.46, -1.32]) {
-    group.add(kit.box(0.055, 2.14, 0.045, 3.79, 1.27, z, kit.S.woodFine, false));
+    group.add(kit.box(0.055, 2.14, 0.045, 3.79, 1.27, z, smallWood, false));
   }
   group.add(kit.box(0.05, 1.76, 0.035, 3.39, 1.36, -2.08, spineTone));
   group.add(kit.rbox(0.11, 0.92, 0.08, 3.35, 1.3, -3.9, kit.S.dark, true, 0.012));
@@ -62,8 +66,8 @@ export function build(kit: SceneKit, accent: number): Group {
 
   // La mesa de digitalización es la pieza media: tablero delgado, faldón,
   // riostras y scanner abierto explican el flujo físico -> OCR.
-  group.add(kit.rbox(2.0, 0.08, 1.0, -0.52, 0.78, -2.0, kit.S.wood, true, 0.012));
-  group.add(kit.rbox(1.72, 0.11, 0.72, -0.52, 0.67, -2.0, kit.S.woodFine, true, 0.01));
+  group.add(kit.rbox(2.0, 0.08, 1.0, -0.52, 0.78, -2.0, tableWood, true, 0.012));
+  group.add(kit.rbox(1.72, 0.11, 0.72, -0.52, 0.67, -2.0, smallWood, true, 0.01));
   for (const [dx, dz] of [
     [-0.84, -0.42],
     [0.84, -0.42],
@@ -92,7 +96,7 @@ export function build(kit: SceneKit, accent: number): Group {
   // El archivero rodante cuenta tránsito: ruedas, jaladeras y bandeja superior
   // justifican su presencia mejor que otra pila plana de cajas.
   group.add(kit.rbox(1.04, 0.8, 0.62, 1.34, 0.48, -1.1, kit.S.dark, true, 0.018));
-  group.add(kit.rbox(1.16, 0.08, 0.72, 1.34, 0.92, -1.1, kit.S.woodFine, true, 0.01));
+  group.add(kit.rbox(1.16, 0.08, 0.72, 1.34, 0.92, -1.1, smallWood, true, 0.01));
   group.add(kit.rbox(0.94, 0.22, 0.5, 1.34, 0.72, -1.1, archiveTone, true, 0.01));
   for (const [y, w] of [
     [0.34, 0.78],
@@ -134,14 +138,14 @@ export function build(kit: SceneKit, accent: number): Group {
     [2.82, -0.62],
     [3.18, -0.72],
   ] as const) {
-    const rail = new Mesh(railGeometry, kit.material(kit.S.woodFine));
+    const rail = new Mesh(railGeometry, kit.material(smallWood));
     rail.position.set(x, 0.98, z);
     rail.rotation.z = 0.2;
     rail.castShadow = kit.high;
     group.add(rail);
   }
   for (let rung = 0; rung < 5; rung += 1) {
-    group.add(kit.box(0.48, 0.04, 0.07, 3.0, 0.34 + rung * 0.32, -0.67, kit.S.woodFine));
+    group.add(kit.box(0.48, 0.04, 0.07, 3.0, 0.34 + rung * 0.32, -0.67, smallWood));
   }
   group.add(kit.contact(0.9, 0.8, 3.0, -0.68));
 
@@ -151,7 +155,7 @@ export function build(kit: SceneKit, accent: number): Group {
     [-2.2, 1.58, 0.58, 0.78, "band"],
     [-1.48, 1.5, 0.42, 0.58, "seal"],
   ] as const) {
-    group.add(kit.box(width + 0.08, height + 0.08, 0.04, x, y, -4.43, kit.S.woodFine, false));
+    group.add(kit.box(width + 0.08, height + 0.08, 0.04, x, y, -4.43, smallWood, false));
     group.add(kit.box(width, height, 0.045, x, y, -4.455, kit.S.paper, false));
     if (mark === "band") {
       group.add(kit.box(width * 0.62, 0.035, 0.05, x, y + height * 0.24, -4.485, spineTone, false));

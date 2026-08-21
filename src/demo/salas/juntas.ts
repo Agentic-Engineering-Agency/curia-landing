@@ -9,7 +9,11 @@ import type { SceneKit, Surface } from "../scene-kit";
 
 export function build(kit: SceneKit, accent: number): Group {
   const group = new Group();
-  const accentSurface: Surface = { color: accent, roughness: 0.78 };
+  const accentSurface: Surface = { color: accent, roughness: 0.9, grain: "none" };
+  const tableWood: Surface = { color: 0xb8945f, roughness: 0.62, grain: "wood", repeat: [4, 2] };
+  const apronWood: Surface = { color: 0xaa8354, roughness: 0.66, grain: "wood", repeat: [3, 1] };
+  const trimWood: Surface = { color: 0xc9aa70, roughness: 0.66, grain: "wood", repeat: 1 };
+  const consoleWood: Surface = { color: 0xb99662, roughness: 0.64, grain: "wood", repeat: [2, 1] };
   const tableTopGeometry = new CylinderGeometry(1, 1, 0.1, 48);
   const chairStemGeometry = new CylinderGeometry(0.04, 0.04, 0.38, 16);
   const sealGeometry = new CylinderGeometry(0.055, 0.055, 0.024, 16);
@@ -25,13 +29,13 @@ export function build(kit: SceneKit, accent: number): Group {
   group.add(rug);
 
   const addOvalTable = () => {
-    const top = new Mesh(tableTopGeometry, kit.material(kit.S.woodFine));
+    const top = new Mesh(tableTopGeometry, kit.material(tableWood));
     top.position.set(tableX, 0.78, tableZ);
     top.scale.set(2.12, 1, 0.82);
     top.castShadow = kit.high;
     group.add(top);
 
-    const apron = new Mesh(tableTopGeometry, kit.material(kit.S.wood));
+    const apron = new Mesh(tableTopGeometry, kit.material(apronWood));
     apron.position.set(tableX, 0.68, tableZ);
     apron.scale.set(1.86, 0.56, 0.62);
     apron.castShadow = kit.high;
@@ -51,7 +55,7 @@ export function build(kit: SceneKit, accent: number): Group {
     const back = kit.rbox(0.62, 0.74, 0.09, 0, 0.86, 0.29, kit.S.dark, true, 0.03);
     back.rotation.x = -0.1;
     chair.add(back);
-    chair.add(kit.rbox(0.5, 0.05, 0.045, 0, 1.17, 0.31, accentPad ? accentSurface : kit.S.woodFine, true, 0.012));
+    chair.add(kit.rbox(0.5, 0.05, 0.045, 0, 1.17, 0.31, accentPad ? accentSurface : trimWood, true, 0.012));
     chair.add(kit.rbox(0.08, 0.08, 0.54, -0.38, 0.66, -0.03, kit.S.dark, true, 0.02));
     chair.add(kit.rbox(0.08, 0.08, 0.54, 0.38, 0.66, -0.03, kit.S.dark, true, 0.02));
     chair.add(kit.rbox(0.05, 0.28, 0.05, -0.38, 0.52, 0.14, kit.S.dark, true, 0.016));
@@ -130,13 +134,13 @@ export function build(kit: SceneKit, accent: number): Group {
     card.position.set(x, y, -4.215);
     group.add(card);
   }
-  group.add(kit.rbox(1.22, 0.08, 0.14, 1.3, 1.02, -4.31, kit.S.woodFine, true, 0.012));
+  group.add(kit.rbox(1.22, 0.08, 0.14, 1.3, 1.02, -4.31, trimWood, true, 0.012));
   group.add(kit.rbox(0.42, 0.07, 0.11, 0.94, 1.1, -4.3, kit.S.dark, true, 0.012));
   group.add(kit.box(0.52, 0.028, 0.045, 1.58, 1.08, -4.24, accentSurface));
 
   // El aparador bajo reemplaza accesorios sueltos: guarda cables, muestras y el
   // control de videollamada sin invadir el vano izquierdo.
-  group.add(kit.rbox(1.84, 0.5, 0.36, 1.24, 0.37, -4.05, kit.S.wood, true, 0.018));
+  group.add(kit.rbox(1.84, 0.5, 0.36, 1.24, 0.37, -4.05, consoleWood, true, 0.018));
   group.add(kit.rbox(1.62, 0.12, 0.32, 1.24, 0.12, -3.86, kit.S.dark, true, 0.012));
   for (const [x, w] of [
     [0.72, 0.46],

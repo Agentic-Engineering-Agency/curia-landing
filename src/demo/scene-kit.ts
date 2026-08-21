@@ -16,6 +16,7 @@ import {
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { PALETTE } from "./rooms";
+import { fotoTextura, type FotoSet } from "./photo-textures";
 import {
   fabricTexture,
   normalFromTexture,
@@ -106,7 +107,18 @@ const NORMAL_STRENGTH: Record<Grain, number> = {
   none: 0,
 };
 
-export function createSceneKit(quality: "high" | "low"): SceneKit {
+/**
+ * Qué material fotográfico viste cada tipo de superficie. La duela pasa a ser
+ * el parche de piso, el yeso el de muro y la veta el de madera. El tejido sigue
+ * dibujándose: no hay parche fotográfico bueno de tapicería en los fotogramas.
+ */
+const FOTO_POR_GRANO: Partial<Record<Grain, keyof FotoSet>> = {
+  plank: "piso",
+  plaster: "muro",
+  wood: "madera",
+};
+
+export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null): SceneKit {
   const high = quality === "high";
   const roughnessMap = roughnessNoise(6);
   const textureCache = new Map<string, CanvasTexture>();
@@ -119,6 +131,19 @@ export function createSceneKit(quality: "high" | "low"): SceneKit {
     const key = `${grain}:${color}:${repeat}`;
     const cached = textureCache.get(key);
     if (cached) return cached;
+
+    // El material fotográfico manda cuando existe: una veta dibujada tiene un
+    // ritmo regular que la delata, y su respuesta a la luz es demasiado
+    // uniforme. El color de la superficie pasa a ser un tinte multiplicativo,
+    // así el parche se integra en la paleta de la sala sin perder su detalle.
+    const clave = FOTO_POR_GRANO[grain];
+    if (fotos && clave) {
+      const foto = fotoTextura(fotos[clave], repeat, color);
+      textureCache.set(key, foto);
+      disposables.push(foto);
+      return foto;
+    }
+
     const texture =
       grain === "wood"
         ? woodTexture(color, repeat)

@@ -6,7 +6,7 @@
 
 import { BoxGeometry, CylinderGeometry, Group, Mesh, MeshStandardMaterial, PointLight, SphereGeometry } from "three";
 import { PALETTE, ROOM } from "../rooms";
-import type { SceneKit } from "../scene-kit";
+import type { SceneKit, Surface } from "../scene-kit";
 import { bookSpineTexture } from "../textures";
 
 type BookRow =
@@ -136,10 +136,10 @@ function addBookRow(
   }
 }
 
-function addLegalPanel(group: Group, kit: SceneKit, accent: number) {
+function addLegalPanel(group: Group, kit: SceneKit, accentSurface: Surface) {
   group.add(kit.rbox(1.18, 1.35, 0.07, 0, 1.95, -4.04, kit.S.dark, true, 0.012));
   group.add(kit.box(1.02, 1.17, 0.03, 0, 1.95, -3.99, kit.S.paper, false));
-  group.add(kit.box(0.055, 1.05, 0.035, -0.43, 1.95, -3.965, { color: accent, roughness: 0.82 }, false));
+  group.add(kit.box(0.055, 1.05, 0.035, -0.43, 1.95, -3.965, accentSurface, false));
   for (const offset of [-0.34, -0.12, 0.1, 0.32]) {
     group.add(kit.box(0.58, 0.024, 0.035, 0.14, 1.95 + offset, -3.96, kit.S.dark, false));
   }
@@ -162,47 +162,56 @@ export function build(kit: SceneKit, accent: number): Group {
   kit.track(bookTexture);
   kit.track(bookMaterial);
 
+  const accentSurface: Surface = { color: accent, roughness: 0.9, grain: "none" };
+  const bookCoverSurface: Surface = { color: accent, roughness: 0.88, grain: "fabric", repeat: 1 };
+  const bookcaseWood: Surface = { color: 0xae8a55, roughness: 0.64, grain: "wood", repeat: [7, 4] };
+  const longTrimWood: Surface = { color: 0xc5a36a, roughness: 0.64, grain: "wood", repeat: [6, 1] };
+  const verticalTrimWood: Surface = { color: 0xc5a36a, roughness: 0.64, grain: "wood", repeat: [1, 4] };
+  const sideShelfWood: Surface = { color: 0xc5a36a, roughness: 0.64, grain: "wood", repeat: [1, 5] };
+  const tableWood: Surface = { color: 0xb89560, roughness: 0.64, grain: "wood", repeat: [3, 2] };
+  const darkWood: Surface = { color: 0x3b3128, roughness: 0.7, grain: "wood", repeat: 1 };
+  const globeSurface: Surface = { color: 0xa2ad98, roughness: 0.92, grain: "plaster", repeat: 1 };
   // La biblioteca debe cerrar el recorrido como fuente autoritativa: dos bahías
   // de tomos enmarcan la cita verificada, en vez de repetir módulos sin jerarquía.
-  group.add(kit.rbox(5.75, ROOM.height - 0.22, 0.5, 0, (ROOM.height - 0.22) / 2, -4.34, kit.S.wood, true, 0.018));
+  group.add(kit.rbox(5.75, ROOM.height - 0.22, 0.5, 0, (ROOM.height - 0.22) / 2, -4.34, bookcaseWood, true, 0.018));
   group.add(kit.box(5.32, 2.9, 0.035, 0, 1.72, -4.06, kit.S.dark, false));
-  group.add(kit.rbox(5.95, 0.16, 0.62, 0, 3.5, -4.28, kit.S.woodFine, true, 0.012));
+  group.add(kit.rbox(5.95, 0.16, 0.62, 0, 3.5, -4.28, longTrimWood, true, 0.012));
   for (const x of [-2.75, -0.72, 0.72, 2.75]) {
-    group.add(kit.rbox(0.1, 3.05, 0.56, x, 1.62, -4.18, kit.S.woodFine, true, 0.01));
+    group.add(kit.rbox(0.1, 3.05, 0.56, x, 1.62, -4.18, verticalTrimWood, true, 0.01));
   }
   for (const bayX of [-1.72, 1.72]) {
     for (let shelf = 0; shelf < 5; shelf += 1) {
       const y = 0.42 + shelf * 0.53;
-      group.add(kit.box(1.78, 0.045, 0.54, bayX, y, -4.12, kit.S.woodFine, false));
+      group.add(kit.box(1.78, 0.045, 0.54, bayX, y, -4.12, longTrimWood, false));
       addBookRow(group, kit, bookGeometry, bookMaterial, shelfCache, { kind: "back", x: bayX, y, z: -3.94, span: 1.45, seed: 20 + shelf * 7 + bayX });
     }
   }
-  addLegalPanel(group, kit, accent);
+  addLegalPanel(group, kit, accentSurface);
   group.add(kit.contact(6.3, 0.9, 0, -4.05));
 
   // El muro izquierdo queda limpio para el contenido HTML; la masa de libros se
   // desplaza al lado derecho y al fondo para que el vacío también componga.
-  group.add(kit.rbox(0.5, 3.08, 4.35, 4.12, 1.54, -1.8, kit.S.wood, true, 0.016));
+  group.add(kit.rbox(0.5, 3.08, 4.35, 4.12, 1.54, -1.8, bookcaseWood, true, 0.016));
   group.add(kit.box(0.035, 2.76, 3.88, 3.84, 1.54, -1.8, kit.S.dark, false));
-  group.add(kit.rbox(0.58, 0.14, 4.55, 4.04, 3.18, -1.8, kit.S.woodFine, true, 0.01));
+  group.add(kit.rbox(0.58, 0.14, 4.55, 4.04, 3.18, -1.8, sideShelfWood, true, 0.01));
   for (const y of [0.62, 1.34, 2.06]) {
-    group.add(kit.box(0.54, 0.045, 3.72, 3.86, y, -1.8, kit.S.woodFine, false));
+    group.add(kit.box(0.54, 0.045, 3.72, 3.86, y, -1.8, sideShelfWood, false));
     addBookRow(group, kit, bookGeometry, bookMaterial, shelfCache, { kind: "side", x: 3.75, y, z: -1.8, span: 3.35, seed: 70 + y * 10 });
   }
   group.add(kit.contact(1.1, 4.9, 4.0, -1.8));
 
   // La mesa hace legible el acto de contrastar: tomo abierto, cita impresa,
   // sello y luz de lectura, sin poblar la sala con inventario.
-  group.add(kit.rbox(2.35, 0.09, 1.18, -0.05, 0.78, -2.42, kit.S.wood, true, 0.014));
+  group.add(kit.rbox(2.35, 0.09, 1.18, -0.05, 0.78, -2.42, tableWood, true, 0.014));
   for (const [dx, dz] of [
     [-0.92, -0.45],
     [0.92, -0.45],
     [-0.92, 0.45],
     [0.92, 0.45],
   ]) {
-    group.add(kit.box(0.08, 0.74, 0.08, -0.05 + dx, 0.39, -2.42 + dz, kit.S.dark));
+    group.add(kit.box(0.08, 0.74, 0.08, -0.05 + dx, 0.39, -2.42 + dz, darkWood));
   }
-  const openCoverLeft = kit.box(0.62, 0.018, 0.46, -0.29, 0.845, -2.48, { color: accent, roughness: 0.72 });
+  const openCoverLeft = kit.box(0.62, 0.018, 0.46, -0.29, 0.845, -2.48, bookCoverSurface);
   openCoverLeft.rotation.z = 0.12;
   group.add(openCoverLeft);
   const openCoverRight = kit.box(0.62, 0.018, 0.46, 0.29, 0.845, -2.48, kit.S.dark);
@@ -226,7 +235,7 @@ export function build(kit: SceneKit, accent: number): Group {
     group.add(kit.box(w, 0.006, 0.014, x, 0.888, z, kit.S.dark, false));
   }
   group.add(kit.box(0.84, 0.018, 0.34, 0.62, 0.83, -2.1, kit.S.paper, false));
-  group.add(kit.box(0.64, 0.024, 0.035, 0.62, 0.86, -2.28, { color: accent, roughness: 0.82 }, false));
+  group.add(kit.box(0.64, 0.024, 0.035, 0.62, 0.86, -2.28, accentSurface, false));
   const looseVolumeA = addBookMesh(group, kit, bookGeometry, bookMaterial, 0.46, 0.065, 0.3, -0.76, 0.845, -2.03);
   looseVolumeA.rotation.y = 0.16;
   const looseVolumeB = addBookMesh(group, kit, bookGeometry, bookMaterial, 0.38, 0.055, 0.28, -0.72, 0.905, -2.02);
@@ -257,7 +266,7 @@ export function build(kit: SceneKit, accent: number): Group {
     [-0.21, 0.17],
     [0.21, 0.17],
   ]) {
-    chair.add(kit.box(0.055, 0.45, 0.055, dx, 0.23, dz, kit.S.dark));
+    chair.add(kit.box(0.055, 0.45, 0.055, dx, 0.23, dz, darkWood));
   }
   group.add(chair);
 
@@ -265,21 +274,21 @@ export function build(kit: SceneKit, accent: number): Group {
   // introducir figuras.
   const railGeometry = new CylinderGeometry(0.028, 0.028, 2.55, 10);
   for (const x of [2.95, 3.28]) {
-    const rail = new Mesh(railGeometry, kit.material(kit.S.woodFine));
+    const rail = new Mesh(railGeometry, kit.material(verticalTrimWood));
     rail.position.set(x, 1.52, -3.18);
     rail.rotation.z = -0.28;
     rail.castShadow = kit.high;
     group.add(rail);
   }
   for (let rung = 0; rung < 5; rung += 1) {
-    const step = new Mesh(new CylinderGeometry(0.018, 0.018, 0.42, 8), kit.material(kit.S.woodFine));
+    const step = new Mesh(new CylinderGeometry(0.018, 0.018, 0.42, 8), kit.material(darkWood));
     step.position.set(3.11, 0.58 + rung * 0.38, -3.18);
     step.rotation.z = Math.PI / 2 - 0.28;
     step.castShadow = kit.high;
     group.add(step);
   }
 
-  const globe = new Mesh(new SphereGeometry(0.22, 18, 12), kit.material({ color: accent, roughness: 0.7 }));
+  const globe = new Mesh(new SphereGeometry(0.22, 18, 12), kit.material(globeSurface));
   globe.position.set(-0.88, 1.03, -2.78);
   globe.castShadow = kit.high;
   group.add(globe);

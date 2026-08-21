@@ -21,12 +21,12 @@ export type Lighting = {
   dispose(): void;
 };
 
-const KEY_HIGH = 10.15;
-const KEY_LOW = 7.15;
-const WINDOW_FILL_HIGH = 2.15;
-const WINDOW_FILL_LOW = 1.75;
-const FOCAL_HIGH = 3.15;
-const FOCAL_LOW = 2.25;
+const KEY_HIGH = 4.85;
+const KEY_LOW = 3.65;
+const WINDOW_FILL_HIGH = 3.1;
+const WINDOW_FILL_LOW = 2.45;
+const FOCAL_HIGH = 1.15;
+const FOCAL_LOW = 0.9;
 const MAX_ROOM_INDEX = CHAPTERS.length - 1;
 const FOCUS_BLEND_HALF_WIDTH = 0.12;
 const INTERIOR_WARM = new Color(PALETTE.amber).lerp(new Color(PALETTE.bone), 0.36);
@@ -46,45 +46,36 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   const previousEnvironmentIntensity = scene.environmentIntensity;
 
   scene.background = new Color(PALETTE.subtle);
-  // La niebla demasiado cercana iguala valores y aplana los muros. Empujar el
-  // rango no cuesta más: el cálculo ya existe, sólo deja que el contraste viva
-  // en la sala activa y reserva la bruma para el fondo del enfilade.
-  scene.fog = new Fog(PALETTE.subtle, 12.5, 42);
-
-  // Sin environment map el PBR pierde reflejo y los metales se vuelven mate.
-  // La firma del módulo no recibe renderer, así que en vez de reconstruir
-  // PMREM/RoomEnvironment aquí usamos un equirectangular mínimo y estático:
-  // conserva brillo especular sin añadir un pass ni trabajo por frame.
+  // Con parches fotográficos la textura ya trae variación y sombra horneada:
+  // la bruma sólo debe cerrar el enfilade lejano, no sumar otra capa gris sobre
+  // el muro activo ni levantar negros que pertenecen a la foto.
+  scene.fog = new Fog(PALETTE.subtle, 14, 44);
   const environment = createStudioEnvironment();
   scene.environment = environment;
-  scene.environmentIntensity = quality === "high" ? 0.36 : 0.3;
+  scene.environmentIntensity = quality === "high" ? 0.42 : 0.36;
 
-  // El ambiente queda como suelo de lectura, no como luz protagonista. En esta
-  // ronda lo bajamos otro escalón porque la crítica ya no era "falta detalle",
-  // sino "todo vale lo mismo": el volumen nace de una clave lateral con relleno
-  // frío mínimo, no de subir la exposición global.
-  const ambient = new AmbientLight(0xdce6ea, quality === "high" ? 0.035 : 0.065);
-  const bounce = new HemisphereLight(0xdceaf3, 0x4d3f2f, quality === "high" ? 0.09 : 0.1);
+  // El rig anterior compensaba texturas dibujadas casi planas con una clave de
+  // mucho contraste. En las fotos ese contraste ya viene dentro del albedo, así
+  // que el volumen ahora descansa en un suelo ambiental suave y estable.
+  const ambient = new AmbientLight(0xe7eef0, quality === "high" ? 0.18 : 0.17);
+  const bounce = new HemisphereLight(0xe5eef4, 0x756447, quality === "high" ? 0.36 : 0.32);
 
-  // Antes había un PointLight por sala. Aunque la escena esté quieta, cada luz
-  // dinámica entra al sombreado de todos los fragmentos visibles. Una sola luz
-  // fría viaja a la ventana activa: conserva lectura de cielo, pero con menos
-  // alcance para no borrar la mitad en sombra ni lavar las barras del parteluz.
-  const windowFill = new PointLight(0xdcecff, quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW, 6.65, 2.85);
+  // Una sola luz fría sigue viajando al hueco activo para mantener la lectura de
+  // ventana sin pagar cinco puntos por frame. Su intensidad sube apenas porque
+  // ahora hace de relleno blando, no de foco que dibuje otra sombra sobre la
+  // sombra ya impresa en el parche del piso.
+  const windowFill = new PointLight(0xdcecff, quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW, 7.4, 2.55);
 
-  // Se paga exactamente una luz dinámica nueva, puntual y sin sombra. En vez de
-  // funcionar como lámpara frontal, viaja cerca del lado de ventana y recorta en
-  // cálido los cantos de muebles y marcos: coste igual que la ronda anterior,
-  // más jerarquía por colocación, sin pass de viñeta ni cinco luces residentes.
-  const focalPool = new PointLight(INTERIOR_WARM, quality === "high" ? FOCAL_HIGH : FOCAL_LOW, 3.35, 3.45);
+  // La luz dinámica nueva se conserva, pero deja de ser protagonista: con madera
+  // fotográfica basta un borde cálido débil para separar cantos sin producir
+  // brillos que contradigan la iluminación horneada de la textura.
+  const focalPool = new PointLight(INTERIOR_WARM, quality === "high" ? FOCAL_HIGH : FOCAL_LOW, 3.1, 3.65);
   focalPool.castShadow = false;
 
-  // La oclusión ambiental de pantalla completa costaba justo lo que el cliente
-  // sintió: un pass GTAO recalculado por frame sobre todo el viewport. Para un
-  // despacho estático conviene pagar sombras reales concentradas, contactos
-  // geométricos (`kit.contact`) y niebla; no un sombreado screen-space que
-  // reinterpreta cada píxel en cada scroll.
-  const sun = new DirectionalLight(0xffe2ba, quality === "high" ? KEY_HIGH : KEY_LOW);
+  // La clave solar sólo debe anclar hora y parteluz. Al bajarla y suavizar su
+  // mapa, las barras sobreviven como rastro de hora, pero no compiten con
+  // sombras suaves que ya existen en los parches fotográficos de piso y muro.
+  const sun = new DirectionalLight(0xffe0b3, quality === "high" ? KEY_HIGH : KEY_LOW);
   sun.castShadow = quality === "high";
   sun.shadow.mapSize.set(quality === "high" ? 2048 : 1024, quality === "high" ? 2048 : 1024);
   sun.shadow.camera.left = -6.15;
@@ -95,7 +86,7 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   sun.shadow.camera.far = 17;
   sun.shadow.bias = -0.00038;
   sun.shadow.normalBias = 0.028;
-  sun.shadow.radius = quality === "high" ? 0.8 : 0.65;
+  sun.shadow.radius = quality === "high" ? 1.65 : 1.25;
   sun.shadow.camera.updateProjectionMatrix();
 
   scene.add(ambient, bounce, windowFill, focalPool, sun, sun.target);
@@ -106,36 +97,35 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
     const occlusion = Math.max(0.24, Math.min(1, crossing));
     const roomProgress = activeRoomProgress(cameraPosition.z);
     const roomZ = -roomProgress * PITCH;
-    // El PMREM de `despacho-scene` se instala después de crear este rig y
-    // vuelve a subir `environmentIntensity`; lo fijamos aquí porque el reflejo
-    // ambiental debe dar material, no actuar como una segunda luz plana.
-    scene.environmentIntensity = (quality === "high" ? 0.28 : 0.24) * (0.82 + occlusion * 0.18);
+    // El PMREM de `despacho-scene` se instala después de crear este rig. Con
+    // materiales fotográficos lo dejamos más presente: aporta luz ambiental
+    // especular de baja frecuencia, no una segunda dirección de sombra.
+    scene.environmentIntensity = (quality === "high" ? 0.36 : 0.31) * (0.9 + occlusion * 0.1);
 
-    // El sol sigue a la cámara para que los 2048px del shadow map caigan en la
-    // sala visible, no repartidos por todo el enfilade. Lo bajamos y lo hacemos
-    // más oblicuo: el techo sigue sin proyectar, pero el parteluz sí dibuja
-    // barras más legibles y los estantes dejan sombra bajo cada repisa.
-    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.08 + occlusion * 0.92);
+    // El sol sigue viajando con la cámara para concentrar el shadow map en la
+    // sala visible, pero su peso baja: el parteluz marca lugar y hora sin
+    // ensuciar el piso con una segunda sombra dura en otro ángulo.
+    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.12 + occlusion * 0.56);
     sun.position.set(windowSide * (ROOM.width / 2 + 6.55), 2.55, cameraPosition.z + 1.72);
     sun.target.position.set(-windowSide * 2.8, 0.58, cameraPosition.z - 3.75);
     sun.target.updateMatrixWorld();
 
-    // El relleno azul sólo rescata material del lado de ventana. La caída al
-    // cruzar un vano queda marcada porque allí no hay fuente narrativa; si se
-    // mantiene alto, el render vuelve a verse cenital y sin dirección.
-    windowFill.intensity = (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) * (0.06 + occlusion * 0.58);
+    // Al cruzar un vano cae porque no hay fuente narrativa ahí, pero el mínimo
+    // queda más alto que antes para que las fotos no pierdan su luminancia media
+    // ni aparezcan negros aplastados por doble sombreado.
+    windowFill.intensity = (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) * (0.24 + occlusion * 0.52);
     windowFill.position.set(windowSide * (ROOM.width / 2 - 0.84), 2.28, roomZ + 0.12);
 
     focalPointAt(roomProgress, focalPosition);
-    // La luz de borde usa la misma luminaria dinámica de la ronda anterior:
-    // se desplaza hacia la ventana y un poco hacia el fondo para que el brillo
-    // rasante se lea en cantos, no como un foco plano sobre el centro.
+    // El borde cálido acompaña al lado de ventana y no al centro de la sala: así
+    // separa perfiles de madera sin parecer una lámpara frontal añadida encima
+    // de la luz que ya trae horneada el material.
     focalPosition.set(
       focalPosition.x * 0.24 + windowSide * (ROOM.width / 2 - 0.72) * 0.76,
       Math.min(ROOM.height - 0.68, focalPosition.y + 0.18),
       focalPosition.z - 0.58,
     );
-    focalPool.intensity = (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.12 + occlusion * 0.88);
+    focalPool.intensity = (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.06 + occlusion * 0.5);
     focalPool.position.copy(focalPosition);
   }
 

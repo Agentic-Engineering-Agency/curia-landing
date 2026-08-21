@@ -51,6 +51,7 @@ import {
 } from "./rooms";
 import { createCameraPath } from "./camera-path";
 import { createLighting } from "./lighting";
+import type { FotoSet } from "./photo-textures";
 import { createSceneKit } from "./scene-kit";
 import { createWallContent } from "./wall-content";
 import { build as buildRecepcion } from "./salas/recepcion";
@@ -91,6 +92,7 @@ export function createDespacho(
   canvas: HTMLCanvasElement,
   quality: "high" | "low",
   screenMount?: ScreenMount,
+  fotos?: FotoSet | null,
 ): Despacho {
   const renderer = new WebGLRenderer({
     canvas,
@@ -105,7 +107,7 @@ export function createDespacho(
 
   // El kit compartido cachea material, textura y normal map por firma. Las
   // salas lo reciben y no importan three para materiales ni volumenes.
-  const kit = createSceneKit(quality);
+  const kit = createSceneKit(quality, fotos);
   const { box, rbox, emissive, contact } = kit;
   const {
     wall: WALL,
@@ -117,14 +119,30 @@ export function createDespacho(
   } = kit.S;
 
 
+  const BASEBOARD: Surface = { color: 0xd9d2c5, roughness: 0.98, grain: "plaster", repeat: [1, 10] };
 
-  /** Muro divisorio con vano: izquierda, derecha, dintel y jambas. */
-  function partition(z: number, openingX: number): Group {
+  function revealSurface(accent: number): Surface {
+    const color = new Color(PALETTE.bone)
+      .lerp(new Color(accent), 0.18)
+      .lerp(new Color(PALETTE.amber), 0.07)
+      .getHex();
+    return { color, roughness: 0.98, grain: "plaster", repeat: 2 };
+  }
+
+  /** Muro divisorio con vano en arco y mocheta profunda. */
+  function partition(z: number, openingX: number, destinationAccent: number): Group {
     const group = new Group();
     const half = ROOM.width / 2;
     const thickness = 0.34;
-    const leftEdge = openingX - DOORWAY.width / 2;
-    const rightEdge = openingX + DOORWAY.width / 2;
+    const openingWidth = Math.max(DOORWAY.width, 2.56);
+    const radius = openingWidth / 2;
+    const springY = 2.52;
+    const archRise = 0.58;
+    const segments = 8;
+    const segmentWidth = openingWidth / segments;
+    const leftEdge = openingX - radius;
+    const rightEdge = openingX + radius;
+    const reveal = revealSurface(destinationAccent);
 
     const leftWidth = leftEdge + half;
     if (leftWidth > 0.01) {
@@ -138,20 +156,27 @@ export function createDespacho(
         box(rightWidth, ROOM.height, thickness, (rightEdge + half) / 2, ROOM.height / 2, z, WALL, false),
       );
     }
-    const lintel = ROOM.height - DOORWAY.height;
-    group.add(
-      box(DOORWAY.width, lintel, thickness, openingX, DOORWAY.height + lintel / 2, z, WALL, false),
-    );
 
-    // Jambas: dan grosor al umbral, que es lo que hace legible el paso.
-    for (const edge of [leftEdge, rightEdge]) {
-      group.add(box(0.07, DOORWAY.height, thickness + 0.03, edge, DOORWAY.height / 2, z, WOOD_FINE, false));
+    // El vano no usa dintel: la masa sobre el paso sigue la curva, que es lo
+    // que evita que vuelva a leerse como una puerta rectangular.
+    for (let i = 0; i < segments; i += 1) {
+      const localX = -radius + segmentWidth * (i + 0.5);
+      const normalized = Math.min(Math.abs(localX) / radius, 1);
+      const curveY = springY + archRise * Math.sqrt(Math.max(0, 1 - normalized * normalized));
+      const height = ROOM.height - curveY;
+      group.add(
+        box(segmentWidth + 0.014, height, thickness, openingX + localX, curveY + height / 2, z, WALL, false),
+      );
+      group.add(
+        box(segmentWidth + 0.02, 0.085, thickness + 0.1, openingX + localX, curveY - 0.0425, z, reveal, false),
+      );
     }
-    group.add(
-      box(DOORWAY.width, 0.06, thickness + 0.03, openingX, DOORWAY.height, z, WOOD_FINE, false),
-    );
-    // Umbral en el piso.
-    group.add(box(DOORWAY.width, 0.02, thickness, openingX, 0.02, z, METAL, false));
+
+    // La mocheta cálida marca el espesor real del umbral sin introducir un
+    // marco decorativo ajeno a la referencia.
+    for (const edge of [leftEdge, rightEdge]) {
+      group.add(box(0.1, springY, thickness + 0.1, edge, springY / 2, z, reveal, false));
+    }
 
     return group;
   }
@@ -191,16 +216,15 @@ export function createDespacho(
   }
 
 
-  /** Luminaria empotrada: da interés al techo y justifica el relleno. */
-  function ceilingFixture(z: number): Group {
+  /** Luminaria empotrada: se carga al lado opuesto del muro de contenido. */
+  function ceilingFixture(z: number, side: 1 | -1): Group {
     const group = new Group();
-    for (const offset of [-2.1, 2.1]) {
-      const panel = emissive(0.32, 2.6, 0xfff6e8);
-      panel.rotation.x = Math.PI / 2;
-      panel.position.set(offset, ROOM.height - 0.012, z);
-      group.add(panel);
-      group.add(box(0.44, 0.06, 2.72, offset, ROOM.height - 0.03, z, METAL, false));
-    }
+    const offset = side * 2.1;
+    const panel = emissive(0.32, 2.6, 0xfff6e8);
+    panel.rotation.x = Math.PI / 2;
+    panel.position.set(offset, ROOM.height - 0.012, z);
+    group.add(panel);
+    group.add(box(0.44, 0.06, 2.72, offset, ROOM.height - 0.03, z, METAL, false));
     return group;
   }
 
@@ -235,7 +259,7 @@ export function createDespacho(
   const totalDepth = CHAPTERS.length * PITCH + 2;
   const midZ = -((CHAPTERS.length - 1) * PITCH) / 2;
 
-  // Piso, techo y muros laterales continuos. Ninguno proyecta sombra.
+  // Piso, techo y muros laterales por sala. Ninguno proyecta sombra.
   scene.add(
     box(
       ROOM.width,
@@ -261,12 +285,15 @@ export function createDespacho(
       false,
     ),
   );
-  for (const side of [-1, 1]) {
+  for (const side of [-1, 1] as const) {
     const x = (side * (ROOM.width + ROOM.wall)) / 2;
-    scene.add(box(ROOM.wall, ROOM.height, totalDepth, x, ROOM.height / 2, midZ, WALL, false));
-    // Zócalo: detalle mínimo que separa muro de piso y da acabado.
+    CHAPTERS.forEach((_, index) => {
+      scene.add(box(ROOM.wall, ROOM.height, ROOM.depth, x, ROOM.height / 2, roomCenterZ(index), WALL, false));
+    });
+    // El zócalo baja de saturación para rematar el yeso sin crear una franja
+    // amarilla que compita con los acentos de contenido.
     scene.add(
-      box(0.06, 0.11, totalDepth, x - (side * ROOM.wall) / 2 - side * 0.03, 0.055, midZ, WOOD_FINE, false),
+      box(0.055, 0.095, totalDepth, x - (side * ROOM.wall) / 2 - side * 0.028, 0.0475, midZ, BASEBOARD, false),
     );
   }
   scene.add(
@@ -294,12 +321,12 @@ export function createDespacho(
     const z = roomCenterZ(index);
 
     if (index < lastRoom) {
-      scene.add(partition(z - ROOM.depth / 2 - ROOM.wall / 2, doorwayOffsetX(index)));
+      scene.add(partition(z - ROOM.depth / 2 - ROOM.wall / 2, doorwayOffsetX(index), CHAPTERS[index + 1].accent));
     }
 
     scene.add(windowUnit(chapter.windowSide, z + 0.5));
-    scene.add(ceilingFixture(z - 1.4));
-    scene.add(framedPanel((-chapter.windowSide) as 1 | -1, z - 2.4, chapter.accent));
+    scene.add(ceilingFixture(z - 1.4, chapter.windowSide));
+    scene.add(framedPanel(chapter.windowSide, z - 2.4, chapter.accent));
 
     const furniture = BUILDERS[index](kit, chapter.accent);
     furniture.position.z = z;

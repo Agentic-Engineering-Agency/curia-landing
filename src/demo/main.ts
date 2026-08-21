@@ -6,6 +6,7 @@
 
 import "./demo.css";
 import { createDespacho } from "./despacho-scene";
+import { cargarFotos } from "./photo-textures";
 import { CHAPTERS } from "./rooms";
 import {
   buildTimeline,
@@ -48,10 +49,18 @@ function detectQuality(): "high" | "low" {
   return (navigator.hardwareConcurrency ?? 4) >= 4 ? "high" : "low";
 }
 
-const despacho = createDespacho(canvas, detectQuality(), {
-  element: screenElement,
-  host: css3dHost,
-});
+// Los materiales fotográficos se esperan antes de construir: la escena se arma
+// de forma síncrona, y sembrar texturas provisionales para refrescarlas después
+// obligaría a recompilar cada material. Si la carga falla, `cargarFotos`
+// devuelve null y el kit vuelve a las texturas dibujadas.
+const fotos = await cargarFotos();
+
+const despacho = createDespacho(
+  canvas,
+  detectQuality(),
+  { element: screenElement, host: css3dHost },
+  fotos,
+);
 
 // Marcas de capítulo: navegación discreta, no un carrusel.
 const marks = CHAPTERS.map((chapter, index) => {

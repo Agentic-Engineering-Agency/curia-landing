@@ -7,6 +7,7 @@ export type CameraPath = {
 };
 
 const OFFICE = 1;
+const JUNTAS = 3;
 
 function quadratic(out: Vector3, a: Vector3, b: Vector3, c: Vector3, t: number) {
   const inv = 1 - t;
@@ -66,14 +67,21 @@ const TARGET_CONTROLS = CHAPTERS.slice(0, LAST_ROOM).map((_, index) => {
   );
 });
 
-// La salida de la oficina rodea el escritorio por el pasillo izquierdo. Si la
-// curva fuera directa al vano, el plano legible del monitor obligaría a cruzar
-// por encima de la cubierta.
+// La oficina necesita dos lecturas: primero el muro pedido por referencia y
+// después el monitor cercano. La meseta dentro del tramo evita tener que elegir
+// un solo sujeto para todo el capítulo.
+const officeMonitorStop = new Vector3(-3.45, 1.44, roomCenterZ(OFFICE) - 1.25);
+const officeWallPeel = new Vector3(-2.18, 1.48, roomCenterZ(OFFICE) - 0.86);
 const officeSideStep = new Vector3(-3.95, 1.46, roomCenterZ(OFFICE) - 1.05);
 const officeLeftAisle = new Vector3(-4.0, 1.5, roomCenterZ(OFFICE) - 3.24);
-const officeBackOutControl = new Vector3(-2.35, 1.42, roomCenterZ(OFFICE) - 0.76);
 const officeAisleControl = new Vector3(-4.08, 1.48, roomCenterZ(OFFICE) - 2.12);
+const officeMonitorTarget = new Vector3(-1.8, 1.3, roomCenterZ(OFFICE) - 2.89);
 const officeExitTarget = new Vector3(-3.25, 1.24, roomCenterZ(OFFICE) - 3.15);
+
+// La mesa de juntas ocupa el centro: la salida rodea por el paño izquierdo para
+// que el recorrido siga siendo a pie y no una cámara que atraviesa mobiliario.
+const juntasFrontAisle = new Vector3(-3.95, 1.54, roomCenterZ(JUNTAS) - 0.92);
+const juntasBackAisle = new Vector3(-4.02, 1.52, roomCenterZ(JUNTAS) - 3.62);
 
 export function createCameraPath(): CameraPath {
   return {
@@ -84,21 +92,39 @@ export function createCameraPath(): CameraPath {
       const local = scaled - leg;
 
       if (leg === OFFICE) {
-        if (local < 0.3) {
-          quadratic(outPosition, STOPS[OFFICE], officeBackOutControl, officeSideStep, local / 0.3);
-        } else if (local < 0.62) {
-          quadratic(outPosition, officeSideStep, officeAisleControl, officeLeftAisle, (local - 0.3) / 0.32);
-        } else if (local < 0.8) {
-          quadratic(outPosition, officeLeftAisle, EXIT_CONTROLS[OFFICE], CONTROLS[OFFICE], (local - 0.62) / 0.18);
+        if (local < 0.34) {
+          quadratic(outPosition, STOPS[OFFICE], officeWallPeel, officeMonitorStop, local / 0.34);
+        } else if (local < 0.58) {
+          outPosition.copy(officeMonitorStop);
+        } else if (local < 0.76) {
+          quadratic(outPosition, officeMonitorStop, officeAisleControl, officeLeftAisle, (local - 0.58) / 0.18);
+        } else if (local < 0.88) {
+          quadratic(outPosition, officeLeftAisle, EXIT_CONTROLS[OFFICE], CONTROLS[OFFICE], (local - 0.76) / 0.12);
         } else {
-          quadratic(outPosition, CONTROLS[OFFICE], ENTRY_CONTROLS[OFFICE], STOPS[OFFICE + 1], (local - 0.8) / 0.2);
+          quadratic(outPosition, CONTROLS[OFFICE], ENTRY_CONTROLS[OFFICE], STOPS[OFFICE + 1], (local - 0.88) / 0.12);
         }
 
-        if (local < 0.38) {
+        if (local < 0.24) {
           outTarget.copy(TARGETS[OFFICE]);
+        } else if (local < 0.42) {
+          quadratic(outTarget, TARGETS[OFFICE], officeSideStep, officeMonitorTarget, (local - 0.24) / 0.18);
+        } else if (local < 0.58) {
+          outTarget.copy(officeMonitorTarget);
         } else {
-          quadratic(outTarget, TARGETS[OFFICE], officeExitTarget, TARGETS[OFFICE + 1], (local - 0.38) / 0.62);
+          quadratic(outTarget, officeMonitorTarget, officeExitTarget, TARGETS[OFFICE + 1], (local - 0.58) / 0.42);
         }
+        return;
+      }
+
+      if (leg === JUNTAS) {
+        if (local < 0.42) {
+          quadratic(outPosition, STOPS[JUNTAS], juntasFrontAisle, juntasBackAisle, local / 0.42);
+        } else if (local < 0.72) {
+          quadratic(outPosition, juntasBackAisle, EXIT_CONTROLS[JUNTAS], CONTROLS[JUNTAS], (local - 0.42) / 0.3);
+        } else {
+          quadratic(outPosition, CONTROLS[JUNTAS], ENTRY_CONTROLS[JUNTAS], STOPS[JUNTAS + 1], (local - 0.72) / 0.28);
+        }
+        quadratic(outTarget, TARGETS[JUNTAS], TARGET_CONTROLS[JUNTAS], TARGETS[JUNTAS + 1], local);
         return;
       }
 

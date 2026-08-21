@@ -45,8 +45,9 @@ export type Chapter = {
   /** Desplazamiento lateral de la cámara dentro de la sala. */
   cameraX: number;
   /**
-   * Distancia de la cámara al centro de la sala. Por capítulo, no global:
-   * la oficina se acerca para que la vista de Curia en el monitor se lea.
+   * Posición longitudinal del ojo dentro de la sala. Los encuadres se cargan
+   * hacia el muro seguro para que la placa de contenido lea como yeso impreso,
+   * no como una tarjeta vista al pasar.
    */
   cameraZ: number;
   /**
@@ -75,10 +76,10 @@ export const CHAPTERS: Chapter[] = [
     title: "Antes de iniciar la jornada",
     body: "Los movimientos detectados llegan junto con el expediente y la fuente que les corresponde.",
     accent: PALETTE.teal,
-    cameraX: 1.2,
-    cameraZ: 3.18,
-    cameraY: 1.5,
-    focus: { x: -2.55, y: 1.16, z: -2.75 },
+    cameraX: 0.74,
+    cameraZ: -1.82,
+    cameraY: 1.56,
+    focus: { x: -4.36, y: 1.62, z: -1.9 },
     windowSide: 1,
     safe: "left",
   },
@@ -88,13 +89,13 @@ export const CHAPTERS: Chapter[] = [
     title: "Del aviso al plazo",
     body: "El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento original.",
     accent: PALETTE.amber,
-    // La pausa abre un poco el encuadre hacia el muro derecho sin abandonar el
-    // acercamiento: la cámara sigue en el borde del escritorio y la mirada cae
-    // entre la placa y el monitor, para que ambos entren en la misma lectura.
-    cameraX: -3.4,
-    cameraZ: -1.8,
-    cameraY: 1.42,
-    focus: { x: 0.25, y: 1.3, z: -2.9 },
+    // El primer golpe del capítulo enfrenta el muro derecho; el acercamiento al
+    // monitor queda repartido dentro del tramo para conservar la lectura cercana
+    // sin sacrificar el plano principal que pidió la referencia.
+    cameraX: -0.82,
+    cameraZ: -1.62,
+    cameraY: 1.52,
+    focus: { x: 4.36, y: 1.62, z: -1.9 },
     windowSide: -1,
     safe: "right",
   },
@@ -104,10 +105,10 @@ export const CHAPTERS: Chapter[] = [
     title: "Del documento a la consulta",
     body: "La Biblioteca procesa los archivos del expediente; sólo los que selecciona la persona abogada se usan como fuentes.",
     accent: PALETTE.tealDeep,
-    cameraX: 1.48,
-    cameraZ: 3.06,
-    cameraY: 1.58,
-    focus: { x: -2.7, y: 1.22, z: -2.35 },
+    cameraX: 0.62,
+    cameraZ: -1.86,
+    cameraY: 1.56,
+    focus: { x: -4.36, y: 1.62, z: -1.9 },
     windowSide: 1,
     safe: "left",
   },
@@ -117,12 +118,12 @@ export const CHAPTERS: Chapter[] = [
     title: "Una superficie de ayuda para cada momento",
     body: "Cada modalidad resuelve el contexto de forma explícita y respeta el aislamiento entre despachos y casos.",
     accent: PALETTE.tealLight,
-    // Encuadre desde el costado opuesto al muro seguro: la mesa entra en
-    // diagonal y la derecha queda como plano respirado para contenido.
-    cameraX: -1.88,
-    cameraZ: 3.42,
-    cameraY: 1.52,
-    focus: { x: 1.86, y: 1.08, z: -2.85 },
+    // La cámara queda frente al muro derecho y por delante de la mesa; así el
+    // mobiliario cuenta escala sin volver a ser el sujeto del capítulo.
+    cameraX: -0.92,
+    cameraZ: -0.92,
+    cameraY: 1.56,
+    focus: { x: 4.36, y: 1.62, z: -1.9 },
     windowSide: -1,
     safe: "right",
   },
@@ -132,12 +133,12 @@ export const CHAPTERS: Chapter[] = [
     title: "De la respuesta al escrito",
     body: "La confianza de una cita debe verse antes de usarla: Curia muestra su estado contrastado con el SJF.",
     accent: PALETTE.teal,
-    // Cierra desde el frente derecho para que la biblioteca tenga fuga diagonal:
-    // la placa queda legible en el tercio izquierdo y la mesa ya no cae en eje.
-    cameraX: 1.8,
-    cameraZ: 1.6,
-    cameraY: 1.64,
-    focus: { x: -2.8, y: 1.34, z: -1.9 },
+    // El cierre mira el muro izquierdo casi a plomo, dejando la mesa y los lomos
+    // como profundidad lateral en vez de competir con la placa.
+    cameraX: 1.42,
+    cameraZ: -1.44,
+    cameraY: 1.58,
+    focus: { x: -4.36, y: 1.62, z: -1.9 },
     windowSide: 1,
     safe: "left",
   },

@@ -6,13 +6,18 @@
 
 import { CylinderGeometry, Group, Mesh, PointLight } from "three";
 import { PALETTE } from "../rooms";
-import type { SceneKit } from "../scene-kit";
+import type { SceneKit, Surface } from "../scene-kit";
 
 export function build(kit: SceneKit, accent: number): Group {
   const group = new Group();
 
-  const accentSurface = { color: accent, roughness: 0.78, grain: "none" as const };
-  const wallPaper = { color: PALETTE.bone, roughness: 0.94, grain: "none" as const };
+  const accentSurface: Surface = { color: accent, roughness: 0.9, grain: "none" };
+  const wallPaper: Surface = { color: PALETTE.bone, roughness: 0.94, grain: "none" };
+  const deskWood: Surface = { color: 0xb8945f, roughness: 0.62, grain: "wood", repeat: [4, 2] };
+  const deskTrimWood: Surface = { color: 0xd0b37a, roughness: 0.62, grain: "wood", repeat: [2, 1] };
+  const credenzaWood: Surface = { color: 0xb99662, roughness: 0.64, grain: "wood", repeat: [2, 1] };
+  const smallWood: Surface = { color: 0xc8a86f, roughness: 0.66, grain: "wood", repeat: 1 };
+  const bookCloth: Surface = { color: 0x8d7656, roughness: 0.9, grain: "fabric", repeat: 1 };
 
   // La alfombra compacta recorta la zona de decisión sin devorar el vacío que
   // necesita el plano cercano alrededor del monitor.
@@ -21,15 +26,15 @@ export function build(kit: SceneKit, accent: number): Group {
   // El escritorio se construye como pieza ejecutiva: mucha masa horizontal,
   // pedestales retrasados y sombra inferior para que no vuelva a leer como dos
   // cajas sosteniendo una tabla.
-  group.add(kit.rbox(3.25, 0.12, 1.34, -1.9, 0.76, -2.45, kit.S.woodFine, true, 0.035));
-  group.add(kit.rbox(3.05, 0.46, 0.08, -1.9, 0.54, -3.08, kit.S.wood, true, 0.018));
+  group.add(kit.rbox(3.25, 0.12, 1.34, -1.9, 0.76, -2.45, deskWood, true, 0.035));
+  group.add(kit.rbox(3.05, 0.46, 0.08, -1.9, 0.54, -3.08, deskTrimWood, true, 0.018));
   group.add(kit.rbox(0.62, 0.5, 1.02, -3.12, 0.42, -2.45, kit.S.dark, true, 0.022));
-  group.add(kit.rbox(0.54, 0.46, 0.92, -0.82, 0.4, -2.5, kit.S.wood, true, 0.018));
+  group.add(kit.rbox(0.54, 0.46, 0.92, -0.82, 0.4, -2.5, deskTrimWood, true, 0.018));
   for (let drawer = 0; drawer < 3; drawer += 1) {
     group.add(kit.box(0.36, 0.026, 0.032, -0.82, 0.25 + drawer * 0.13, -3.01, kit.S.metal));
   }
-  group.add(kit.rbox(0.18, 0.56, 0.12, -3.35, 0.42, -1.92, kit.S.wood, true, 0.014));
-  group.add(kit.rbox(0.18, 0.56, 0.12, -0.45, 0.42, -1.92, kit.S.wood, true, 0.014));
+  group.add(kit.rbox(0.18, 0.56, 0.12, -3.35, 0.42, -1.92, deskTrimWood, true, 0.014));
+  group.add(kit.rbox(0.18, 0.56, 0.12, -0.45, 0.42, -1.92, deskTrimWood, true, 0.014));
   group.add(kit.contact(4.05, 2.55, -1.9, -2.43));
 
   // La silla alta domina como presencia humana implícita: girada, pesada y con
@@ -85,7 +90,7 @@ export function build(kit: SceneKit, accent: number): Group {
   arm.position.set(-3.04, 1.08, -2.82);
   arm.rotation.z = 0.26;
   group.add(arm);
-  const shade = new Mesh(new CylinderGeometry(0.18, 0.11, 0.16, 20, 1, true), kit.material(kit.S.woodFine));
+  const shade = new Mesh(new CylinderGeometry(0.18, 0.11, 0.16, 20, 1, true), kit.material(smallWood));
   shade.position.set(-2.89, 1.4, -2.82);
   group.add(shade);
   group.add(kit.rbox(0.26, 0.035, 0.18, -3.08, 0.8, -2.8, kit.S.dark, true, 0.014));
@@ -95,11 +100,11 @@ export function build(kit: SceneKit, accent: number): Group {
 
   // La credenza baja aporta oficio mexicano sin invadir el muro derecho donde
   // se monta el contenido HTML de la landing.
-  group.add(kit.rbox(1.58, 0.58, 0.38, -3.62, 0.35, -4.24, kit.S.wood, true, 0.028));
-  group.add(kit.rbox(1.44, 0.06, 0.42, -3.62, 0.68, -4.24, kit.S.woodFine, true, 0.02));
+  group.add(kit.rbox(1.58, 0.58, 0.38, -3.62, 0.35, -4.24, credenzaWood, true, 0.028));
+  group.add(kit.rbox(1.44, 0.06, 0.42, -3.62, 0.68, -4.24, smallWood, true, 0.02));
   group.add(kit.box(0.024, 0.42, 0.035, -3.62, 0.38, -4.02, accentSurface));
   for (let i = 0; i < 10; i += 1) {
-    const spineSurface = i % 4 === 0 ? accentSurface : i % 4 === 1 ? kit.S.dark : i % 4 === 2 ? kit.S.woodFine : wallPaper;
+    const spineSurface = i % 4 === 0 ? accentSurface : i % 4 === 1 ? kit.S.dark : i % 4 === 2 ? bookCloth : wallPaper;
     const book = kit.rbox(0.08 + (i % 3) * 0.018, 0.34 + (i % 4) * 0.035, 0.08, -4.22 + i * 0.095, 0.88 + (i % 4) * 0.017, -4.23, spineSurface, true, 0.006);
     book.rotation.z = i % 5 === 0 ? -0.04 : 0.02;
     group.add(book);
