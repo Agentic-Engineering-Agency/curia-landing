@@ -108,14 +108,33 @@ export default function Pelicula() {
 
       // iOS/WebKit no pinta fotogramas de un video que nunca ha reproducido:
       // al cambiar el src suelta el poster y la escena queda negra aunque los
-      // seeks escriban currentTime. Un play()->pause() en mudo (permitido sin
-      // gesto) arranca la tubería de decodificación y los seeks ya pintan.
+      // seeks escriban currentTime. Se ceba con play()->pause() en mudo, pero
+      // de forma imperceptible: pausa y regreso a 0 inmediatos para que la
+      // película nunca se mueva sola (el scrub es el único dueño del tiempo).
+      // Si el navegador rechaza el play() sin gesto (Ahorro de Energía, data
+      // saver), se reintenta una vez en el primer toque o scroll.
       const cebar = () => {
         if (!vivo) return;
-        void video
+        const previo = video.currentTime;
+        video
           .play()
-          .then(() => video.pause())
-          .catch(() => {});
+          .then(() => {
+            video.pause();
+            video.currentTime = previo;
+          })
+          .catch(() => {
+            const alGesto = () => {
+              if (vivo) cebar();
+            };
+            window.addEventListener("touchstart", alGesto, {
+              once: true,
+              passive: true,
+            });
+            window.addEventListener("scroll", alGesto, {
+              once: true,
+              passive: true,
+            });
+          });
       };
       if (video.readyState >= 2) cebar();
       else video.addEventListener("canplay", cebar, { once: true });
@@ -143,20 +162,21 @@ export default function Pelicula() {
       <div
         className={`pel-escena ${capitulo === CAPITULOS.length - 1 ? "es-final" : ""}`}
       >
-        {reducido ? (
-          <img
-            alt=""
-            aria-hidden="true"
-            className="pel-poster"
-            src={medios.poster}
-          />
-        ) : (
+        {/* Poster persistente bajo el video: un <video> sin fotograma pinta
+            transparente, así que la imagen evita cualquier cuadro negro
+            (iOS suelta el atributo poster al cambiar el src al blob). */}
+        <img
+          alt=""
+          aria-hidden="true"
+          className="pel-poster"
+          src={medios.poster}
+        />
+        {!reducido && (
           <video
             aria-hidden="true"
             disablePictureInPicture
             muted
             playsInline
-            poster={medios.poster}
             preload="auto"
             ref={videoRef}
           >
