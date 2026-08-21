@@ -15,6 +15,12 @@ export type Capitulo = {
   marca: number;
 };
 
+// Las marcas son el centro de cada sala como fracción del VIDEO, y desde la
+// cadena con apertura en reversa las salas ya no ocupan quintos iguales: la
+// secuencia es apertura de 121 fotogramas, un tramo conservado de 25, y tres
+// piernas de 121, con los cruces de puerta medidos en los fotogramas 121, ~211,
+// ~369 y ~472 de 509. De ahí salen estos valores; si se regenera una pierna hay
+// que volver a medir, no repartir a ojo.
 export const CAPITULOS: Capitulo[] = [
   {
     id: "monitoreo",
@@ -28,28 +34,28 @@ export const CAPITULOS: Capitulo[] = [
     kicker: "Plazos y Outlook",
     titulo: "Una fecha revisable",
     cuerpo: "Curia calcula el plazo y conserva la fuente.",
-    marca: 0.3,
+    marca: 0.33,
   },
   {
     id: "biblioteca",
     kicker: "Biblioteca y OCR",
     titulo: "Fuentes elegidas",
     cuerpo: "Sólo documentos procesados alimentan la consulta.",
-    marca: 0.5,
+    marca: 0.56,
   },
   {
     id: "asistentes",
     kicker: "Asistentes con contexto",
     titulo: "Borradores con respaldo",
     cuerpo: "Cada apoyo cita el expediente que lo sostiene.",
-    marca: 0.7,
+    marca: 0.82,
   },
   {
     id: "evaluador",
     kicker: "Reference Evaluator",
     titulo: "De la respuesta al escrito",
     cuerpo: "La confianza de una cita se ve antes de usarla.",
-    marca: 0.9,
+    marca: 0.965,
   },
 ];
 
