@@ -63,7 +63,7 @@ export default function PlazosOutlook() {
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
             Curia convierte el movimiento judicial en contexto operativo: plazo calculado, urgencia, expediente y acceso a la fuente. Con Microsoft 365 conectado, esa información puede convertirse en un evento de Outlook.
           </p>
-          <AmbientLoop etiqueta="Oficina principal del despacho de la película" sala="oficina" />
+          <AmbientLoop capitulo={1} etiqueta="Oficina principal del despacho de la película" sala="oficina" />
         </div>
 
         <div className="relative mt-12">

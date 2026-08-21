@@ -16,12 +16,33 @@ const ESTILO_PISTA = {
 // el doble montaje de StrictMode (el src queda apuntando a un blob muerto).
 let peliculaEnBlob: Promise<string | null> | null = null;
 
+// Registro del scrub y la pista activos para que otras secciones (los
+// banners de sala) puedan saltar a un capítulo del recorrido.
+let scrubActivo: Scrub | null = null;
+let pistaActiva: HTMLElement | null = null;
+
+/** Salta al capítulo indicado; sin scrub (movimiento reducido) va a la pista. */
+export function irACapituloPelicula(indice: number) {
+  if (scrubActivo) {
+    scrubActivo.irACapitulo(indice);
+    return;
+  }
+  pistaActiva?.scrollIntoView({ behavior: "auto" });
+}
+
 export default function Pelicula() {
   const reducido = useReducedMotion();
   const pistaRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scrubRef = useRef<Scrub | null>(null);
   const [capitulo, setCapitulo] = useState(0);
+
+  useEffect(() => {
+    pistaActiva = pistaRef.current;
+    return () => {
+      if (pistaActiva === pistaRef.current) pistaActiva = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (reducido) return;
@@ -45,12 +66,14 @@ export default function Pelicula() {
         alCambiarCapitulo: setCapitulo,
       });
       scrubRef.current = scrub;
+      scrubActivo = scrub;
       scrub.arrancar();
     })();
 
     return () => {
       vivo = false;
       scrubRef.current?.detener();
+      if (scrubActivo === scrubRef.current) scrubActivo = null;
       scrubRef.current = null;
     };
   }, [reducido]);
@@ -65,7 +88,9 @@ export default function Pelicula() {
       ref={pistaRef}
       style={ESTILO_PISTA}
     >
-      <div className="pel-escena">
+      <div
+        className={`pel-escena ${capitulo === CAPITULOS.length - 1 ? "es-final" : ""}`}
+      >
         {reducido ? (
           <img
             alt=""

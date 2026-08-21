@@ -22,7 +22,8 @@ export default function EvaluadorReferencias() {
             La confianza de una cita debe verse antes de usarla.
           </h2>
           <p className="mt-6 text-base leading-7 text-white/72 md:text-lg md:leading-8">
-            Reference Evaluator contrasta referencias jurídicas con una base autoritativa y muestra el estado de la evaluación.
+            Reference Evaluator contrasta referencias jurídicas con una base
+            autoritativa y muestra el estado de la evaluación.
           </p>
 
           <div className="mt-8 flex gap-3 rounded-2xl border border-teal-300/25 bg-teal-300/8 p-5">
@@ -31,10 +32,13 @@ export default function EvaluadorReferencias() {
               className="mt-0.5 size-5 shrink-0 text-teal-300"
             />
             <p className="text-sm font-medium leading-6 text-white/90">
-              Sólo una coincidencia en la base autoritativa puede otorgar el estado de verificada; un modelo de IA no puede concederlo por sí solo.
+              Sólo una coincidencia en la base autoritativa puede otorgar el
+              estado de verificada; un modelo de IA no puede concederlo por sí
+              solo.
             </p>
           </div>
           <AmbientLoop
+            capitulo={4}
             className="border-white/15"
             etiqueta="Biblioteca del despacho de la película"
             sala="biblioteca"
@@ -72,10 +76,13 @@ export default function EvaluadorReferencias() {
                   <Clock3 aria-hidden="true" className="size-3.5" />
                   Pendiente
                 </span>
-                <span className="text-xs font-medium text-white/90">En evaluación</span>
+                <span className="text-xs font-medium text-white/90">
+                  En evaluación
+                </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/80">
-                La referencia aún no cuenta con un resultado concluyente y no debe tratarse como confirmada.
+                La referencia aún no cuenta con un resultado concluyente y no
+                debe tratarse como confirmada.
               </p>
             </article>
 
@@ -94,7 +101,8 @@ export default function EvaluadorReferencias() {
                 </a>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/80">
-                Existe una coincidencia en la base autoritativa y Curia puede mostrar el vínculo de la fuente correspondiente.
+                Existe una coincidencia en la base autoritativa y Curia puede
+                mostrar el vínculo de la fuente correspondiente.
               </p>
             </article>
 
@@ -107,7 +115,9 @@ export default function EvaluadorReferencias() {
                 <span className="text-xs text-white/60">Revisión manual</span>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/80">
-                No hay evidencia suficiente para confirmarla; Curia presenta la advertencia para que la persona abogada realice la revisión manual.
+                No hay evidencia suficiente para confirmarla; Curia presenta la
+                advertencia para que la persona abogada realice la revisión
+                manual.
               </p>
             </article>
 
@@ -117,10 +127,13 @@ export default function EvaluadorReferencias() {
                   <CircleX aria-hidden="true" className="size-3.5" />
                   Incorrecta
                 </span>
-                <span className="text-xs font-medium text-white/90">Inconsistencia</span>
+                <span className="text-xs font-medium text-white/90">
+                  Inconsistencia
+                </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/80">
-                La evaluación detectó una inconsistencia y la referencia se marca de forma visible, en lugar de pasarla como confiable.
+                La evaluación detectó una inconsistencia y la referencia se
+                marca de forma visible, en lugar de pasarla como confiable.
               </p>
             </article>
           </div>

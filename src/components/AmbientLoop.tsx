@@ -1,20 +1,30 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
+import { irACapituloPelicula } from "../sections/Pelicula";
 
 type Props = {
   /** Nombre base del loop en /media/loops (recepcion, oficina, archivo…). */
   sala: string;
   /** Descripción corta de la sala para lectores de pantalla. */
   etiqueta: string;
+  /** Capítulo de la película al que salta el banner al hacer clic. */
+  capitulo: number;
   /** Clases extra del contenedor, p. ej. bordes para secciones oscuras. */
   className?: string;
 };
+
 /**
  * Banner ambiental: la sala de la película que corresponde a la sección, en
- * un loop quieto. `preload="none"` y reproducción sólo en viewport para que
- * las cinco salas no cuesten nada al cargar la página.
+ * un loop quieto con deriva. `preload="none"` y reproducción sólo en viewport
+ * para que las cinco salas no cuesten nada al cargar la página. El banner es
+ * un botón: lleva de vuelta al capítulo del recorrido que muestra esa sala.
  */
-export default function AmbientLoop({ sala, etiqueta, className }: Props) {
+export default function AmbientLoop({
+  sala,
+  etiqueta,
+  capitulo,
+  className,
+}: Props) {
   const reducido = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -37,10 +47,11 @@ export default function AmbientLoop({ sala, etiqueta, className }: Props) {
   const poster = `/media/loops/${sala}-poster.jpg`;
 
   return (
-    <div
-      aria-label={etiqueta}
-      className={`mt-8 overflow-hidden rounded-2xl border border-[var(--curia-border)] ${className ?? ""}`}
-      role="img"
+    <button
+      aria-label={`Ver ${etiqueta} en el recorrido`}
+      className={`relative mt-8 block w-full cursor-pointer overflow-hidden rounded-2xl border border-[var(--curia-border)] text-left ${className ?? ""}`}
+      onClick={() => irACapituloPelicula(capitulo)}
+      type="button"
     >
       {reducido ? (
         <img
@@ -64,6 +75,12 @@ export default function AmbientLoop({ sala, etiqueta, className }: Props) {
           <source src={`/media/loops/${sala}-loop.mp4`} type="video/mp4" />
         </video>
       )}
-    </div>
+      <span
+        aria-hidden="true"
+        className="absolute bottom-2.5 right-3 rounded-full bg-black/40 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-sm"
+      >
+        Ver en el recorrido
+      </span>
+    </button>
   );
 }
