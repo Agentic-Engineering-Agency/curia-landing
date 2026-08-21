@@ -20,16 +20,23 @@ const peliculaEnBlob = new Map<string, Promise<string | null>>();
 // que sigue los giros), misma línea de tiempo — las marcas de capítulo valen
 // igual. Se elige al montar; un cambio de orientación posterior conserva la
 // variante inicial, que sigue siendo válida (el CSS recorta con cover).
+// El orden de fuentes importa: en retrato va primero el h264, que los
+// teléfonos decodifican por hardware — el scrub es una ráfaga de seeks y
+// VP9 por software se traba.
 const MEDIOS = {
   ancho: {
     poster: "/media/despacho-poster.jpg",
-    webm: "/media/despacho-scrub.webm",
-    mp4: "/media/despacho-scrub.mp4",
+    fuentes: [
+      { src: "/media/despacho-scrub.webm", type: "video/webm" },
+      { src: "/media/despacho-scrub.mp4", type: "video/mp4" },
+    ],
   },
   retrato: {
     poster: "/media/despacho-poster-movil.jpg",
-    webm: "/media/despacho-scrub-movil.webm",
-    mp4: "/media/despacho-scrub-movil.mp4",
+    fuentes: [
+      { src: "/media/despacho-scrub-movil.mp4", type: "video/mp4" },
+      { src: "/media/despacho-scrub-movil.webm", type: "video/webm" },
+    ],
   },
 };
 
@@ -136,8 +143,9 @@ export default function Pelicula() {
             preload="auto"
             ref={videoRef}
           >
-            <source src={medios.webm} type="video/webm" />
-            <source src={medios.mp4} type="video/mp4" />
+            {medios.fuentes.map((f) => (
+              <source key={f.src} src={f.src} type={f.type} />
+            ))}
           </video>
         )}
 
