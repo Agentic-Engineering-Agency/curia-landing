@@ -61,19 +61,26 @@ const FILE_PANEL_VARIANTS: Variants = {
 export default function Biblioteca() {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <section id="biblioteca" className="bg-[var(--curia-bg)] py-16 md:py-24">
+    <section id="biblioteca" className="py-16 md:py-24">
       <div className="curia-shell">
         <div className="max-w-4xl">
           <p className="curia-caption text-[var(--curia-primary-text)]">
             Biblioteca por expediente
           </p>
           <h2 className="curia-display mt-4 text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
-            Los documentos del asunto, listos para leer y consultar en su contexto.
+            Los documentos del asunto, listos para leer y consultar en su
+            contexto.
           </h2>
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
-            Cada expediente cuenta con una Biblioteca para cargar y visualizar documentos. El análisis parte de los archivos del caso, no de una conversación desconectada del asunto.
+            Cada expediente cuenta con una Biblioteca para cargar y visualizar
+            documentos. El análisis parte de los archivos del caso, no de una
+            conversación desconectada del asunto.
           </p>
-          <AmbientLoop capitulo={2} etiqueta="Archivo del despacho de la película" sala="archivo" />
+          <AmbientLoop
+            capitulo={2}
+            etiqueta="Archivo del despacho de la película"
+            sala="archivo"
+          />
         </div>
 
         <div className="mt-12 grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
@@ -88,16 +95,27 @@ export default function Biblioteca() {
           >
             <div className="border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-5 py-4 md:px-6">
               <h3 className="text-sm font-semibold">Archivos del expediente</h3>
-              <p className="mt-1 text-xs text-[var(--curia-text-secondary)]">Expediente 123/2026</p>
+              <p className="mt-1 text-xs text-[var(--curia-text-secondary)]">
+                Expediente 123/2026
+              </p>
             </div>
             <ul className="divide-y divide-[var(--curia-border)]">
               {documents.map((document) => (
-                <li key={document.name} className="flex items-center gap-3 px-5 py-4 md:px-6">
+                <li
+                  key={document.name}
+                  className="flex items-center gap-3 px-5 py-4 md:px-6"
+                >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--curia-border)] bg-white text-[var(--curia-primary-text)]">
-                    <FileText aria-hidden="true" className="size-5" strokeWidth={1.7} />
+                    <FileText
+                      aria-hidden="true"
+                      className="size-5"
+                      strokeWidth={1.7}
+                    />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{document.name}</p>
+                    <p className="truncate text-sm font-medium">
+                      {document.name}
+                    </p>
                     <span className="mt-1 inline-flex rounded-md border border-[var(--curia-border)] bg-white px-1.5 py-0.5 text-[0.7rem] font-bold tracking-[0.05em] text-[var(--curia-text-secondary)]">
                       {document.format}
                     </span>
@@ -116,9 +134,15 @@ export default function Biblioteca() {
             {cards.map(({ icon: Icon, title, body }) => (
               <article key={title} className="curia-card p-6">
                 <span className="flex size-10 items-center justify-center rounded-xl bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
-                  <Icon aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <Icon
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em]">{title}</h3>
+                <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em]">
+                  {title}
+                </h3>
                 <p className="mt-3 text-sm leading-6 text-[var(--curia-text-secondary)]">
                   {body}
                 </p>

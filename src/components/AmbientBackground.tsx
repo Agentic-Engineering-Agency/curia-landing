@@ -1,17 +1,11 @@
-import type { CSSProperties } from "react";
 import {
   motion,
   useReducedMotion,
   type TargetAndTransition,
 } from "motion/react";
 
-const GRID_STYLE: CSSProperties = {
-  backgroundImage:
-    "linear-gradient(rgba(43, 150, 139, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(43, 150, 139, 0.045) 1px, transparent 1px)",
-  backgroundSize: "72px 72px",
-  maskImage: "linear-gradient(to bottom, black, transparent 88%)",
-  WebkitMaskImage: "linear-gradient(to bottom, black, transparent 88%)",
-};
+// El grid estático de 72px se retiró: la retícula la aporta ahora DotField
+// (receta dot-field, interactiva) y dos retículas competían entre sí.
 
 const STATIC_ORB: TargetAndTransition = {
   x: 0,
@@ -64,8 +58,6 @@ export default function AmbientBackground() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
     >
-      <div className="absolute inset-x-0 top-0 h-[70rem]" style={GRID_STYLE} />
-
       <motion.div
         animate={shouldReduceMotion ? STATIC_ORB : ORB_ONE_ANIMATION}
         className="absolute -left-32 top-24 h-[28rem] w-[28rem] max-w-[70vw] rounded-full bg-[radial-gradient(circle_at_center,rgba(36,166,151,0.58),transparent_70%)] opacity-[0.14] blur-3xl"

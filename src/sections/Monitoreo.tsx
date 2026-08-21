@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { BellRing, FileClock, FolderSearch } from "lucide-react";
-import { DESKTOP_BREAKPOINT, STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
+import {
+  DESKTOP_BREAKPOINT,
+  STANDARD_EASE,
+  VIEWPORT_ONCE,
+} from "../components/motion";
 import AmbientLoop from "../components/AmbientLoop";
 
 const cards = [
@@ -44,7 +48,9 @@ const CARD_VARIANTS: Variants = {
 
 function useDesktopViewport() {
   const [isDesktop, setIsDesktop] = useState(
-    () => typeof window !== "undefined" && window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT})`).matches,
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT})`).matches,
   );
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export default function Monitoreo() {
   const shouldReduceMotion = useReducedMotion();
   const isDesktop = useDesktopViewport();
   return (
-    <section id="monitoreo" className="bg-[var(--curia-bg)] py-16 md:py-24">
+    <section id="monitoreo" className="py-16 md:py-24">
       <div className="curia-shell grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <p className="curia-caption text-[var(--curia-primary-text)]">
@@ -73,9 +79,16 @@ export default function Monitoreo() {
             Los movimientos del expediente, sin empezar la mañana desde cero.
           </h2>
           <p className="mt-6 max-w-xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
-            Curia contrasta los expedientes registrados con los avisos obtenidos de Jalisco CJJ y concentra el resultado en el asunto correcto. El equipo revisa el movimiento con su procedencia, no como una alerta aislada.
+            Curia contrasta los expedientes registrados con los avisos obtenidos
+            de Jalisco CJJ y concentra el resultado en el asunto correcto. El
+            equipo revisa el movimiento con su procedencia, no como una alerta
+            aislada.
           </p>
-          <AmbientLoop capitulo={0} etiqueta="Recepción del despacho de la película" sala="recepcion" />
+          <AmbientLoop
+            capitulo={0}
+            etiqueta="Recepción del despacho de la película"
+            sala="recepcion"
+          />
         </div>
 
         <motion.div
@@ -92,14 +105,22 @@ export default function Monitoreo() {
               initial={!shouldReduceMotion && !isDesktop ? "hidden" : undefined}
               variants={CARD_VARIANTS}
               viewport={VIEWPORT_ONCE}
-              whileInView={!shouldReduceMotion && !isDesktop ? "visible" : undefined}
+              whileInView={
+                !shouldReduceMotion && !isDesktop ? "visible" : undefined
+              }
             >
               <div className="flex items-start gap-4">
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]">
-                  <Icon aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                  <Icon
+                    aria-hidden="true"
+                    className="size-5"
+                    strokeWidth={1.8}
+                  />
                 </span>
                 <div>
-                  <h3 className="text-lg font-semibold tracking-[-0.015em]">{title}</h3>
+                  <h3 className="text-lg font-semibold tracking-[-0.015em]">
+                    {title}
+                  </h3>
                   <p className="mt-3 text-sm leading-6 text-[var(--curia-text-secondary)] md:text-base md:leading-7">
                     {body}
                   </p>

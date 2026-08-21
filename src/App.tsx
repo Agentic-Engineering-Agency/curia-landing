@@ -1,5 +1,6 @@
 import { MotionConfig } from "motion/react";
 import AmbientBackground from "./components/AmbientBackground";
+import DotField from "./components/DotField";
 import Header from "./sections/Header";
 import Pelicula from "./sections/Pelicula";
 import Hero from "./sections/Hero";
@@ -20,6 +21,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="relative isolate min-h-screen bg-[var(--curia-bg)] text-[var(--curia-text)]">
+        <DotField />
         <AmbientBackground />
 
         <div className="relative z-10">
