@@ -46,7 +46,8 @@ const highlights = [
   },
   {
     value: "4 estados",
-    label: "Pendiente, verificada, incierta o incorrecta para cada referencia evaluada.",
+    label:
+      "Pendiente, verificada, incierta o incorrecta para cada referencia evaluada.",
   },
 ] as const;
 
@@ -114,7 +115,10 @@ const notices = [
 
 function ProductVisual() {
   return (
-    <div className="curia-card-editorial overflow-hidden" aria-label="Vista ilustrativa del producto Curia">
+    <div
+      className="curia-card-editorial overflow-hidden"
+      aria-label="Vista ilustrativa del producto Curia"
+    >
       <div className="flex items-center justify-between border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-1.5" aria-hidden="true">
           <span className="h-2.5 w-2.5 rounded-full bg-[#d7a8a0]" />
@@ -128,9 +132,15 @@ function ProductVisual() {
       </div>
 
       <div className="grid sm:grid-cols-[8.25rem_minmax(0,1fr)]">
-        <aside className="hidden border-r border-[var(--curia-border)] bg-[#f5f3ee] p-4 sm:block" aria-label="Secciones ilustrativas">
+        <aside
+          className="hidden border-r border-[var(--curia-border)] bg-[#f5f3ee] p-4 sm:block"
+          aria-label="Secciones ilustrativas"
+        >
           <div className="mb-5 flex items-center gap-2 px-2 py-1">
-            <span className="curia-logo-mark !h-7 !w-7 !rounded-lg !text-sm" aria-hidden="true">
+            <span
+              className="curia-logo-mark !h-7 !w-7 !rounded-lg !text-sm"
+              aria-hidden="true"
+            >
               C
             </span>
             <span className="curia-display text-lg">Curia</span>
@@ -158,8 +168,12 @@ function ProductVisual() {
         <div className="min-w-0 bg-white p-4 sm:p-6">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-primary-text)]">Monitoreo</p>
-              <p className="mt-1.5 text-[0.9rem] font-semibold text-[var(--curia-text)]">Avisos para revisar</p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--curia-primary-text)]">
+                Monitoreo
+              </p>
+              <p className="mt-1.5 text-[0.9rem] font-semibold text-[var(--curia-text)]">
+                Avisos para revisar
+              </p>
             </div>
             <span className="rounded-full bg-[var(--curia-bg-subtle)] px-3 py-1.5 text-[0.68rem] font-semibold text-[var(--curia-text-muted)]">
               3 movimientos
@@ -177,10 +191,16 @@ function ProductVisual() {
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="font-mono text-[0.75rem] font-bold text-[var(--curia-text)]">{notice.file}</span>
-                    <span className="truncate text-[0.68rem] text-[var(--curia-text-muted)]">{notice.court}</span>
+                    <span className="font-mono text-[0.75rem] font-bold text-[var(--curia-text)]">
+                      {notice.file}
+                    </span>
+                    <span className="truncate text-[0.68rem] text-[var(--curia-text-muted)]">
+                      {notice.court}
+                    </span>
                   </div>
-                  <p className="mt-1 text-[0.72rem] leading-5 text-[var(--curia-text-secondary)]">{notice.detail}</p>
+                  <p className="mt-1 text-[0.72rem] leading-5 text-[var(--curia-text-secondary)]">
+                    {notice.detail}
+                  </p>
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-[0.64rem] font-bold uppercase tracking-[0.06em] ${
@@ -201,16 +221,26 @@ function ProductVisual() {
                 <CalendarCheck2 className="h-4 w-4" aria-hidden="true" />
                 Plazo calculado
               </div>
-              <p className="mt-2.5 font-mono text-lg font-bold text-[var(--curia-text)]">17 jul 2026</p>
+              <p className="mt-2.5 font-mono text-lg font-bold text-[var(--curia-text)]">
+                17 jul 2026
+              </p>
               <span className="mt-2 inline-flex rounded-md bg-[#dbeafe] px-2.5 py-1.5 text-[0.64rem] font-semibold text-[#27569b]">
                 [Curia] Vencimiento · 123/2026
               </span>
             </div>
 
             <div className="rounded-xl border border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] p-4">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-text-muted)]">Referencia jurídica</p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[var(--curia-text-muted)]">
+                Referencia jurídica
+              </p>
               <p className="mt-2.5 text-[0.72rem] font-medium leading-5 text-[var(--curia-text-secondary)]">
-                <span className="block whitespace-nowrap">Referencia ilustrativa</span><span className="block whitespace-nowrap"> · pendiente de evaluar</span>
+                <span className="block whitespace-nowrap">
+                  Referencia ilustrativa
+                </span>
+                <span className="block whitespace-nowrap">
+                  {" "}
+                  · pendiente de evaluar
+                </span>
               </p>
               <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#fff1dc] px-2.5 py-1.5 text-[0.64rem] font-bold text-[#8b5208]">
                 <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -227,8 +257,11 @@ function ProductVisual() {
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <section id="inicio" className="relative overflow-hidden bg-white py-16 md:py-24">
-      <div className="pointer-events-none absolute -right-28 top-12 h-96 w-96 rounded-full bg-[rgba(13,115,119,0.065)] blur-3xl" aria-hidden="true" />
+    <section id="inicio" className="relative overflow-hidden py-16 md:py-24">
+      <div
+        className="pointer-events-none absolute -right-28 top-12 h-96 w-96 rounded-full bg-[rgba(13,115,119,0.065)] blur-3xl"
+        aria-hidden="true"
+      />
       <div className="curia-shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(33rem,1.08fr)] lg:gap-14">
           <motion.div
@@ -237,7 +270,10 @@ export default function Hero() {
             variants={HERO_GROUP_VARIANTS}
             viewport={VIEWPORT_ONCE}
           >
-            <motion.p className="curia-caption text-[var(--curia-primary-text)]" variants={HERO_ITEM_VARIANTS}>
+            <motion.p
+              className="curia-caption text-[var(--curia-primary-text)]"
+              variants={HERO_ITEM_VARIANTS}
+            >
               Inteligencia legal para despachos mexicanos
             </motion.p>
             <motion.h1
@@ -248,7 +284,10 @@ export default function Hero() {
             </motion.h1>
             <motion.div variants={HERO_ITEM_VARIANTS}>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--curia-text-secondary)]">
-                Curia reúne monitoreo judicial, gestión de plazos, calendario Outlook cuando Microsoft 365 está conectado, análisis documental e investigación jurídica con estados de confianza para las citas, todo dentro del expediente.
+                Curia reúne monitoreo judicial, gestión de plazos, calendario
+                Outlook cuando Microsoft 365 está conectado, análisis documental
+                e investigación jurídica con estados de confianza para las
+                citas, todo dentro del expediente.
               </p>
               <div className="mt-5 flex max-w-2xl items-start gap-2.5">
                 <ShieldCheck
@@ -256,16 +295,24 @@ export default function Hero() {
                   aria-hidden="true"
                 />
                 <p className="min-w-0 text-base font-medium leading-6 text-[var(--curia-text-secondary)]">
-                  Piloto con un despacho socio de diseño · Jalisco CJJ registrado como fuente activa · demás estados en incorporación · toda salida requiere revisión profesional.
+                  Piloto con un despacho socio de diseño · Jalisco CJJ
+                  registrado como fuente activa · demás estados en incorporación
+                  · toda salida requiere revisión profesional.
                 </p>
               </div>
             </motion.div>
-            <motion.div className="mt-7 flex flex-col gap-3 sm:flex-row" variants={HERO_ITEM_VARIANTS}>
+            <motion.div
+              className="mt-7 flex flex-col gap-3 sm:flex-row"
+              variants={HERO_ITEM_VARIANTS}
+            >
               <a href="#contacto" className="curia-button curia-button-primary">
                 Conversemos sobre tu operación
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="#estado-actual" className="curia-button curia-button-secondary">
+              <a
+                href="#estado-actual"
+                className="curia-button curia-button-secondary"
+              >
                 Ver Curia hoy
               </a>
             </motion.div>
@@ -275,9 +322,16 @@ export default function Hero() {
               variants={HERO_ITEM_VARIANTS}
             >
               {highlights.map((item) => (
-                <div key={item.value} className="border-l-2 border-[var(--curia-primary)] pl-4">
-                  <dt className="text-lg font-bold tracking-[-0.02em] text-[var(--curia-text)]">{item.value}</dt>
-                  <dd className="mt-1 text-xs leading-5 text-[var(--curia-text-muted)]">{item.label}</dd>
+                <div
+                  key={item.value}
+                  className="border-l-2 border-[var(--curia-primary)] pl-4"
+                >
+                  <dt className="text-lg font-bold tracking-[-0.02em] text-[var(--curia-text)]">
+                    {item.value}
+                  </dt>
+                  <dd className="mt-1 text-xs leading-5 text-[var(--curia-text-muted)]">
+                    {item.label}
+                  </dd>
                 </div>
               ))}
             </motion.dl>
@@ -290,20 +344,29 @@ export default function Hero() {
 
         <div className="mt-20 grid gap-8 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-start lg:gap-14">
           <div className="lg:sticky lg:top-28">
-            <p className="curia-caption text-[var(--curia-primary-text)]">Una sola cadena operativa</p>
+            <p className="curia-caption text-[var(--curia-primary-text)]">
+              Una sola cadena operativa
+            </p>
             <h2 className="curia-display mt-4 text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
               Del aviso al escrito, el contexto permanece en el expediente.
             </h2>
             <p className="mt-6 text-base leading-8 text-[var(--curia-text-secondary)]">
-              Curia conecta tareas que hoy suelen vivir entre boletines, hojas de cálculo, correos y chats de IA. El equipo conserva la fuente, el plazo, los documentos y la investigación en una sola cadena operativa.
+              Curia conecta tareas que hoy suelen vivir entre boletines, hojas
+              de cálculo, correos y chats de IA. El equipo conserva la fuente,
+              el plazo, los documentos y la investigación en una sola cadena
+              operativa.
             </p>
           </div>
 
           <div className="curia-dossier-card">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--curia-border)] pb-4">
               <div>
-                <p className="text-sm font-semibold text-[var(--curia-text)]">Secuencia de la mañana</p>
-                <p className="mt-1 text-xs text-[var(--curia-text-muted)]">Del monitoreo a una decisión revisada</p>
+                <p className="text-sm font-semibold text-[var(--curia-text)]">
+                  Secuencia de la mañana
+                </p>
+                <p className="mt-1 text-xs text-[var(--curia-text-muted)]">
+                  Del monitoreo a una decisión revisada
+                </p>
               </div>
               <span className="curia-status-badge">Flujo operativo</span>
             </div>
@@ -314,8 +377,12 @@ export default function Hero() {
                     {String(index + 1).padStart(2, "0")}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold leading-6 text-[var(--curia-text)]">{item.title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-[var(--curia-text-secondary)]">{item.body}</p>
+                    <h3 className="text-sm font-semibold leading-6 text-[var(--curia-text)]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-[var(--curia-text-secondary)]">
+                      {item.body}
+                    </p>
                   </div>
                 </article>
               ))}
@@ -331,8 +398,12 @@ export default function Hero() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(13,115,119,0.1)] text-[var(--curia-primary-text)]">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[var(--curia-text)]">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-[var(--curia-text-secondary)]">{item.body}</p>
+                <h3 className="mt-5 text-lg font-semibold tracking-[-0.02em] text-[var(--curia-text)]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-[var(--curia-text-secondary)]">
+                  {item.body}
+                </p>
               </article>
             );
           })}

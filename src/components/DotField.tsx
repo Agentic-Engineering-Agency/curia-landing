@@ -18,17 +18,19 @@ import { useReducedMotion } from "motion/react";
  *   rAF sólo gastaría batería.
  */
 
-// El radio de la receta (1.5, que dibuja 0.75 px) se calibró contra un fondo
-// casi negro, donde un punto diminuto ya destaca. Medido sobre blanco: sólo
-// 1.4% de píxeles con tinta y la retícula quedaba al límite de lo visible.
-// Se agranda el punto en vez de subir el alfa, que los volvería duros.
-const RADIO_PUNTO = 2.2;
+// El radio de la receta (1.5, que dibuja 0.75 px) y sus alfas se calibraron
+// contra un fondo casi negro, donde un punto diminuto ya destaca. Sobre
+// blanco quedaban al límite de lo visible (1.4% de píxeles con tinta), así
+// que la retícula se sube por pedido del cliente: punto más grande y alfa
+// más alto, manteniendo la separación de 14 px del original para no alterar
+// el ritmo de la malla.
+const RADIO_PUNTO = 3.2;
 const SEPARACION = 14;
 const RADIO_CURSOR = 500;
 const FUERZA_ABOMBADO = 67;
 const RADIO_HALO = 160;
-const DEGRADADO_DESDE = "rgba(13, 115, 119, 0.42)";
-const DEGRADADO_HASTA = "rgba(10, 94, 97, 0.26)";
+const DEGRADADO_DESDE = "rgba(13, 115, 119, 0.62)";
+const DEGRADADO_HASTA = "rgba(10, 94, 97, 0.42)";
 const COLOR_HALO = "rgba(13, 115, 119, 0.10)";
 const DOS_PI = Math.PI * 2;
 
