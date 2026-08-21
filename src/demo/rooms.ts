@@ -49,6 +49,11 @@ export type Chapter = {
    * la oficina se acerca para que la vista de Curia en el monitor se lea.
    */
   cameraZ: number;
+  /**
+   * Altura de ojo por capítulo: rompe la isometría plana sin dejar de sentirse
+   * como un recorrido a pie dentro del despacho.
+   */
+  cameraY: number;
   /** Punto al que mira la cámara, relativo al centro de la sala. */
   focus: { x: number; y: number; z: number };
   /** Lado del muro con ventana: 1 = derecha, -1 = izquierda. */
@@ -70,9 +75,10 @@ export const CHAPTERS: Chapter[] = [
     title: "Antes de iniciar la jornada",
     body: "Los movimientos detectados llegan junto con el expediente y la fuente que les corresponde.",
     accent: PALETTE.teal,
-    cameraX: -1.1,
-    cameraZ: 3.05,
-    focus: { x: 2.1, y: 1.15, z: -2.6 },
+    cameraX: 1.2,
+    cameraZ: 3.18,
+    cameraY: 1.5,
+    focus: { x: -2.55, y: 1.16, z: -2.75 },
     windowSide: 1,
     safe: "left",
   },
@@ -82,11 +88,13 @@ export const CHAPTERS: Chapter[] = [
     title: "Del aviso al plazo",
     body: "El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento original.",
     accent: PALETTE.amber,
-    // La cámara se acerca y se centra: aquí la vista de Curia dentro del
-    // monitor tiene que leerse, no insinuarse.
-    cameraX: -0.45,
-    cameraZ: 0.8,
-    focus: { x: -1.9, y: 1.28, z: -2.86 },
+    // La pausa abre un poco el encuadre hacia el muro derecho sin abandonar el
+    // acercamiento: la cámara sigue en el borde del escritorio y la mirada cae
+    // entre la placa y el monitor, para que ambos entren en la misma lectura.
+    cameraX: -3.4,
+    cameraZ: -1.8,
+    cameraY: 1.42,
+    focus: { x: 0.25, y: 1.3, z: -2.9 },
     windowSide: -1,
     safe: "right",
   },
@@ -96,9 +104,10 @@ export const CHAPTERS: Chapter[] = [
     title: "Del documento a la consulta",
     body: "La Biblioteca procesa los archivos del expediente; sólo los que selecciona la persona abogada se usan como fuentes.",
     accent: PALETTE.tealDeep,
-    cameraX: -1.3,
-    cameraZ: 3.0,
-    focus: { x: 2.5, y: 1.3, z: -2.2 },
+    cameraX: 1.48,
+    cameraZ: 3.06,
+    cameraY: 1.58,
+    focus: { x: -2.7, y: 1.22, z: -2.35 },
     windowSide: 1,
     safe: "left",
   },
@@ -108,11 +117,12 @@ export const CHAPTERS: Chapter[] = [
     title: "Una superficie de ayuda para cada momento",
     body: "Cada modalidad resuelve el contexto de forma explícita y respeta el aislamiento entre despachos y casos.",
     accent: PALETTE.tealLight,
-    // Encuadre desde un extremo de la mesa: empuja el sujeto a la izquierda y
-    // deja la mitad derecha realmente libre para el contenido de la landing.
-    cameraX: 1.85,
-    cameraZ: 3.5,
-    focus: { x: -1.25, y: 1.05, z: -2.95 },
+    // Encuadre desde el costado opuesto al muro seguro: la mesa entra en
+    // diagonal y la derecha queda como plano respirado para contenido.
+    cameraX: -1.88,
+    cameraZ: 3.42,
+    cameraY: 1.52,
+    focus: { x: 1.86, y: 1.08, z: -2.85 },
     windowSide: -1,
     safe: "right",
   },
@@ -122,9 +132,12 @@ export const CHAPTERS: Chapter[] = [
     title: "De la respuesta al escrito",
     body: "La confianza de una cita debe verse antes de usarla: Curia muestra su estado contrastado con el SJF.",
     accent: PALETTE.teal,
-    cameraX: 0.35,
-    cameraZ: 3.0,
-    focus: { x: -0.15, y: 1.4, z: -3.2 },
+    // Cierra desde el frente derecho para que la biblioteca tenga fuga diagonal:
+    // la placa queda legible en el tercio izquierdo y la mesa ya no cae en eje.
+    cameraX: 1.8,
+    cameraZ: 1.6,
+    cameraY: 1.64,
+    focus: { x: -2.8, y: 1.34, z: -1.9 },
     windowSide: 1,
     safe: "left",
   },

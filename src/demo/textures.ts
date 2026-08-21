@@ -3,6 +3,7 @@
 // color plano sin variación de material.
 
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from "three";
+import { PALETTE } from "./rooms";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -28,6 +29,80 @@ function finish(canvas: HTMLCanvasElement, repeat: Repeat, color: boolean): Canv
 }
 
 const hex = (value: number) => `#${value.toString(16).padStart(6, "0")}`;
+
+const rgba = (value: number, alpha: number) => {
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
+const seeded = (seed: number) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0xffffffff;
+  };
+};
+
+/**
+ * Lomos jurídicos en una sola tira. La cámara no resolvía más geometría:
+ * necesitaba señales gráficas grandes — nervios, tejuelos y filetes — que se
+ * paguen una vez por material y sigan leyendo aunque cada bloque sea simple.
+ */
+export function bookSpineTexture(accent: number, repeat: Repeat = 1): CanvasTexture {
+  const width = 1024;
+  const height = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  const random = seeded((accent ^ 0x5f3759df) >>> 0);
+  const palette = [accent, PALETTE.ink, PALETTE.amber, PALETTE.bone];
+
+  ctx.fillStyle = hex(PALETTE.ink);
+  ctx.fillRect(0, 0, width, height);
+
+  let x = 0;
+  let tome = 0;
+  while (x < width) {
+    const spineWidth = Math.min(width - x, 34 + Math.floor(random() * 58));
+    const base = palette[tome % palette.length];
+    const isLight = base === PALETTE.bone;
+
+    ctx.fillStyle = hex(base);
+    ctx.fillRect(x, 0, spineWidth, height);
+
+    // La separación oscura define cada tomo a distancia; sin esta junta, la
+    // textura vuelve a leerse como una franja decorativa continua.
+    ctx.fillStyle = rgba(PALETTE.ink, isLight ? 0.26 : 0.42);
+    ctx.fillRect(x, 0, 2, height);
+    ctx.fillStyle = rgba(PALETTE.bone, isLight ? 0.2 : 0.09);
+    ctx.fillRect(x + spineWidth - 2, 0, 1, height);
+
+    // A la distancia real de cámara un lomo ocupa entre 9 y 15 px. Cuatro
+    // nervios, un tejuelo y cinco líneas de texto simulado no caben ahí: se
+    // promedian a un tono plano, que es justo por lo que los estantes leían
+    // como bloques macizos. Se deja lo que sí sobrevive a ese tamaño: la junta
+    // entre tomos, un tejuelo claro y un filete de contraste.
+    const labelTop = Math.round(height * 0.34);
+    const labelHeight = Math.round(height * 0.2);
+    const inset = Math.max(2, Math.round(spineWidth * 0.16));
+    ctx.fillStyle = rgba(isLight ? PALETTE.ink : PALETTE.bone, isLight ? 0.5 : 0.72);
+    ctx.fillRect(x + inset, labelTop, Math.max(3, spineWidth - inset * 2), labelHeight);
+
+    ctx.fillStyle = rgba(PALETTE.amber, 0.9);
+    ctx.fillRect(x + inset, labelTop + labelHeight + Math.round(height * 0.05), Math.max(3, spineWidth - inset * 2), 3);
+
+    // Filete alto: da la lectura de tomo empastado con su banda superior.
+    ctx.fillStyle = rgba(isLight ? PALETTE.ink : PALETTE.bone, 0.28);
+    ctx.fillRect(x + inset, Math.round(height * 0.12), Math.max(3, spineWidth - inset * 2), 4);
+    x += spineWidth;
+    tome += 1;
+  }
+
+  return finish(canvas, repeat, true);
+}
 
 /**
  * Deriva un mapa de normales del propio mapa de color, tratando la luminancia
