@@ -146,11 +146,7 @@ button {
 }
 
 .curia-card {
-  /* El 0.82 original se diseñó contra el grid tenue de 72px; con la retícula
-     del dot field el campo se transparentaba a través de la tarjeta y le
-     quitaba separación del fondo. A 0.94 la filtración baja de 18% a 6% y la
-     tarjeta conserva algo de calidez sobre las secciones crema. */
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.82);
   box-shadow: var(--curia-shadow-xs);
 }
 

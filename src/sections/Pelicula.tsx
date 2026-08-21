@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useReducedMotion } from "motion/react";
-import { CAPITULOS, blobDeVideo, crearScrub } from "../demo-video/scrub";
-import type { Scrub } from "../demo-video/scrub";
+import { CAPITULOS, blobDeVideo, crearScrub } from "../components/scrub";
+import type { Scrub } from "../components/scrub";
 import "./pelicula.css";
 
 // El alto de la pista es el presupuesto de scroll: un viewport por sala más
