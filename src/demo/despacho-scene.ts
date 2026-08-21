@@ -12,23 +12,17 @@
 //      direccional que baja desde arriba no existe dentro de un edificio.
 
 import {
-  AmbientLight,
   BoxGeometry,
   CanvasTexture,
   Color,
   CylinderGeometry,
-  DirectionalLight,
-  Fog,
   Group,
-  HemisphereLight,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PerspectiveCamera,
   PlaneGeometry,
   PCFSoftShadowMap,
-  PointLight,
-  QuadraticBezierCurve3,
   SRGBColorSpace,
   Scene,
   ACESFilmicToneMapping,
@@ -55,7 +49,10 @@ import {
   doorwayOffsetX,
   roomCenterZ,
 } from "./rooms";
+import { createCameraPath } from "./camera-path";
+import { createLighting } from "./lighting";
 import { createSceneKit } from "./scene-kit";
+import { createWallContent } from "./wall-content";
 import { build as buildRecepcion } from "./salas/recepcion";
 import { build as buildOficina } from "./salas/oficina";
 import { build as buildArchivo } from "./salas/archivo";
@@ -231,17 +228,6 @@ export function createDespacho(
 
 
   const scene = new Scene();
-  scene.background = new Color(PALETTE.subtle);
-  scene.fog = new Fog(PALETTE.subtle, 11, 38);
-
-  // Sin environment map un material PBR no tiene nada que reflejar y se lee
-  // como plástico. RoomEnvironment da especularidad creíble sin cargar un HDRI.
-  const pmrem = new PMREMGenerator(renderer);
-  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04);
-  scene.environment = environment.texture;
-  scene.environmentIntensity = 0.5;
-  pmrem.dispose();
-  kit.track(environment);
 
   const camera = new PerspectiveCamera(40, 1, 0.1, 120);
 
@@ -287,8 +273,6 @@ export function createDespacho(
     box(ROOM.width, ROOM.height, ROOM.wall, 0, ROOM.height / 2, roomCenterZ(lastRoom) - ROOM.depth / 2, WALL, false),
   );
 
-  const stops: Vector3[] = [];
-  const focuses: Vector3[] = [];
 
   // La pantalla vive en su propia escena porque CSS3DRenderer mantiene un
   // grafo aparte. Comparte la cámara, así que sigue la perspectiva exacta.
@@ -321,53 +305,35 @@ export function createDespacho(
     furniture.position.z = z;
     scene.add(furniture);
 
-    // Relleno frío de la ventana. Un punto por sala; el sol hace el resto.
-    const daylight = new PointLight(0xdfeaf2, quality === "high" ? 16 : 12, 15, 2);
-    daylight.position.set((chapter.windowSide * ROOM.width) / 2 - chapter.windowSide * 1.0, 2.1, z + 0.5);
-    scene.add(daylight);
+    // El relleno de ventana ya no es una luz por sala: lighting.ts mueve una
+    // sola al hueco activo. Cinco luces puntuales entraban al sombreado de
+    // todos los fragmentos visibles aunque la escena estuviera quieta.
 
-    stops.push(new Vector3(chapter.cameraX, EYE_HEIGHT, z + chapter.cameraZ));
-    focuses.push(new Vector3(chapter.focus.x, chapter.focus.y, z + chapter.focus.z));
   });
 
-  // Relleno bajo a propósito: el contraste es lo que hace legible el volumen.
-  scene.add(new AmbientLight(0xeef0f2, 0.2));
-  scene.add(new HemisphereLight(0xf7f4ee, 0x6f6a62, 0.26));
+  // Rig de luz y recorrido de cámara viven en sus módulos: la escena sólo los
+  // orienta por frame.
+  const lighting = createLighting(scene, quality);
 
-  // Sol rasante desde la ventana de la sala activa. El shadow map viaja con la
-  // cámara, así que sus 2048px cubren la sala visible en vez de repartirse
-  // sobre los cuarenta y seis metros del enfilade.
-  const sunIntensity = quality === "high" ? 6.4 : 4.2;
-  const sun = new DirectionalLight(0xfff2dc, sunIntensity);
-  sun.castShadow = quality === "high";
-  sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -7;
-  sun.shadow.camera.right = 7;
-  sun.shadow.camera.top = 6;
-  sun.shadow.camera.bottom = -6;
-  // El sol se coloca a ~11m de su objetivo, así que un far de 30 desperdiciaba
-  // la mitad del rango de profundidad y las barras finas del parteluz salían
-  // con shadow acne. Con 19 el mapa gana precisión donde importa.
-  sun.shadow.camera.near = 3;
-  sun.shadow.camera.far = 19;
-  sun.shadow.bias = -0.00035;
-  sun.shadow.normalBias = 0.05;
-  // Penumbra: una barra de 6cm proyecta borde suave, no una línea dura.
-  sun.shadow.radius = 2.5;
-  scene.add(sun);
-  scene.add(sun.target);
+  // El environment map se conserva con PMREM sobre RoomEnvironment en vez del
+  // equirectangular mínimo del módulo: cuesta una sola vez al arrancar y da
+  // reflejo especular bastante más creíble en madera barnizada y metal.
+  const pmrem = new PMREMGenerator(renderer);
+  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04);
+  scene.environment = environment.texture;
+  scene.environmentIntensity = 0.5;
+  pmrem.dispose();
+  kit.track(environment);
 
-  // Tramos de cámara: un bezier por tránsito, con el control en el vano, para
-  // que la cámara cruce la puerta en vez de cortar la esquina.
-  const legs: QuadraticBezierCurve3[] = [];
-  for (let index = 0; index < lastRoom; index += 1) {
-    const control = new Vector3(
-      doorwayOffsetX(index),
-      EYE_HEIGHT,
-      roomCenterZ(index) - ROOM.depth / 2 - ROOM.wall / 2,
-    );
-    legs.push(new QuadraticBezierCurve3(stops[index], control, stops[index + 1]));
-  }
+  const cameraPath = createCameraPath();
+
+  // Contenido de la landing montado sobre los muros, no flotando sobre el
+  // viewport. Comparte la escena CSS3D con la pantalla del monitor.
+  const wallPanels = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-wall-panel]"),
+  );
+  const wallContent =
+    cssRenderer && wallPanels.length ? createWallContent(cssScene, wallPanels) : null;
 
   const position = new Vector3();
   const target = new Vector3();
@@ -378,8 +344,7 @@ export function createDespacho(
     const leg = Math.min(Math.floor(scaled), lastRoom - 1);
     const local = scaled - leg;
 
-    legs[leg].getPoint(local, position);
-    target.copy(focuses[leg]).lerp(focuses[leg + 1], local);
+    cameraPath.sample(clamped, position, target);
 
     if (breathe) {
       position.y += Math.sin(elapsed * 0.45) * 0.013;
@@ -400,10 +365,9 @@ export function createDespacho(
     const sideTo = CHAPTERS[leg + 1].windowSide;
     const side = local < 0.5 ? sideFrom : sideTo;
     const crossing = sideFrom === sideTo ? 1 : 1 - 0.72 * Math.exp(-((local - 0.5) ** 2) / 0.014);
-    sun.intensity = sunIntensity * crossing;
-    sun.position.set(side * (ROOM.width / 2 + 5.5), 3.4, position.z + 2.2);
-    sun.target.position.set(-side * 2.2, 0.75, position.z - 3.4);
-    sun.target.updateMatrixWorld();
+    lighting.aim(position, side, crossing);
+
+    wallContent?.update(position);
 
     // El DOM siempre se dibuja encima del WebGL, así que la pantalla debe
     // ocultarse fuera de su sala o se vería atravesando los muros.
@@ -437,6 +401,8 @@ export function createDespacho(
         else if (mat instanceof MeshBasicMaterial) mat.dispose();
       }
     });
+    wallContent?.dispose();
+    lighting.dispose();
     kit.dispose();
     renderer.dispose();
   }

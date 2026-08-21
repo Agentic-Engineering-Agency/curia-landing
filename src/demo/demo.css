@@ -81,39 +81,8 @@ body {
   mix-blend-mode: multiply;
 }
 
-/* ---- Copy: se coloca en la mitad libre que declara cada capítulo ---- */
+/* ---- Placas de muro: el contenido pertenece a la arquitectura ---- */
 
-.copy {
-  position: absolute;
-  bottom: clamp(2rem, 8vh, 5.5rem);
-  z-index: 10;
-  max-width: min(30rem, 40vw);
-  padding: 1rem 1.2rem 1.1rem;
-  border-radius: 0.85rem;
-  /* Scrim muy leve: el texto cae sobre madera y estantería, y sin él el gris
-     secundario pierde contraste según la sala. */
-  background: linear-gradient(
-    to top,
-    rgba(248, 246, 242, 0.72),
-    rgba(248, 246, 242, 0.38)
-  );
-  backdrop-filter: blur(3px);
-  transition:
-    left 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    right 900ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.stage[data-safe="left"] .copy {
-  left: clamp(1.25rem, 5vw, 4.5rem);
-  right: auto;
-}
-
-.stage[data-safe="right"] .copy {
-  right: clamp(1.25rem, 5vw, 4.5rem);
-  left: auto;
-}
-
-/* Con el copy a la derecha, las marcas se van al lado opuesto. */
 .stage[data-safe="right"] .panel {
   right: auto;
   left: clamp(1rem, 3vw, 2.75rem);
@@ -137,52 +106,83 @@ body {
   transform: translateX(0);
 }
 
-.copy__kicker {
-  margin: 0 0 0.75rem;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+/* Medidas fijas: CSS3D escala 1px a 1mm, por eso la placa mide 1.6 x 0.9 m. */
+.wall-copy {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  display: grid;
+  align-content: center;
+  gap: 54px;
+  padding: 96px 118px 104px 132px;
+  border: 2px solid var(--curia-border-strong);
+  border-left: 26px solid var(--accent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%),
+    var(--curia-bg-subtle);
+  box-shadow:
+    inset 0 0 0 14px color-mix(in srgb, var(--curia-border) 72%, transparent),
+    inset 0 -18px 0 color-mix(in srgb, var(--curia-border) 42%, transparent);
+  color: var(--curia-text);
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  overflow: hidden;
+  pointer-events: none;
+  filter: brightness(0.92) saturate(0.97);
+}
+
+.wall-copy::after {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border: 1px solid color-mix(in srgb, var(--curia-border-strong) 72%, transparent);
+  pointer-events: none;
+}
+
+.wall-copy__kicker {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
-  transition: color 500ms ease;
 }
 
-.copy__title {
-  margin: 0 0 0.9rem;
+.wall-copy__title {
+  margin: 0;
+  max-width: 1180px;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2rem, 4.4vw, 3.4rem);
-  line-height: 1.04;
-  letter-spacing: -0.015em;
+  font-size: 116px;
+  line-height: 0.94;
+  letter-spacing: -0.018em;
 }
 
-.copy__body {
+.wall-copy__body {
   margin: 0;
-  max-width: 30rem;
-  font-size: clamp(0.95rem, 1.1vw, 1.06rem);
-  line-height: 1.6;
+  max-width: 1050px;
+  font-size: 40px;
+  line-height: 1.38;
   color: var(--curia-text-secondary);
 }
 
-/* Entrada por máscara, no por opacidad repetida. */
-.copy.is-entering .copy__kicker,
-.copy.is-entering .copy__title,
-.copy.is-entering .copy__body {
-  animation: rise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+.wall-copy.is-active .wall-copy__kicker,
+.wall-copy.is-active .wall-copy__title,
+.wall-copy.is-active .wall-copy__body {
+  animation: wall-copy-rise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.copy.is-entering .copy__title {
+.wall-copy.is-active .wall-copy__title {
   animation-delay: 60ms;
 }
 
-.copy.is-entering .copy__body {
+.wall-copy.is-active .wall-copy__body {
   animation-delay: 120ms;
 }
 
-@keyframes rise {
+@keyframes wall-copy-rise {
   from {
     opacity: 0;
-    transform: translateY(0.85rem);
+    transform: translateY(28px);
     clip-path: inset(0 0 100% 0);
   }
   to {
@@ -310,23 +310,27 @@ body {
 /* ---- Móvil: se rediseña, no se comprime ---- */
 
 @media (max-width: 860px) {
-  .copy {
-    left: 1.25rem;
-    right: 1.25rem;
-    /* Deja libre la franja de la navegacion mas su area tactil de 44px. */
-    bottom: 7rem;
-    max-width: none;
-    padding: 1rem 1.15rem 1.15rem;
-    border-radius: 0.9rem;
-    /* Scrim claro, no oscuro: la identidad de Curia es luminosa y el texto
-       es tinta. Sobre la duela el gris secundario perdia contraste. */
-    background: linear-gradient(
-      to top,
-      rgba(248, 246, 242, 0.95),
-      rgba(248, 246, 242, 0.82)
-    );
-    backdrop-filter: blur(7px);
-    box-shadow: 0 1px 2px rgba(26, 32, 40, 0.06);
+  .wall-copy {
+    width: 2200px;
+    height: 1420px;
+    gap: 70px;
+    padding: 148px 160px 154px 178px;
+    border-left-width: 34px;
+  }
+
+  .wall-copy__kicker {
+    font-size: 42px;
+  }
+
+  .wall-copy__title {
+    max-width: 1660px;
+    font-size: 154px;
+  }
+
+  .wall-copy__body {
+    max-width: 1580px;
+    font-size: 58px;
+    line-height: 1.34;
   }
 
   .panel {
@@ -370,9 +374,9 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .copy.is-entering .copy__kicker,
-  .copy.is-entering .copy__title,
-  .copy.is-entering .copy__body {
+  .wall-copy.is-active .wall-copy__kicker,
+  .wall-copy.is-active .wall-copy__title,
+  .wall-copy.is-active .wall-copy__body {
     animation: none;
   }
 

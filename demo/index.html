@@ -16,17 +16,12 @@
       <div class="stage" data-stage data-ready="false">
         <canvas class="stage__canvas" data-canvas></canvas>
 
-        <!-- Capa CSS3D: aqui el renderer coloca la pantalla del monitor en
-             perspectiva. Va detras del texto y no captura el puntero. -->
-        <div class="stage__css3d" data-css3d aria-hidden="true"></div>
+        <!-- Capa CSS3D: aqui el renderer coloca HTML real dentro de la escena
+             (pantalla y placas de muro). Va detras de la navegacion y no
+             captura el puntero. -->
+        <div class="stage__css3d" data-css3d></div>
 
         <div class="stage__grain" aria-hidden="true"></div>
-
-        <div class="copy" data-copy>
-          <p class="copy__kicker" data-kicker></p>
-          <h2 class="copy__title" data-title></h2>
-          <p class="copy__body" data-body></p>
-        </div>
 
         <aside class="panel">
           <p class="panel__counter" data-counter></p>
@@ -34,6 +29,55 @@
         </aside>
 
         <p class="hint" aria-hidden="true">Desplaza para recorrer el despacho</p>
+
+        <div hidden data-wall-panels>
+          <article class="wall-copy" data-wall-panel data-chapter-panel="monitoreo">
+            <p class="wall-copy__kicker">Monitoreo judicial</p>
+            <h2 class="wall-copy__title">Antes de iniciar la jornada</h2>
+            <p class="wall-copy__body">
+              Los movimientos detectados llegan junto con el expediente y la fuente que les corresponde.
+            </p>
+          </article>
+
+          <article class="wall-copy" data-wall-panel data-chapter-panel="plazos">
+            <p class="wall-copy__kicker">Plazos y Outlook</p>
+            <h2 class="wall-copy__title">Del aviso al plazo</h2>
+            <p class="wall-copy__body">
+              El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento original.
+            </p>
+          </article>
+
+          <article class="wall-copy" data-wall-panel data-chapter-panel="biblioteca">
+            <p class="wall-copy__kicker">Biblioteca y OCR</p>
+            <h2 class="wall-copy__title">Del documento a la consulta</h2>
+            <p class="wall-copy__body">
+              La Biblioteca procesa los archivos del expediente; sólo los que selecciona la persona abogada se usan como fuentes.
+            </p>
+          </article>
+
+          <article class="wall-copy" data-wall-panel data-chapter-panel="asistentes">
+            <p class="wall-copy__kicker">Asistentes con contexto</p>
+            <h2 class="wall-copy__title">Una superficie de ayuda para cada momento</h2>
+            <p class="wall-copy__body">
+              Cada modalidad resuelve el contexto de forma explícita y respeta el aislamiento entre despachos y casos.
+            </p>
+          </article>
+
+          <article class="wall-copy" data-wall-panel data-chapter-panel="evaluador">
+            <p class="wall-copy__kicker">Reference Evaluator</p>
+            <h2 class="wall-copy__title">De la respuesta al escrito</h2>
+            <p class="wall-copy__body">
+              La confianza de una cita debe verse antes de usarla: Curia muestra su estado contrastado con el SJF.
+            </p>
+          </article>
+        </div>
+
+        <div class="copy-state" data-copy hidden aria-hidden="true">
+          <span data-kicker></span>
+          <span data-title></span>
+          <span data-body></span>
+        </div>
+
       </div>
     </section>
 
