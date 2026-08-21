@@ -118,7 +118,10 @@ const FOTO_POR_GRANO: Partial<Record<Grain, keyof FotoSet>> = {
   wood: "madera",
 };
 
-export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null): SceneKit {
+export function createSceneKit(
+  quality: "high" | "low",
+  fotos?: FotoSet | null,
+): SceneKit {
   const high = quality === "high";
   const roughnessMap = roughnessNoise(6);
   const textureCache = new Map<string, CanvasTexture>();
@@ -168,7 +171,13 @@ export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null):
   }
 
   function material(surface: Surface): MeshStandardMaterial {
-    const { color, roughness = 0.85, metalness = 0, grain = "none", repeat = 1 } = surface;
+    const {
+      color,
+      roughness = 0.85,
+      metalness = 0,
+      grain = "none",
+      repeat = 1,
+    } = surface;
     const key = `${color}|${roughness}|${metalness}|${grain}|${repeat}`;
     const cached = materialCache.get(key);
     if (cached) return cached;
@@ -196,7 +205,14 @@ export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null):
     element.width = size;
     element.height = size;
     const ctx = element.getContext("2d")!;
-    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    const gradient = ctx.createRadialGradient(
+      size / 2,
+      size / 2,
+      0,
+      size / 2,
+      size / 2,
+      size / 2,
+    );
     gradient.addColorStop(0, "rgba(26, 32, 40, 0.42)");
     gradient.addColorStop(0.5, "rgba(26, 32, 40, 0.17)");
     gradient.addColorStop(1, "rgba(26, 32, 40, 0)");
@@ -234,7 +250,10 @@ export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null):
     },
 
     emissive(width, height, color) {
-      const mesh = new Mesh(UNIT_PLANE, new MeshBasicMaterial({ color, toneMapped: false }));
+      const mesh = new Mesh(
+        UNIT_PLANE,
+        new MeshBasicMaterial({ color, toneMapped: false }),
+      );
       mesh.scale.set(width, height, 1);
       return mesh;
     },
@@ -249,7 +268,11 @@ export function createSceneKit(quality: "high" | "low", fotos?: FotoSet | null):
     softShadow(width, height) {
       const mesh = new Mesh(
         UNIT_PLANE,
-        new MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false }),
+        new MeshBasicMaterial({
+          map: shadowTexture,
+          transparent: true,
+          depthWrite: false,
+        }),
       );
       mesh.scale.set(width, height, 1);
       return mesh;

@@ -17,7 +17,11 @@ function surface(size: number): { canvas: HTMLCanvasElement; ctx: Ctx } {
 /** Repetición por eje: una superficie larga necesita más tiles en su eje largo. */
 export type Repeat = number | [number, number];
 
-function finish(canvas: HTMLCanvasElement, repeat: Repeat, color: boolean): CanvasTexture {
+function finish(
+  canvas: HTMLCanvasElement,
+  repeat: Repeat,
+  color: boolean,
+): CanvasTexture {
   const texture = new CanvasTexture(canvas);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
@@ -50,7 +54,10 @@ const seeded = (seed: number) => {
  * necesitaba señales gráficas grandes — nervios, tejuelos y filetes — que se
  * paguen una vez por material y sigan leyendo aunque cada bloque sea simple.
  */
-export function bookSpineTexture(accent: number, repeat: Repeat = 1): CanvasTexture {
+export function bookSpineTexture(
+  accent: number,
+  repeat: Repeat = 1,
+): CanvasTexture {
   const width = 1024;
   const height = 512;
   const canvas = document.createElement("canvas");
@@ -88,15 +95,33 @@ export function bookSpineTexture(accent: number, repeat: Repeat = 1): CanvasText
     const labelTop = Math.round(height * 0.34);
     const labelHeight = Math.round(height * 0.2);
     const inset = Math.max(2, Math.round(spineWidth * 0.16));
-    ctx.fillStyle = rgba(isLight ? PALETTE.ink : PALETTE.bone, isLight ? 0.5 : 0.72);
-    ctx.fillRect(x + inset, labelTop, Math.max(3, spineWidth - inset * 2), labelHeight);
+    ctx.fillStyle = rgba(
+      isLight ? PALETTE.ink : PALETTE.bone,
+      isLight ? 0.5 : 0.72,
+    );
+    ctx.fillRect(
+      x + inset,
+      labelTop,
+      Math.max(3, spineWidth - inset * 2),
+      labelHeight,
+    );
 
     ctx.fillStyle = rgba(PALETTE.amber, 0.9);
-    ctx.fillRect(x + inset, labelTop + labelHeight + Math.round(height * 0.05), Math.max(3, spineWidth - inset * 2), 3);
+    ctx.fillRect(
+      x + inset,
+      labelTop + labelHeight + Math.round(height * 0.05),
+      Math.max(3, spineWidth - inset * 2),
+      3,
+    );
 
     // Filete alto: da la lectura de tomo empastado con su banda superior.
     ctx.fillStyle = rgba(isLight ? PALETTE.ink : PALETTE.bone, 0.28);
-    ctx.fillRect(x + inset, Math.round(height * 0.12), Math.max(3, spineWidth - inset * 2), 4);
+    ctx.fillRect(
+      x + inset,
+      Math.round(height * 0.12),
+      Math.max(3, spineWidth - inset * 2),
+      4,
+    );
     x += spineWidth;
     tome += 1;
   }
@@ -112,7 +137,10 @@ export function bookSpineTexture(accent: number, repeat: Repeat = 1): CanvasText
  *
  * Se calcula una vez al arrancar. No requiere ningún asset externo.
  */
-export function normalFromTexture(source: CanvasTexture, strength = 2.4): CanvasTexture {
+export function normalFromTexture(
+  source: CanvasTexture,
+  strength = 2.4,
+): CanvasTexture {
   const src = source.image as HTMLCanvasElement;
   const size = src.width;
   const pixels = src.getContext("2d")!.getImageData(0, 0, size, size).data;
@@ -121,7 +149,10 @@ export function normalFromTexture(source: CanvasTexture, strength = 2.4): Canvas
   for (let index = 0; index < height.length; index += 1) {
     const offset = index * 4;
     height[index] =
-      (pixels[offset] * 0.299 + pixels[offset + 1] * 0.587 + pixels[offset + 2] * 0.114) / 255;
+      (pixels[offset] * 0.299 +
+        pixels[offset + 1] * 0.587 +
+        pixels[offset + 2] * 0.114) /
+      255;
   }
 
   // Envolvente en los bordes: la textura se repite, así que el gradiente
@@ -172,7 +203,10 @@ export function woodTexture(base: number, repeat: Repeat = 1): CanvasTexture {
     ctx.moveTo(0, y);
     // Tres tramos con deriva: una línea recta se lee como raya, no como veta.
     for (let x = 0; x <= size; x += size / 3) {
-      ctx.lineTo(x, y + Math.sin(x * 0.012 + index) * 4 + (Math.random() - 0.5) * 3);
+      ctx.lineTo(
+        x,
+        y + Math.sin(x * 0.012 + index) * 4 + (Math.random() - 0.5) * 3,
+      );
     }
     ctx.stroke();
   }
@@ -249,7 +283,10 @@ export function plankTexture(base: number, repeat: Repeat = 1): CanvasTexture {
 }
 
 /** Yeso o pintura mate: nube de grano muy sutil para que el muro no sea un plano muerto. */
-export function plasterTexture(base: number, repeat: Repeat = 1): CanvasTexture {
+export function plasterTexture(
+  base: number,
+  repeat: Repeat = 1,
+): CanvasTexture {
   const size = 256;
   const { canvas, ctx } = surface(size);
   ctx.fillStyle = hex(base);

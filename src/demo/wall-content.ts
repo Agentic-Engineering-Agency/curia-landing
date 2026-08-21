@@ -19,9 +19,10 @@ const PANEL_Z_OFFSET = -1.9;
  */
 const CSS3D_SCALE = 0.0019;
 
-
-
-export function createWallContent(cssScene: Scene, panels: HTMLElement[]): WallContent {
+export function createWallContent(
+  cssScene: Scene,
+  panels: HTMLElement[],
+): WallContent {
   const mounted = panels.flatMap((panel, index) => {
     const chapter = CHAPTERS[index];
     if (!chapter) return [];
@@ -32,12 +33,15 @@ export function createWallContent(cssScene: Scene, panels: HTMLElement[]): WallC
     // Se despega del muro lo justo para que el giro no meta una esquina dentro
     // del yeso, y se orienta hacia el recorrido en vez de quedar plana.
     object.scale.setScalar(CSS3D_SCALE);
-    object.position.set(side * WALL_X, PANEL_Y, roomCenterZ(index) + PANEL_Z_OFFSET);
+    object.position.set(
+      side * WALL_X,
+      PANEL_Y,
+      roomCenterZ(index) + PANEL_Z_OFFSET,
+    );
     // A plomo sobre el muro. La referencia no gira ni inclina el contenido: el
     // texto esta impreso en el yeso y es la camara la que se pone de frente.
     object.rotation.y = side === -1 ? Math.PI / 2 : -Math.PI / 2;
     object.visible = false;
-
 
     panel.setAttribute("aria-hidden", "true");
     cssScene.add(object);
@@ -52,7 +56,10 @@ export function createWallContent(cssScene: Scene, panels: HTMLElement[]): WallC
   return {
     update(cameraPosition: Vector3) {
       const cameraRoom = Math.round(-cameraPosition.z / PITCH);
-      const nextRoom = Math.min(Math.max(cameraRoom, 0), Math.max(mounted.length - 1, 0));
+      const nextRoom = Math.min(
+        Math.max(cameraRoom, 0),
+        Math.max(mounted.length - 1, 0),
+      );
       if (nextRoom === occupiedRoom) return;
       occupiedRoom = nextRoom;
       mounted.forEach(({ index, panel, object }) => {

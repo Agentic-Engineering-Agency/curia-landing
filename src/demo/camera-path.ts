@@ -9,7 +9,13 @@ export type CameraPath = {
 const OFFICE = 1;
 const JUNTAS = 3;
 
-function quadratic(out: Vector3, a: Vector3, b: Vector3, c: Vector3, t: number) {
+function quadratic(
+  out: Vector3,
+  a: Vector3,
+  b: Vector3,
+  c: Vector3,
+  t: number,
+) {
   const inv = 1 - t;
   const aw = inv * inv;
   const bw = 2 * inv * t;
@@ -93,47 +99,125 @@ export function createCameraPath(): CameraPath {
 
       if (leg === OFFICE) {
         if (local < 0.34) {
-          quadratic(outPosition, STOPS[OFFICE], officeWallPeel, officeMonitorStop, local / 0.34);
+          quadratic(
+            outPosition,
+            STOPS[OFFICE],
+            officeWallPeel,
+            officeMonitorStop,
+            local / 0.34,
+          );
         } else if (local < 0.58) {
           outPosition.copy(officeMonitorStop);
         } else if (local < 0.76) {
-          quadratic(outPosition, officeMonitorStop, officeAisleControl, officeLeftAisle, (local - 0.58) / 0.18);
+          quadratic(
+            outPosition,
+            officeMonitorStop,
+            officeAisleControl,
+            officeLeftAisle,
+            (local - 0.58) / 0.18,
+          );
         } else if (local < 0.88) {
-          quadratic(outPosition, officeLeftAisle, EXIT_CONTROLS[OFFICE], CONTROLS[OFFICE], (local - 0.76) / 0.12);
+          quadratic(
+            outPosition,
+            officeLeftAisle,
+            EXIT_CONTROLS[OFFICE],
+            CONTROLS[OFFICE],
+            (local - 0.76) / 0.12,
+          );
         } else {
-          quadratic(outPosition, CONTROLS[OFFICE], ENTRY_CONTROLS[OFFICE], STOPS[OFFICE + 1], (local - 0.88) / 0.12);
+          quadratic(
+            outPosition,
+            CONTROLS[OFFICE],
+            ENTRY_CONTROLS[OFFICE],
+            STOPS[OFFICE + 1],
+            (local - 0.88) / 0.12,
+          );
         }
 
         if (local < 0.24) {
           outTarget.copy(TARGETS[OFFICE]);
         } else if (local < 0.42) {
-          quadratic(outTarget, TARGETS[OFFICE], officeSideStep, officeMonitorTarget, (local - 0.24) / 0.18);
+          quadratic(
+            outTarget,
+            TARGETS[OFFICE],
+            officeSideStep,
+            officeMonitorTarget,
+            (local - 0.24) / 0.18,
+          );
         } else if (local < 0.58) {
           outTarget.copy(officeMonitorTarget);
         } else {
-          quadratic(outTarget, officeMonitorTarget, officeExitTarget, TARGETS[OFFICE + 1], (local - 0.58) / 0.42);
+          quadratic(
+            outTarget,
+            officeMonitorTarget,
+            officeExitTarget,
+            TARGETS[OFFICE + 1],
+            (local - 0.58) / 0.42,
+          );
         }
         return;
       }
 
       if (leg === JUNTAS) {
         if (local < 0.42) {
-          quadratic(outPosition, STOPS[JUNTAS], juntasFrontAisle, juntasBackAisle, local / 0.42);
+          quadratic(
+            outPosition,
+            STOPS[JUNTAS],
+            juntasFrontAisle,
+            juntasBackAisle,
+            local / 0.42,
+          );
         } else if (local < 0.72) {
-          quadratic(outPosition, juntasBackAisle, EXIT_CONTROLS[JUNTAS], CONTROLS[JUNTAS], (local - 0.42) / 0.3);
+          quadratic(
+            outPosition,
+            juntasBackAisle,
+            EXIT_CONTROLS[JUNTAS],
+            CONTROLS[JUNTAS],
+            (local - 0.42) / 0.3,
+          );
         } else {
-          quadratic(outPosition, CONTROLS[JUNTAS], ENTRY_CONTROLS[JUNTAS], STOPS[JUNTAS + 1], (local - 0.72) / 0.28);
+          quadratic(
+            outPosition,
+            CONTROLS[JUNTAS],
+            ENTRY_CONTROLS[JUNTAS],
+            STOPS[JUNTAS + 1],
+            (local - 0.72) / 0.28,
+          );
         }
-        quadratic(outTarget, TARGETS[JUNTAS], TARGET_CONTROLS[JUNTAS], TARGETS[JUNTAS + 1], local);
+        quadratic(
+          outTarget,
+          TARGETS[JUNTAS],
+          TARGET_CONTROLS[JUNTAS],
+          TARGETS[JUNTAS + 1],
+          local,
+        );
         return;
       }
 
       if (local < 0.5) {
-        quadratic(outPosition, STOPS[leg], EXIT_CONTROLS[leg], CONTROLS[leg], local / 0.5);
+        quadratic(
+          outPosition,
+          STOPS[leg],
+          EXIT_CONTROLS[leg],
+          CONTROLS[leg],
+          local / 0.5,
+        );
       } else {
-        quadratic(outPosition, CONTROLS[leg], ENTRY_CONTROLS[leg], STOPS[leg + 1], (local - 0.5) / 0.5);
+        quadratic(
+          outPosition,
+          CONTROLS[leg],
+          ENTRY_CONTROLS[leg],
+          STOPS[leg + 1],
+          (local - 0.5) / 0.5,
+        );
       }
-      quadratic(outTarget, TARGETS[leg], TARGET_CONTROLS[leg], TARGETS[leg + 1], local);
+      quadratic(
+        outTarget,
+        TARGETS[leg],
+        TARGET_CONTROLS[leg],
+        TARGETS[leg + 1],
+        local,
+      );
     },
   };
 }

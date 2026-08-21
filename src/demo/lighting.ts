@@ -29,7 +29,10 @@ const FOCAL_HIGH = 1.15;
 const FOCAL_LOW = 0.9;
 const MAX_ROOM_INDEX = CHAPTERS.length - 1;
 const FOCUS_BLEND_HALF_WIDTH = 0.12;
-const INTERIOR_WARM = new Color(PALETTE.amber).lerp(new Color(PALETTE.bone), 0.36);
+const INTERIOR_WARM = new Color(PALETTE.amber).lerp(
+  new Color(PALETTE.bone),
+  0.36,
+);
 
 const FOCAL_POINTS = CHAPTERS.map((chapter, index) => {
   return new Vector3(
@@ -39,7 +42,10 @@ const FOCAL_POINTS = CHAPTERS.map((chapter, index) => {
   );
 });
 
-export function createLighting(scene: Scene, quality: "high" | "low"): Lighting {
+export function createLighting(
+  scene: Scene,
+  quality: "high" | "low",
+): Lighting {
   const previousBackground = scene.background;
   const previousFog = scene.fog;
   const previousEnvironment = scene.environment;
@@ -63,27 +69,50 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   // microcontraste, no el modelado del volumen: eso sigue siendo trabajo de la
   // clave. Se recupera bajando el suelo ambiental y devolviendo fuerza al sol,
   // sin volver al doble sombreado, que se controla con la penumbra ancha.
-  const ambient = new AmbientLight(0xe7eef0, quality === "high" ? 0.055 : 0.075);
-  const bounce = new HemisphereLight(0xe5eef4, 0x756447, quality === "high" ? 0.15 : 0.14);
+  const ambient = new AmbientLight(
+    0xe7eef0,
+    quality === "high" ? 0.055 : 0.075,
+  );
+  const bounce = new HemisphereLight(
+    0xe5eef4,
+    0x756447,
+    quality === "high" ? 0.15 : 0.14,
+  );
 
   // Una sola luz fría sigue viajando al hueco activo para mantener la lectura de
   // ventana sin pagar cinco puntos por frame. Su intensidad sube apenas porque
   // ahora hace de relleno blando, no de foco que dibuje otra sombra sobre la
   // sombra ya impresa en el parche del piso.
-  const windowFill = new PointLight(0xdcecff, quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW, 7.4, 2.55);
+  const windowFill = new PointLight(
+    0xdcecff,
+    quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW,
+    7.4,
+    2.55,
+  );
 
   // La luz dinámica nueva se conserva, pero deja de ser protagonista: con madera
   // fotográfica basta un borde cálido débil para separar cantos sin producir
   // brillos que contradigan la iluminación horneada de la textura.
-  const focalPool = new PointLight(INTERIOR_WARM, quality === "high" ? FOCAL_HIGH : FOCAL_LOW, 3.1, 3.65);
+  const focalPool = new PointLight(
+    INTERIOR_WARM,
+    quality === "high" ? FOCAL_HIGH : FOCAL_LOW,
+    3.1,
+    3.65,
+  );
   focalPool.castShadow = false;
 
   // La clave solar sólo debe anclar hora y parteluz. Al bajarla y suavizar su
   // mapa, las barras sobreviven como rastro de hora, pero no compiten con
   // sombras suaves que ya existen en los parches fotográficos de piso y muro.
-  const sun = new DirectionalLight(0xffe0b3, quality === "high" ? KEY_HIGH : KEY_LOW);
+  const sun = new DirectionalLight(
+    0xffe0b3,
+    quality === "high" ? KEY_HIGH : KEY_LOW,
+  );
   sun.castShadow = quality === "high";
-  sun.shadow.mapSize.set(quality === "high" ? 2048 : 1024, quality === "high" ? 2048 : 1024);
+  sun.shadow.mapSize.set(
+    quality === "high" ? 2048 : 1024,
+    quality === "high" ? 2048 : 1024,
+  );
   sun.shadow.camera.left = -6.15;
   sun.shadow.camera.right = 6.15;
   sun.shadow.camera.top = 4.35;
@@ -110,7 +139,8 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
     // El PMREM de `despacho-scene` se instala después de crear este rig. Con
     // materiales fotográficos lo dejamos más presente: aporta luz ambiental
     // especular de baja frecuencia, no una segunda dirección de sombra.
-    scene.environmentIntensity = (quality === "high" ? 0.24 : 0.22) * (0.9 + occlusion * 0.1);
+    scene.environmentIntensity =
+      (quality === "high" ? 0.24 : 0.22) * (0.9 + occlusion * 0.1);
 
     // El sol sigue viajando con la cámara para concentrar el shadow map en la
     // sala visible. El ángulo cambió por una razón de composición: al girar los
@@ -119,16 +149,27 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
     // horizontal y apunta al muro opuesto a la altura de la placa, así que el
     // dibujo del parteluz cruza justamente el plano que la cámara mira. Es
     // además lo que hace un sol bajo de verdad.
-    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.1 + occlusion * 0.86);
-    sun.position.set(windowSide * (ROOM.width / 2 + 5.4), 2.68, cameraPosition.z + 1.1);
+    sun.intensity =
+      (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.1 + occlusion * 0.86);
+    sun.position.set(
+      windowSide * (ROOM.width / 2 + 5.4),
+      2.68,
+      cameraPosition.z + 1.1,
+    );
     sun.target.position.set(-windowSide * 4.3, 1.72, cameraPosition.z - 1.9);
     sun.target.updateMatrixWorld();
 
     // Al cruzar un vano cae porque no hay fuente narrativa ahí, pero el mínimo
     // queda más alto que antes para que las fotos no pierdan su luminancia media
     // ni aparezcan negros aplastados por doble sombreado.
-    windowFill.intensity = (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) * (0.24 + occlusion * 0.52);
-    windowFill.position.set(windowSide * (ROOM.width / 2 - 0.84), 2.28, roomZ + 0.12);
+    windowFill.intensity =
+      (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) *
+      (0.24 + occlusion * 0.52);
+    windowFill.position.set(
+      windowSide * (ROOM.width / 2 - 0.84),
+      2.28,
+      roomZ + 0.12,
+    );
 
     focalPointAt(roomProgress, focalPosition);
     // El borde cálido acompaña al lado de ventana y no al centro de la sala: así
@@ -139,7 +180,8 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
       Math.min(ROOM.height - 0.68, focalPosition.y + 0.18),
       focalPosition.z - 0.58,
     );
-    focalPool.intensity = (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.06 + occlusion * 0.5);
+    focalPool.intensity =
+      (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.06 + occlusion * 0.5);
     focalPool.position.copy(focalPosition);
   }
 
@@ -180,7 +222,11 @@ function activeRoomProgress(cameraZ: number) {
 function focalPointAt(progress: number, out: Vector3) {
   const lower = Math.floor(progress);
   const upper = Math.min(MAX_ROOM_INDEX, lower + 1);
-  return out.lerpVectors(FOCAL_POINTS[lower], FOCAL_POINTS[upper], progress - lower);
+  return out.lerpVectors(
+    FOCAL_POINTS[lower],
+    FOCAL_POINTS[upper],
+    progress - lower,
+  );
 }
 
 function smoothstep(t: number) {

@@ -136,9 +136,13 @@ export function resolveSequence(
  * Progreso de scroll que deja la cámara en el centro de la meseta de un
  * capítulo. Lo usa la navegación por capítulos.
  */
-export function progressForChapter(timeline: Timeline, chapterIndex: number): number {
+export function progressForChapter(
+  timeline: Timeline,
+  chapterIndex: number,
+): number {
   const hold = timeline.segments.find(
-    (segment) => segment.kind === "hold" && segment.chapterIndex === chapterIndex,
+    (segment) =>
+      segment.kind === "hold" && segment.chapterIndex === chapterIndex,
   );
   if (!hold) return 0;
   return hold.start + (hold.end - hold.start) / 2;

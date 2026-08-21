@@ -27,7 +27,8 @@ const RUTAS: Record<FotoClave, string> = {
 };
 
 function cargar(url: string): Promise<HTMLImageElement> {
-  const { promise, resolve, reject } = Promise.withResolvers<HTMLImageElement>();
+  const { promise, resolve, reject } =
+    Promise.withResolvers<HTMLImageElement>();
   const img = new Image();
   img.decoding = "sync";
   img.onload = () => resolve(img);
@@ -64,7 +65,11 @@ export async function cargarFotos(): Promise<FotoSet | null> {
  * que con las texturas dibujadas. Un tinte opcional integra el material en la
  * paleta de la sala sin repintarlo.
  */
-export function fotoTextura(img: HTMLImageElement, repeat: Repeat, tinte?: number): CanvasTexture {
+export function fotoTextura(
+  img: HTMLImageElement,
+  repeat: Repeat,
+  tinte?: number,
+): CanvasTexture {
   const lado = 512;
   const canvas = document.createElement("canvas");
   canvas.width = lado;

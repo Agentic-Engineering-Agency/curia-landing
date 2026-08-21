@@ -122,8 +122,12 @@ export function createDespacho(
     paper: PAPER,
   } = kit.S;
 
-
-  const BASEBOARD: Surface = { color: 0xd9d2c5, roughness: 0.98, grain: "plaster", repeat: [1, 10] };
+  const BASEBOARD: Surface = {
+    color: 0xd9d2c5,
+    roughness: 0.98,
+    grain: "plaster",
+    repeat: [1, 10],
+  };
 
   function revealSurface(accent: number): Surface {
     const color = new Color(PALETTE.bone)
@@ -134,7 +138,11 @@ export function createDespacho(
   }
 
   /** Muro divisorio con vano en arco y mocheta profunda. */
-  function partition(z: number, openingX: number, destinationAccent: number): Group {
+  function partition(
+    z: number,
+    openingX: number,
+    destinationAccent: number,
+  ): Group {
     const group = new Group();
     const half = ROOM.width / 2;
     const thickness = 0.34;
@@ -151,13 +159,31 @@ export function createDespacho(
     const leftWidth = leftEdge + half;
     if (leftWidth > 0.01) {
       group.add(
-        box(leftWidth, ROOM.height, thickness, (leftEdge - half) / 2, ROOM.height / 2, z, WALL, false),
+        box(
+          leftWidth,
+          ROOM.height,
+          thickness,
+          (leftEdge - half) / 2,
+          ROOM.height / 2,
+          z,
+          WALL,
+          false,
+        ),
       );
     }
     const rightWidth = half - rightEdge;
     if (rightWidth > 0.01) {
       group.add(
-        box(rightWidth, ROOM.height, thickness, (rightEdge + half) / 2, ROOM.height / 2, z, WALL, false),
+        box(
+          rightWidth,
+          ROOM.height,
+          thickness,
+          (rightEdge + half) / 2,
+          ROOM.height / 2,
+          z,
+          WALL,
+          false,
+        ),
       );
     }
 
@@ -166,20 +192,42 @@ export function createDespacho(
     for (let i = 0; i < segments; i += 1) {
       const localX = -radius + segmentWidth * (i + 0.5);
       const normalized = Math.min(Math.abs(localX) / radius, 1);
-      const curveY = springY + archRise * Math.sqrt(Math.max(0, 1 - normalized * normalized));
+      const curveY =
+        springY +
+        archRise * Math.sqrt(Math.max(0, 1 - normalized * normalized));
       const height = ROOM.height - curveY;
       group.add(
-        box(segmentWidth + 0.014, height, thickness, openingX + localX, curveY + height / 2, z, WALL, false),
+        box(
+          segmentWidth + 0.014,
+          height,
+          thickness,
+          openingX + localX,
+          curveY + height / 2,
+          z,
+          WALL,
+          false,
+        ),
       );
       group.add(
-        box(segmentWidth + 0.02, 0.085, thickness + 0.1, openingX + localX, curveY - 0.0425, z, reveal, false),
+        box(
+          segmentWidth + 0.02,
+          0.085,
+          thickness + 0.1,
+          openingX + localX,
+          curveY - 0.0425,
+          z,
+          reveal,
+          false,
+        ),
       );
     }
 
     // La mocheta cálida marca el espesor real del umbral sin introducir un
     // marco decorativo ajeno a la referencia.
     for (const edge of [leftEdge, rightEdge]) {
-      group.add(box(0.1, springY, thickness + 0.1, edge, springY / 2, z, reveal, false));
+      group.add(
+        box(0.1, springY, thickness + 0.1, edge, springY / 2, z, reveal, false),
+      );
     }
 
     return group;
@@ -199,26 +247,80 @@ export function createDespacho(
     group.add(glass);
 
     // Mocheta: cuatro piezas que dan profundidad al hueco.
-    group.add(box(0.3, 0.1, width, x - side * 0.15, centerY + height / 2, z, WALL, false));
-    group.add(box(0.3, 0.12, width, x - side * 0.15, centerY - height / 2, z, WOOD_FINE, false));
+    group.add(
+      box(
+        0.3,
+        0.1,
+        width,
+        x - side * 0.15,
+        centerY + height / 2,
+        z,
+        WALL,
+        false,
+      ),
+    );
+    group.add(
+      box(
+        0.3,
+        0.12,
+        width,
+        x - side * 0.15,
+        centerY - height / 2,
+        z,
+        WOOD_FINE,
+        false,
+      ),
+    );
     for (const offset of [-width / 2, width / 2]) {
-      group.add(box(0.3, height, 0.1, x - side * 0.15, centerY, z + offset, WALL, false));
+      group.add(
+        box(
+          0.3,
+          height,
+          0.1,
+          x - side * 0.15,
+          centerY,
+          z + offset,
+          WALL,
+          false,
+        ),
+      );
     }
     // Parteluz. Es la única pieza de la ventana que proyecta sombra: el sol
     // atraviesa el muro (que no proyecta) y estas barras dibujan en el piso el
     // rectángulo de luz partido. Antes se intentó pintar ese charco con un
     // plano aditivo y se leía como calca; esto es la sombra real.
     for (const offset of [-1.05, 0, 1.05]) {
-      group.add(box(0.06, height, 0.06, x - side * 0.2, centerY, z + offset, DARK, true));
+      group.add(
+        box(
+          0.06,
+          height,
+          0.06,
+          x - side * 0.2,
+          centerY,
+          z + offset,
+          DARK,
+          true,
+        ),
+      );
     }
     // Peinazo horizontal, para que la sombra tenga también una barra cruzada.
     group.add(box(0.06, 0.06, width, x - side * 0.2, centerY, z, DARK, true));
     // Repisa interior.
-    group.add(box(0.22, 0.06, width, x - side * 0.34, centerY - height / 2 - 0.03, z, WOOD_FINE, false));
+    group.add(
+      box(
+        0.22,
+        0.06,
+        width,
+        x - side * 0.34,
+        centerY - height / 2 - 0.03,
+        z,
+        WOOD_FINE,
+        false,
+      ),
+    );
 
     return group;
   }
-
 
   /** Luminaria empotrada: se carga al lado opuesto del muro de contenido. */
   function ceilingFixture(z: number, side: 1 | -1): Group {
@@ -228,7 +330,9 @@ export function createDespacho(
     panel.rotation.x = Math.PI / 2;
     panel.position.set(offset, ROOM.height - 0.012, z);
     group.add(panel);
-    group.add(box(0.44, 0.06, 2.72, offset, ROOM.height - 0.03, z, METAL, false));
+    group.add(
+      box(0.44, 0.06, 2.72, offset, ROOM.height - 0.03, z, METAL, false),
+    );
     return group;
   }
 
@@ -244,7 +348,6 @@ export function createDespacho(
     return group;
   }
 
-
   // Una sala por modulo: el trabajo de arte de cada una es independiente.
   const BUILDERS = [
     buildRecepcion,
@@ -253,7 +356,6 @@ export function createDespacho(
     buildJuntas,
     buildBiblioteca,
   ];
-
 
   const scene = new Scene();
 
@@ -285,32 +387,67 @@ export function createDespacho(
       0,
       ROOM.height + 0.05,
       midZ,
-      { color: PALETTE.bone, roughness: 0.97, grain: "plaster", repeat: [4, 20] },
+      {
+        color: PALETTE.bone,
+        roughness: 0.97,
+        grain: "plaster",
+        repeat: [4, 20],
+      },
       false,
     ),
   );
   for (const side of [-1, 1] as const) {
     const x = (side * (ROOM.width + ROOM.wall)) / 2;
     CHAPTERS.forEach((_, index) => {
-      scene.add(box(ROOM.wall, ROOM.height, ROOM.depth, x, ROOM.height / 2, roomCenterZ(index), WALL, false));
+      scene.add(
+        box(
+          ROOM.wall,
+          ROOM.height,
+          ROOM.depth,
+          x,
+          ROOM.height / 2,
+          roomCenterZ(index),
+          WALL,
+          false,
+        ),
+      );
     });
     // El zócalo baja de saturación para rematar el yeso sin crear una franja
     // amarilla que compita con los acentos de contenido.
     scene.add(
-      box(0.055, 0.095, totalDepth, x - (side * ROOM.wall) / 2 - side * 0.028, 0.0475, midZ, BASEBOARD, false),
+      box(
+        0.055,
+        0.095,
+        totalDepth,
+        x - (side * ROOM.wall) / 2 - side * 0.028,
+        0.0475,
+        midZ,
+        BASEBOARD,
+        false,
+      ),
     );
   }
   scene.add(
-    box(ROOM.width, ROOM.height, ROOM.wall, 0, ROOM.height / 2, roomCenterZ(lastRoom) - ROOM.depth / 2, WALL, false),
+    box(
+      ROOM.width,
+      ROOM.height,
+      ROOM.wall,
+      0,
+      ROOM.height / 2,
+      roomCenterZ(lastRoom) - ROOM.depth / 2,
+      WALL,
+      false,
+    ),
   );
-
 
   // La pantalla vive en su propia escena porque CSS3DRenderer mantiene un
   // grafo aparte. Comparte la cámara, así que sigue la perspectiva exacta.
   const OFFICE = 1;
   const screenPosition = new Vector3(-1.9, 1.3, roomCenterZ(OFFICE) - 2.886);
   const cssScene = new Scene();
-  const cssRenderer = screenMount ? new CSS3DRenderer({ element: screenMount.host }) : null;
+  const cssRenderer = screenMount
+    ? new CSS3DRenderer({ element: screenMount.host })
+    : null;
   let screenObject: CSS3DObject | null = null;
   if (screenMount && cssRenderer) {
     screenObject = new CSS3DObject(screenMount.element);
@@ -325,7 +462,13 @@ export function createDespacho(
     const z = roomCenterZ(index);
 
     if (index < lastRoom) {
-      scene.add(partition(z - ROOM.depth / 2 - ROOM.wall / 2, doorwayOffsetX(index), CHAPTERS[index + 1].accent));
+      scene.add(
+        partition(
+          z - ROOM.depth / 2 - ROOM.wall / 2,
+          doorwayOffsetX(index),
+          CHAPTERS[index + 1].accent,
+        ),
+      );
     }
 
     scene.add(windowUnit(chapter.windowSide, z + 0.5));
@@ -339,7 +482,6 @@ export function createDespacho(
     // El relleno de ventana ya no es una luz por sala: lighting.ts mueve una
     // sola al hueco activo. Cinco luces puntuales entraban al sombreado de
     // todos los fragmentos visibles aunque la escena estuviera quieta.
-
   });
 
   // Rig de luz y recorrido de cámara viven en sus módulos: la escena sólo los
@@ -397,7 +539,10 @@ export function createDespacho(
     const sideFrom = CHAPTERS[leg].windowSide;
     const sideTo = CHAPTERS[leg + 1].windowSide;
     const side = local < 0.5 ? sideFrom : sideTo;
-    const crossing = sideFrom === sideTo ? 1 : 1 - 0.72 * Math.exp(-((local - 0.5) ** 2) / 0.014);
+    const crossing =
+      sideFrom === sideTo
+        ? 1
+        : 1 - 0.72 * Math.exp(-((local - 0.5) ** 2) / 0.014);
     lighting.aim(position, side, crossing);
 
     wallContent?.update(position);
@@ -420,7 +565,9 @@ export function createDespacho(
     const widened = 40 + (1.2 - Math.min(aspect, 1.2)) * 24;
     camera.fov = Math.min(58, widened);
     camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(devicePixelRatio, quality === "high" ? 2 : 1.25));
+    renderer.setPixelRatio(
+      Math.min(devicePixelRatio, quality === "high" ? 2 : 1.25),
+    );
     renderer.setSize(width, height, false);
     composer?.setSize(width, height);
     cssRenderer?.setSize(width, height);

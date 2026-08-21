@@ -26,7 +26,10 @@ describe("buildTimeline", () => {
     expect(timeline.segments[0].start).toBe(0);
     expect(timeline.segments.at(-1)!.end).toBe(1);
     for (let i = 1; i < timeline.segments.length; i += 1) {
-      expect(timeline.segments[i].start).toBeCloseTo(timeline.segments[i - 1].end, 12);
+      expect(timeline.segments[i].start).toBeCloseTo(
+        timeline.segments[i - 1].end,
+        12,
+      );
     }
   });
 
@@ -98,7 +101,10 @@ describe("progressForChapter", () => {
 
   it("deja la cámara detenida en la parada del capítulo pedido", () => {
     for (let chapter = 0; chapter < 5; chapter += 1) {
-      const frame = resolveSequence(timeline, progressForChapter(timeline, chapter));
+      const frame = resolveSequence(
+        timeline,
+        progressForChapter(timeline, chapter),
+      );
       expect(frame.chapterIndex).toBe(chapter);
       expect(frame.holding).toBe(true);
       expect(frame.pathT).toBeCloseTo(chapter / 4, 12);

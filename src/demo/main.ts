@@ -44,7 +44,9 @@ function detectQuality(): "high" | "low" {
   if (matchMedia("(hover: none) and (pointer: coarse)").matches) return "low";
   const probe = document.createElement("canvas").getContext("webgl2");
   const info = probe?.getExtension("WEBGL_debug_renderer_info");
-  const name = info ? String(probe!.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
+  const name = info
+    ? String(probe!.getParameter(info.UNMASKED_RENDERER_WEBGL))
+    : "";
   if (/(intel).*(hd|uhd) graphics (4|5|6)\d{2}/i.test(name)) return "low";
   return (navigator.hardwareConcurrency ?? 4) >= 4 ? "high" : "low";
 }
@@ -106,7 +108,10 @@ function paintChapter(index: number) {
   // El CSS coloca el contenido en la mitad libre del encuadre, declarada por
   // el capítulo. Así el texto nunca compite con el sujeto de la sala.
   stage.dataset.safe = chapter.safe;
-  stage.style.setProperty("--accent", `#${chapter.accent.toString(16).padStart(6, "0")}`);
+  stage.style.setProperty(
+    "--accent",
+    `#${chapter.accent.toString(16).padStart(6, "0")}`,
+  );
 
   marks.forEach((mark, markIndex) => {
     mark.classList.toggle("is-active", markIndex === index);
@@ -145,13 +150,20 @@ function tick(time: number) {
     const response = frame.holding ? HOLD_RESPONSE : TRAVEL_RESPONSE;
     const factor = 1 - Math.exp(-delta * response);
     smoothedPathT += (frame.pathT - smoothedPathT) * factor;
-    if (frame.holding && Math.abs(frame.pathT - smoothedPathT) < HOLD_LOCK_EPSILON) {
+    if (
+      frame.holding &&
+      Math.abs(frame.pathT - smoothedPathT) < HOLD_LOCK_EPSILON
+    ) {
       smoothedPathT = frame.pathT;
     }
   }
 
   const settled = Math.abs(frame.pathT - smoothedPathT) < 0.00012;
-  despacho.update(smoothedPathT, time / 1000, !reducedMotion && frame.holding && settled);
+  despacho.update(
+    smoothedPathT,
+    time / 1000,
+    !reducedMotion && frame.holding && settled,
+  );
   despacho.render();
 
   if (!settled || (!reducedMotion && visible)) schedule();
