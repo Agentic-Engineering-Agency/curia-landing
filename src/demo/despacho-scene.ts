@@ -595,13 +595,16 @@ export function createDespacho(
     composer.addPass(new RenderPass(scene, camera));
     const gtao = new GTAOPass(scene, camera);
     gtao.updateGtaoMaterial({
-      // Radio en unidades de escena: 62cm capta el encuentro muro-piso y el
-      // hueco bajo un mueble sin ensuciar superficies abiertas.
-      radius: 0.62,
-      distanceExponent: 1.6,
-      thickness: 0.45,
-      scale: 1,
-      samples: 16,
+      // Radio en unidades de escena. 62cm era invisible: medido contra la misma
+      // escena sin oclusión movía 1.8 niveles de gris y tocaba el 3% del cuadro,
+      // porque a 2-6m de distancia ese radio sólo cubre rincones de pocos
+      // píxeles. 2.2m mueve 8 niveles sobre el 20% del cuadro y sube el
+      // contraste de 54.5 a 57.3 sin bajar la luminancia media de 148.
+      radius: 2.2,
+      distanceExponent: 1,
+      thickness: 1.4,
+      scale: 1.5,
+      samples: 24,
       distanceFallOff: 1,
       screenSpaceRadius: false,
     });

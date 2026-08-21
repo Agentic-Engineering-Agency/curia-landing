@@ -6,6 +6,7 @@
 
 import "./demo.css";
 import { createDespacho } from "./despacho-scene";
+import { capturarProfundidad } from "./depth-capture";
 import { cargarFotos } from "./photo-textures";
 import { CHAPTERS } from "./rooms";
 import {
@@ -63,6 +64,23 @@ const despacho = createDespacho(
   { element: screenElement, host: css3dHost },
   fotos,
 );
+
+// Gancho de captura para la tubería de paralaje. En producción la condición es
+// constante falsa y `depth-capture` no tiene efectos al cargarse, así que el
+// bundler elimina rama y módulo.
+if (import.meta.env.DEV) {
+  Object.assign(window, {
+    __profundidad: (pathT: number) => capturarProfundidad(despacho, pathT),
+    // Coste real por fotograma. `requestAnimationFrame` se estrangula a 1 Hz en
+    // pestaña sin foco, así que medirlo desde el bucle normal no dice nada;
+    // forzar N renders seguidos sí.
+    __bench: (n: number) => {
+      const inicio = performance.now();
+      for (let i = 0; i < n; i += 1) despacho.render();
+      return (performance.now() - inicio) / n;
+    },
+  });
+}
 
 // Marcas de capítulo: navegación discreta, no un carrusel.
 const marks = CHAPTERS.map((chapter, index) => {
