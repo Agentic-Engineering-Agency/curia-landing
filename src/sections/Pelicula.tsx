@@ -11,10 +11,27 @@ const ESTILO_PISTA = {
   "--pel-viewports": String(CAPITULOS.length * 2),
 } as CSSProperties;
 
-// La URL de blob se cachea a nivel de módulo y nunca se revoca: la película
-// es la apertura de la página y vive lo que ella. Revocar al desmontar rompe
-// el doble montaje de StrictMode (el src queda apuntando a un blob muerto).
-let peliculaEnBlob: Promise<string | null> | null = null;
+// La URL de blob se cachea por variante a nivel de módulo y nunca se revoca:
+// la película es la apertura de la página y vive lo que ella. Revocar al
+// desmontar rompe el doble montaje de StrictMode (src a un blob muerto).
+const peliculaEnBlob = new Map<string, Promise<string | null>>();
+
+// Variante móvil: reencuadre 9:16 del mismo máster (608x1080, paneo medido
+// que sigue los giros), misma línea de tiempo — las marcas de capítulo valen
+// igual. Se elige al montar; un cambio de orientación posterior conserva la
+// variante inicial, que sigue siendo válida (el CSS recorta con cover).
+const MEDIOS = {
+  ancho: {
+    poster: "/media/despacho-poster.jpg",
+    webm: "/media/despacho-scrub.webm",
+    mp4: "/media/despacho-scrub.mp4",
+  },
+  retrato: {
+    poster: "/media/despacho-poster-movil.jpg",
+    webm: "/media/despacho-scrub-movil.webm",
+    mp4: "/media/despacho-scrub-movil.mp4",
+  },
+};
 
 // Registro del scrub y la pista activos para que otras secciones (los
 // banners de sala) puedan saltar a un capítulo del recorrido.
@@ -36,6 +53,12 @@ export default function Pelicula() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scrubRef = useRef<Scrub | null>(null);
   const [capitulo, setCapitulo] = useState(0);
+  const [variante] = useState<keyof typeof MEDIOS>(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-aspect-ratio: 1/1)").matches
+      ? "retrato"
+      : "ancho",
+  );
 
   useEffect(() => {
     pistaActiva = pistaRef.current;
@@ -56,8 +79,12 @@ export default function Pelicula() {
     // reiniciaría los metadatos y el driver leería una duración que ya no
     // vale. No es optimización: sin blob, hosts sin Range congelan el scrub.
     (async () => {
-      peliculaEnBlob ??= blobDeVideo(video);
-      const url = await peliculaEnBlob;
+      let pendiente = peliculaEnBlob.get(variante);
+      if (!pendiente) {
+        pendiente = blobDeVideo(video);
+        peliculaEnBlob.set(variante, pendiente);
+      }
+      const url = await pendiente;
       if (!vivo) return;
       if (url) video.src = url;
       const scrub = crearScrub({
@@ -76,9 +103,10 @@ export default function Pelicula() {
       if (scrubActivo === scrubRef.current) scrubActivo = null;
       scrubRef.current = null;
     };
-  }, [reducido]);
+  }, [reducido, variante]);
 
   const cap = CAPITULOS[capitulo];
+  const medios = MEDIOS[variante];
   const ctaVisible = reducido || capitulo === CAPITULOS.length - 1;
 
   return (
@@ -96,7 +124,7 @@ export default function Pelicula() {
             alt=""
             aria-hidden="true"
             className="pel-poster"
-            src="/media/despacho-poster.jpg"
+            src={medios.poster}
           />
         ) : (
           <video
@@ -104,12 +132,12 @@ export default function Pelicula() {
             disablePictureInPicture
             muted
             playsInline
-            poster="/media/despacho-poster.jpg"
+            poster={medios.poster}
             preload="auto"
             ref={videoRef}
           >
-            <source src="/media/despacho-scrub.webm" type="video/webm" />
-            <source src="/media/despacho-scrub.mp4" type="video/mp4" />
+            <source src={medios.webm} type="video/webm" />
+            <source src={medios.mp4} type="video/mp4" />
           </video>
         )}
 
