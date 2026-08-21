@@ -1,30 +1,21 @@
-/// <reference types="@cloudflare/workers-types" />
 /**
- * Cloudflare Worker entry for the Curia landing page.
+ * Contrato server-only de POST /api/contact para TanStack Start.
  *
- * Topology:
- *   - Static assets in ./dist are served by the Workers Static Assets binding
- *     (ASSETS) with single-page-application 404 handling.
- *   - This Worker runs first only for `/api/*` (see wrangler.jsonc
- *     `assets.run_worker_first`). Everything else is delegated to env.ASSETS.
- *
- * Routes:
- *   - POST /api/contact -> validate -> POST Twenty CRM /rest/people
- *   - Any other /api/*  -> 404 JSON
- *
- * Env (set via wrangler secret put / vars / .dev.vars):
- *   TWENTY_API_KEY        (secret, required)
- *   TWENTY_BASE_URL       (secret OR var, required) e.g. https://twenty.agenticengineering.lat
- *   CONTACT_SOURCE        (var, optional) fallback `sourceUrl` when no Origin/Referer header
+ * La file route aporta routing/método; este módulo conserva validación,
+ * mapeo y entrega a Twenty como una unidad testeable con Env inyectable.
+ * Logs: sólo estado/configuración técnica, nunca PII de la persona lead.
  */
 
 import { z } from "zod";
 
-interface Env {
-  ASSETS: Fetcher;
+export interface ContactEnv {
   TWENTY_API_KEY?: string;
   TWENTY_BASE_URL?: string;
   CONTACT_SOURCE?: string;
+}
+
+export function methodNotAllowed() {
+  return jsonResponse({ ok: false, error: "method_not_allowed" }, 405);
 }
 
 const ContactSchema = z.object({
@@ -39,24 +30,10 @@ const ContactSchema = z.object({
 
 type ContactInput = z.infer<typeof ContactSchema>;
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-
-    if (url.pathname === "/api/contact") {
-      if (request.method === "POST") return handleContact(request, env);
-      return jsonResponse({ ok: false, error: "method_not_allowed" }, 405);
-    }
-
-    if (url.pathname.startsWith("/api/")) {
-      return jsonResponse({ ok: false, error: "not_found" }, 404);
-    }
-
-    return env.ASSETS.fetch(request);
-  },
-} satisfies ExportedHandler<Env>;
-
-async function handleContact(request: Request, env: Env): Promise<Response> {
+export async function handleContact(
+  request: Request,
+  env: ContactEnv,
+): Promise<Response> {
   if (!env.TWENTY_API_KEY || !env.TWENTY_BASE_URL) {
     console.error("contact.misconfigured", {
       hasKey: Boolean(env.TWENTY_API_KEY),
@@ -87,15 +64,15 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   const upstream = await postPersonToTwenty(input, request, env);
 
   if (upstream.kind === "network_error") {
-    console.error("contact.upstream_network_error", { message: upstream.message });
+    console.error("contact.upstream_network_error", {
+      message: upstream.message,
+    });
     return jsonResponse({ ok: false, error: "upstream_error" }, 502);
   }
 
   if (!upstream.ok) {
-    console.error("contact.upstream_failed", {
-      status: upstream.status,
-      body: upstream.bodyPreview,
-    });
+    // El body de Twenty puede repetir email/nombre: no se registra.
+    console.error("contact.upstream_failed", { status: upstream.status });
     return jsonResponse({ ok: false, error: "upstream_error" }, 502);
   }
 
@@ -104,13 +81,13 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
 type TwentyResult =
   | { kind: "ok"; ok: true; status: number; id: string | null }
-  | { kind: "http_error"; ok: false; status: number; bodyPreview: string }
+  | { kind: "http_error"; ok: false; status: number }
   | { kind: "network_error"; ok: false; message: string };
 
 async function postPersonToTwenty(
   input: ContactInput,
   request: Request,
-  env: Env,
+  env: ContactEnv,
 ): Promise<TwentyResult> {
   const { firstName, lastName } = splitName(input.name);
   const sourceUrl =
@@ -158,8 +135,7 @@ async function postPersonToTwenty(
   }
 
   if (!upstream.ok) {
-    const bodyPreview = (await upstream.text().catch(() => "")).slice(0, 500);
-    return { kind: "http_error", ok: false, status: upstream.status, bodyPreview };
+    return { kind: "http_error", ok: false, status: upstream.status };
   }
 
   let id: string | null = null;

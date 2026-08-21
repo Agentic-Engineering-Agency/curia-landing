@@ -12,8 +12,8 @@
     "jsx": "react-jsx",
     "strict": true,
     "skipLibCheck": true,
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   },
   "include": ["src", "vite.config.ts"],
-  "exclude": ["worker", "dist", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }

@@ -1,15 +1,15 @@
 # Curia Landing
 
-Marketing landing page for [Curia](https://agenticengineering.online), an intelligence platform for Mexican legal practices. The repository contains a componentized React SPA and the Cloudflare Worker that receives contact requests.
+Marketing landing page for [Curia](https://agenticengineering.online), an intelligence platform for Mexican legal practices. The repository is a TanStack Start application deployed to Cloudflare Workers; its server route receives contact requests and hands them to Twenty CRM.
 
 ## Ownership map
 
-- [`src/`](src/) owns the SPA. Page-level content is split into sections, while shared presentation and behavior belong in the component layer.
-- [`worker/index.ts`](worker/index.ts) owns the `POST /api/contact` boundary, request validation, and the handoff to Twenty CRM.
+- [`src/routes/`](src/routes/) owns TanStack Start routing, the document shell, metadata, the landing route, and `POST /api/contact`.
+- [`src/App.tsx`](src/App.tsx) composes the landing. Page-level content is split into sections, while shared presentation and behavior belong in the component layer.
+- [`src/server/contact.ts`](src/server/contact.ts) owns contact validation and the Twenty CRM handoff; its adjacent test never calls a live CRM.
 - [`docs/landing-copy.md`](docs/landing-copy.md) is the source of truth for approved public copy and product-claim boundaries.
 - [`docs/klgv-meeting-brief.md`](docs/klgv-meeting-brief.md) contains the public KLGV meeting agenda, demo script, questions, objection handling, commercials, and follow-up actions.
-- [`worker/index.test.ts`](worker/index.test.ts) covers the contact Worker without making live CRM calls.
-- [`wrangler.jsonc`](wrangler.jsonc) owns the Worker, Static Assets routing, public variables, and deployment configuration. Vite and Vitest configuration remain with their respective root config files.
+- [`wrangler.jsonc`](wrangler.jsonc) owns Cloudflare bindings, public variables, routes, and deployment configuration.
 
 ## Local development
 
@@ -20,11 +20,7 @@ pnpm install
 pnpm dev
 ```
 
-The Vite server serves the SPA only. To exercise the contact flow through the Worker, copy `.dev.vars.example` to `.dev.vars`, provide the local credentials, and run:
-
-```bash
-pnpm cf:dev
-```
+`pnpm dev` runs TanStack Start inside the Cloudflare Workers runtime through the official Cloudflare Vite plugin, so the landing and `/api/contact` share one local surface. To exercise the real CRM handoff, copy `.dev.vars.example` to `.dev.vars` and provide local credentials.
 
 Never commit `.dev.vars`. Production credentials are managed as Wrangler secrets.
 
@@ -32,16 +28,16 @@ Never commit `.dev.vars`. Production credentials are managed as Wrangler secrets
 
 Before using the contact form, create these custom fields on the Twenty `Person` model. Twenty silently drops unknown keys, so a successful request is not proof that the custom values were stored.
 
-| API field | Twenty type |
-|---|---|
-| `companyName` | Text |
-| `message` | Text — Multiline |
-| `projectType` | Text |
-| `budget` | Text |
-| `howDidYouHear` | Text |
-| `sourceUrl` | Text |
+| API field       | Twenty type      |
+| --------------- | ---------------- |
+| `companyName`   | Text             |
+| `message`       | Text — Multiline |
+| `projectType`   | Text             |
+| `budget`        | Text             |
+| `howDidYouHear` | Text             |
+| `sourceUrl`     | Text             |
 
-The Worker owns the complete request-to-Person mapping in [`worker/index.ts`](worker/index.ts).
+The complete request-to-Person mapping lives in [`src/server/contact.ts`](src/server/contact.ts); the HTTP boundary is [`src/routes/api/contact.ts`](src/routes/api/contact.ts).
 
 ## Verification and deployment
 
@@ -53,7 +49,7 @@ pnpm test
 pnpm build
 ```
 
-`pnpm cf:deploy` builds and publishes the Worker with its static assets. Review [`wrangler.jsonc`](wrangler.jsonc) before changing routing or deployment behavior.
+`pnpm cf:deploy` builds and publishes the TanStack Start Worker with its static assets. Review [`wrangler.jsonc`](wrangler.jsonc) before changing bindings, routes, or deployment behavior.
 
 ## Links
 
