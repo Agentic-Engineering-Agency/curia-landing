@@ -21,35 +21,35 @@ export const CAPITULOS: Capitulo[] = [
     kicker: "Monitoreo judicial",
     titulo: "Movimientos del expediente",
     cuerpo: "Cada aviso conserva fuente y contexto.",
-    marca: 0.09,
+    marca: 0.1,
   },
   {
     id: "plazos",
     kicker: "Plazos y Outlook",
     titulo: "Una fecha revisable",
     cuerpo: "Curia calcula el plazo y conserva la fuente.",
-    marca: 0.29,
+    marca: 0.3,
   },
   {
     id: "biblioteca",
     kicker: "Biblioteca y OCR",
     titulo: "Fuentes elegidas",
     cuerpo: "Sólo documentos procesados alimentan la consulta.",
-    marca: 0.49,
+    marca: 0.5,
   },
   {
     id: "asistentes",
     kicker: "Asistentes con contexto",
     titulo: "Borradores con respaldo",
     cuerpo: "Cada apoyo cita el expediente que lo sostiene.",
-    marca: 0.69,
+    marca: 0.7,
   },
   {
     id: "evaluador",
     kicker: "Reference Evaluator",
     titulo: "De la respuesta al escrito",
     cuerpo: "La confianza de una cita se ve antes de usarla.",
-    marca: 0.91,
+    marca: 0.9,
   },
 ];
 
@@ -66,8 +66,9 @@ export function ritmo(progreso: number): number {
 }
 
 /**
- * Capítulo más cercano a una posición del recorrido. Se elige por distancia a
- * la marca y no por rangos, para que no queden huecos entre capítulos.
+ * Capítulo más cercano a una posición del video, expresada de 0 a 1. Se elige
+ * por distancia a la marca y no por rangos, para que no queden huecos. Las
+ * marcas son los centros de los cinco tramos iguales que ocupa cada sala.
  */
 export function capituloDe(p: number): number {
   let mejor = 0;
@@ -154,7 +155,13 @@ export function crearScrub({ video, pista, alCambiarCapitulo }: Opciones) {
       ultimoEscrito = objetivo;
     }
 
-    const indice = capituloDe(deseado);
+    // El capítulo se elige por la posición dentro del VIDEO, no por la del
+    // scroll. Son espacios distintos: `ritmo` es no lineal, así que en scroll
+    // 0.30 el video va en 3.9s, que todavía es la primera sala. Alimentar el
+    // scroll crudo hacía aparecer la copia de la sala 2 sobre la imagen de la
+    // sala 1. Las salas ocupan tramos iguales del video, así que su fracción es
+    // la referencia correcta.
+    const indice = capituloDe(ritmo(deseado));
     if (indice !== capituloActivo) {
       capituloActivo = indice;
       alCambiarCapitulo?.(indice);
