@@ -1,5 +1,5 @@
 import { Gauge, MapPinned, UsersRound, Workflow } from "lucide-react";
-import Balanza from "../components/Balanza";
+import Pieza3D from "../components/Pieza3D";
 
 const operatingModel = [
   {
@@ -41,7 +41,11 @@ export default function Despacho() {
             asociadas trabajan sobre sus asuntos y los socios reciben agregados
             útiles de casos, plazos, asignaciones y capacidad.
           </p>
-          <Balanza />
+          <Pieza3D
+            etiqueta="Balanza de la justicia"
+            poster="/media/balanza-poster.webp"
+            src="/media/balanza.glb"
+          />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:order-1">
@@ -70,7 +74,6 @@ export default function Despacho() {
             </article>
           ))}
         </div>
-
       </div>
     </section>
   );

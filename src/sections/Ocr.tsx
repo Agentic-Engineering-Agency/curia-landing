@@ -5,6 +5,7 @@ import {
   RefreshCw,
   ScanText,
 } from "lucide-react";
+import Pieza3D from "../components/Pieza3D";
 
 const pipeline = [
   "Subida segura",
@@ -50,11 +51,21 @@ export default function Ocr() {
               OCR asíncrono
             </p>
             <h2 className="curia-display mt-4 text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
-              Documentos que pasan de imagen a texto sin bloquear el trabajo del expediente.
+              Documentos que pasan de imagen a texto sin bloquear el trabajo del
+              expediente.
             </h2>
+            <Pieza3D
+              className="h-56 md:h-64"
+              etiqueta="Reloj de arena de latón"
+              poster="/media/reloj-arena-poster.webp"
+              src="/media/reloj-arena.glb"
+            />
           </div>
           <p className="max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8 lg:pb-1">
-            Curia entrega los archivos de forma segura al almacenamiento y procesa el OCR en segundo plano. El estado permanece visible, los fallos pueden reintentarse y el resultado procesado se conserva cifrado.
+            Curia entrega los archivos de forma segura al almacenamiento y
+            procesa el OCR en segundo plano. El estado permanece visible, los
+            fallos pueden reintentarse y el resultado procesado se conserva
+            cifrado.
           </p>
         </div>
 

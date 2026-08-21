@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 
-// model-viewer llega por CDN al entrar la sección en viewport: three.js queda
-// fuera del bundle principal (123 kB gzip) y la landing no paga el visor si
-// nadie llega hasta aquí. El GLB usa Draco; meshopt no carga en model-viewer.
+// model-viewer llega por CDN al entrar la primera pieza en viewport: three.js
+// queda fuera del bundle principal y la landing no paga el visor si nadie
+// llega hasta aquí. Los GLB usan Draco; meshopt no carga en model-viewer.
 const VISOR_URL =
   "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
-
-// Órbita de reposo medida sobre el render evaluado: tres cuartos, ligeramente
-// en picada. El scroll gira el acimut ±28° alrededor de esta base.
-const ACIMUT_BASE = 135;
-const ELEVACION = "72deg";
-const DISTANCIA = "105%";
-const GIRO = 28;
 
 let visorPedido = false;
 
@@ -25,8 +18,37 @@ function pedirVisor() {
   document.head.append(script);
 }
 
-/** Balanza de la marca en 3D; la rotación acompaña al scroll de la sección. */
-export default function Balanza() {
+type Props = {
+  /** Ruta del GLB (Draco) en /media. */
+  src: string;
+  /** Render fijo que se muestra mientras carga el modelo. */
+  poster: string;
+  /** Descripción del objeto. */
+  etiqueta: string;
+  /** Acimut de reposo en grados; el scroll gira ±giro alrededor de él. */
+  acimutBase?: number;
+  /** Amplitud del giro por scroll, en grados. */
+  giro?: number;
+  elevacion?: string;
+  distancia?: string;
+  className?: string;
+};
+
+/**
+ * Pieza 3D de marca: objeto de la práctica legal con órbita ligada al scroll.
+ * Carga perezosa (visor + GLB sólo al acercarse), poster instantáneo que se
+ * retira al evento load, y órbita fija bajo movimiento reducido.
+ */
+export default function Pieza3D({
+  src,
+  poster,
+  etiqueta,
+  acimutBase = 135,
+  giro = 28,
+  elevacion = "72deg",
+  distancia = "105%",
+  className,
+}: Props) {
   const reducido = useReducedMotion();
   const marcoRef = useRef<HTMLDivElement | null>(null);
   const visorRef = useRef<HTMLElement | null>(null);
@@ -65,10 +87,10 @@ export default function Balanza() {
         const r = marco.getBoundingClientRect();
         // Progreso -1..1 del centro del marco a través del viewport.
         const p = 1 - (2 * (r.top + r.height / 2)) / window.innerHeight;
-        const acimut = ACIMUT_BASE + GIRO * Math.max(-1, Math.min(1, p));
+        const acimut = acimutBase + giro * Math.max(-1, Math.min(1, p));
         visor.setAttribute(
           "camera-orbit",
-          `${acimut.toFixed(1)}deg ${ELEVACION} ${DISTANCIA}`,
+          `${acimut.toFixed(1)}deg ${elevacion} ${distancia}`,
         );
       });
     };
@@ -79,11 +101,11 @@ export default function Balanza() {
       window.removeEventListener("scroll", alScroll);
       if (cuadro) cancelAnimationFrame(cuadro);
     };
-  }, [reducido, visible]);
+  }, [reducido, visible, acimutBase, giro, elevacion, distancia]);
 
-  // El GLB pesa 969 KB y el visor llega por CDN: sin poster, quien pasa
-  // rápido ve un hueco vacío. El render fijo se muestra al instante y se
-  // retira cuando el modelo real ya pinta.
+  // Sin poster, quien pasa rápido ve un hueco mientras llegan visor y GLB.
+  // El render fijo pinta al instante y se retira cuando el modelo real ya
+  // está en pantalla.
   useEffect(() => {
     if (!visible) return;
     const visor = visorRef.current;
@@ -96,25 +118,25 @@ export default function Balanza() {
   return (
     <div
       aria-hidden="true"
-      className="relative mt-8 h-72 md:h-80"
+      className={`relative mt-8 h-72 md:h-80 ${className ?? ""}`}
       ref={marcoRef}
     >
       {!cargado && (
         <img
           alt=""
           className="absolute inset-0 h-full w-full object-contain"
-          src="/media/balanza-poster.webp"
+          src={poster}
         />
       )}
       {visible && (
         <model-viewer
-          alt="Balanza de la justicia"
-          camera-orbit={`${ACIMUT_BASE}deg ${ELEVACION} ${DISTANCIA}`}
+          alt={etiqueta}
+          camera-orbit={`${acimutBase}deg ${elevacion} ${distancia}`}
           interaction-prompt="none"
           loading="eager"
           ref={visorRef}
           shadow-intensity="1"
-          src="/media/balanza.glb"
+          src={src}
           style={{ width: "100%", height: "100%", position: "relative" }}
         />
       )}

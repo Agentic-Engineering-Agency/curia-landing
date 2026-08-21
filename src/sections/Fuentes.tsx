@@ -1,4 +1,5 @@
 import { Gavel, Landmark, LibraryBig, Newspaper } from "lucide-react";
+import Pieza3D from "../components/Pieza3D";
 
 const sources = [
   {
@@ -8,8 +9,7 @@ const sources = [
       "Fuente judicial registrada como activa para el registro y monitoreo de expedientes del piloto. Las demás entidades están en incorporación.",
     icon: Landmark,
     status: "Fuente activa",
-    statusClass:
-      "border-teal-200 bg-teal-50 text-teal-800",
+    statusClass: "border-teal-200 bg-teal-50 text-teal-800",
     secondaryStatus: "Demás entidades · En incorporación",
   },
   {
@@ -19,8 +19,7 @@ const sources = [
       "El corpus autoritativo incluye registros del SJF para contrastar referencias jurisprudenciales. Esto no implica monitoreo federal en vivo.",
     icon: Gavel,
     status: "Corpus autoritativo",
-    statusClass:
-      "border-sky-200 bg-sky-50 text-sky-800",
+    statusClass: "border-sky-200 bg-sky-50 text-sky-800",
   },
   {
     code: "DOF",
@@ -29,8 +28,7 @@ const sources = [
       "DOF SIDOF funciona como fuente de referencia para publicaciones oficiales dentro del registro de Curia.",
     icon: Newspaper,
     status: "Fuente de referencia",
-    statusClass:
-      "border-violet-200 bg-violet-50 text-violet-800",
+    statusClass: "border-violet-200 bg-violet-50 text-violet-800",
   },
   {
     code: "LeyesBiblio",
@@ -39,8 +37,7 @@ const sources = [
       "La Biblioteca de Leyes de la Cámara de Diputados se usa como fuente de referencia legislativa, no como fuente de avisos judiciales.",
     icon: LibraryBig,
     status: "Referencia legislativa",
-    statusClass:
-      "border-amber-200 bg-amber-50 text-amber-900",
+    statusClass: "border-amber-200 bg-amber-50 text-amber-900",
   },
 ] as const;
 
@@ -54,11 +51,22 @@ export default function Fuentes() {
               Fuentes mexicanas
             </p>
             <h2 className="curia-display mt-4 text-[2.6rem] leading-[0.98] tracking-[-0.03em] md:text-[3.7rem]">
-              Monitoreo judicial y contraste jurídico, sin confundir sus funciones.
+              Monitoreo judicial y contraste jurídico, sin confundir sus
+              funciones.
             </h2>
+            <Pieza3D
+              className="h-56 md:h-64"
+              etiqueta="Prensa de sello notarial"
+              poster="/media/sello-poster.webp"
+              src="/media/sello.glb"
+            />
           </div>
           <p className="max-w-2xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8 lg:pb-1">
-            Curia distingue la fuente registrada como activa que entrega avisos del expediente de las fuentes de referencia jurídica. Hoy Jalisco CJJ está registrado como fuente activa; el SJF se usa para contrastar citas, mientras DOF y LeyesBiblio permanecen como fuentes de referencia.
+            Curia distingue la fuente registrada como activa que entrega avisos
+            del expediente de las fuentes de referencia jurídica. Hoy Jalisco
+            CJJ está registrado como fuente activa; el SJF se usa para
+            contrastar citas, mientras DOF y LeyesBiblio permanecen como fuentes
+            de referencia.
           </p>
         </div>
 

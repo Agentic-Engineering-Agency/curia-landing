@@ -1,4 +1,5 @@
 import { Building2, FileLock2, KeyRound, ShieldCheck } from "lucide-react";
+import Pieza3D from "../components/Pieza3D";
 
 const privacyControls = [
   {
@@ -42,6 +43,11 @@ export default function Privacidad() {
             despacho y caso, sanitización de datos personales, cifrado por
             cliente y flujos explícitos para derechos ARCO y trazabilidad.
           </p>
+          <Pieza3D
+            etiqueta="Candado antiguo de latón"
+            poster="/media/candado-poster.webp"
+            src="/media/candado.glb"
+          />
         </div>
 
         <div className="curia-card-editorial p-6 md:p-8">
