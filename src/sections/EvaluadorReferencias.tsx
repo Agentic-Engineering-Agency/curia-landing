@@ -7,6 +7,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
+import AmbientLoop from "../components/AmbientLoop";
 
 export default function EvaluadorReferencias() {
   return (
@@ -33,6 +34,11 @@ export default function EvaluadorReferencias() {
               Sólo una coincidencia en la base autoritativa puede otorgar el estado de verificada; un modelo de IA no puede concederlo por sí solo.
             </p>
           </div>
+          <AmbientLoop
+            className="border-white/15"
+            etiqueta="Biblioteca del despacho de la película"
+            sala="biblioteca"
+          />
         </div>
 
         <Reveal

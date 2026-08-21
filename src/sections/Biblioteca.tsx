@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
+import AmbientLoop from "../components/AmbientLoop";
 
 const documents = [
   { name: "Acuerdo de admisión", format: "PDF", status: "procesado" },
@@ -72,6 +73,7 @@ export default function Biblioteca() {
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
             Cada expediente cuenta con una Biblioteca para cargar y visualizar documentos. El análisis parte de los archivos del caso, no de una conversación desconectada del asunto.
           </p>
+          <AmbientLoop etiqueta="Archivo del despacho de la película" sala="archivo" />
         </div>
 
         <div className="mt-12 grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">

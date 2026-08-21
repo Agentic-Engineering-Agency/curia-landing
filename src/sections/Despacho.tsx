@@ -1,4 +1,5 @@
 import { Gauge, MapPinned, UsersRound, Workflow } from "lucide-react";
+import Balanza from "../components/Balanza";
 
 const operatingModel = [
   {
@@ -40,6 +41,7 @@ export default function Despacho() {
             asociadas trabajan sobre sus asuntos y los socios reciben agregados
             útiles de casos, plazos, asignaciones y capacidad.
           </p>
+          <Balanza />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:order-1">

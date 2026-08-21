@@ -5,6 +5,7 @@ import {
   Scale,
   TriangleAlert,
 } from "lucide-react";
+import AmbientLoop from "../components/AmbientLoop";
 
 export default function Asistentes() {
   return (
@@ -20,6 +21,7 @@ export default function Asistentes() {
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
             Curia ofrece asistencia dentro del expediente, una vista general y un copiloto del sitio. Cada modalidad resuelve el contexto de forma explícita, respeta el aislamiento entre despachos y casos, y sigue una regla explícita de no inventar información.
           </p>
+          <AmbientLoop etiqueta="Sala de juntas del despacho de la película" sala="juntas" />
         </div>
 
         <div className="mt-12 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">

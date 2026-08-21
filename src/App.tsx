@@ -1,6 +1,7 @@
 import { MotionConfig } from "motion/react";
 import AmbientBackground from "./components/AmbientBackground";
 import Header from "./sections/Header";
+import Pelicula from "./sections/Pelicula";
 import Hero from "./sections/Hero";
 import EstadoActual from "./sections/EstadoActual";
 import Monitoreo from "./sections/Monitoreo";
@@ -25,6 +26,7 @@ export default function App() {
           <Header />
 
           <main>
+            <Pelicula />
             <Hero />
             <EstadoActual />
             <Monitoreo />

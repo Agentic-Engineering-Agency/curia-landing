@@ -116,23 +116,36 @@ export function tiempoPara(progreso: number, duracion: number): number {
 export async function servirPorBlob(
   video: HTMLVideoElement,
 ): Promise<() => void> {
-  const sinCambio = () => {};
+  const objeto = await blobDeVideo(video);
+  if (!objeto) return () => {};
+  video.src = objeto;
+  return () => URL.revokeObjectURL(objeto);
+}
+
+/**
+ * Resuelve la fuente reproducible del video a un object URL, sin tocar el
+ * elemento. Separado de `servirPorBlob` para que un consumidor con montajes
+ * repetidos (StrictMode de React) pueda cachear la URL y decidir él cuándo
+ * asignarla: asignar y revocar dentro de la misma función pierde la carrera
+ * del doble montaje y deja el `src` apuntando a un blob muerto.
+ */
+export async function blobDeVideo(
+  video: HTMLVideoElement,
+): Promise<string | null> {
   const fuentes = [...video.querySelectorAll("source")];
   const elegida = fuentes.find((f) => {
     const tipo = f.getAttribute("type");
     return tipo ? video.canPlayType(tipo) !== "" : true;
   });
   const url = elegida?.getAttribute("src") ?? video.getAttribute("src");
-  if (!url) return sinCambio;
+  if (!url) return null;
 
   try {
     const respuesta = await fetch(url);
-    if (!respuesta.ok) return sinCambio;
-    const objeto = URL.createObjectURL(await respuesta.blob());
-    video.src = objeto;
-    return () => URL.revokeObjectURL(objeto);
+    if (!respuesta.ok) return null;
+    return URL.createObjectURL(await respuesta.blob());
   } catch {
-    return sinCambio;
+    return null;
   }
 }
 
@@ -143,7 +156,18 @@ type Opciones = {
   alCambiarCapitulo?: (indice: number) => void;
 };
 
-export function crearScrub({ video, pista, alCambiarCapitulo }: Opciones) {
+/** Controles del scrub: arrancar/detener el bucle y saltar a un capítulo. */
+export interface Scrub {
+  arrancar: () => void;
+  detener: () => void;
+  irACapitulo: (indice: number) => void;
+}
+
+export function crearScrub({
+  video,
+  pista,
+  alCambiarCapitulo,
+}: Opciones): Scrub {
   let duracion = 0;
   let deseado = 0;
   let ultimoEscrito = -1;

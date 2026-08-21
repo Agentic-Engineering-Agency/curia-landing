@@ -1,0 +1,184 @@
+/* Película de apertura: la secuencia del despacho scrubbeada por scroll.
+   Portado de src/demo-video/video.css con prefijo pel- para convivir con
+   Tailwind sin colisiones. Tokens de marca, sin paleta nueva. */
+
+.pel-pista {
+  /* El alto de la pista es el presupuesto de scroll de la película. */
+  height: calc(var(--pel-viewports, 10) * 100vh);
+  position: relative;
+}
+
+.pel-escena {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #0d1117;
+}
+
+.pel-escena video,
+.pel-escena .pel-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Velo del lado del texto: sin él el gris secundario pierde contraste sobre
+   madera y estantería, defecto medido en la versión WebGL. */
+.pel-velo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(247, 244, 238, 0.9) 0%,
+    rgba(247, 244, 238, 0.72) 26%,
+    rgba(247, 244, 238, 0) 54%
+  );
+}
+
+.pel-copia {
+  position: absolute;
+  left: clamp(24px, 6vw, 96px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: min(38ch, 42vw);
+}
+
+.pel-kicker {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--curia-primary-text);
+}
+
+.pel-titulo {
+  margin: 0 0 18px;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(38px, 5.4vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: var(--curia-text);
+}
+
+.pel-cuerpo {
+  margin: 0;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.55;
+  color: var(--curia-text-secondary);
+}
+
+/* El CTA vive sólo en el capítulo final; entra sin empujar el layout. */
+.pel-cta {
+  margin-top: 26px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  pointer-events: none;
+}
+
+.pel-cta.es-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.pel-marcas {
+  position: absolute;
+  right: clamp(20px, 3vw, 44px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pel-marca {
+  /* Área táctil completa con presencia mínima: guía, no HUD. */
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 10px 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.pel-marca::after {
+  content: "";
+  width: 4px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(28, 34, 42, 0.24);
+  transition:
+    background 0.3s ease,
+    height 0.3s ease;
+}
+
+.pel-marca.es-activa::after {
+  background: var(--curia-primary-text);
+  height: 34px;
+}
+
+.pel-marca:focus-visible {
+  outline: 2px solid var(--curia-primary-text);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.pel-pie {
+  position: absolute;
+  left: clamp(24px, 6vw, 96px);
+  bottom: 26px;
+  margin: 0;
+  display: flex;
+  gap: 18px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--curia-text-muted);
+}
+
+/* Retrato: cartela inferior para no tapar la sala. */
+@media (max-aspect-ratio: 1/1) {
+  .pel-velo {
+    background: linear-gradient(
+      to top,
+      rgba(247, 244, 238, 0.95) 0%,
+      rgba(247, 244, 238, 0.82) 26%,
+      rgba(247, 244, 238, 0) 58%
+    );
+  }
+
+  .pel-copia {
+    left: 24px;
+    right: 24px;
+    top: auto;
+    bottom: 92px;
+    transform: none;
+    max-width: none;
+  }
+
+  .pel-titulo {
+    font-size: clamp(30px, 8.5vw, 44px);
+  }
+
+  .pel-marcas {
+    right: 14px;
+  }
+}
+
+/* Movimiento reducido: la película se colapsa a un cuadro fijo con la copia
+   del primer capítulo; el scrub nunca arranca (lo decide el componente). */
+@media (prefers-reduced-motion: reduce) {
+  .pel-pista {
+    height: 100vh;
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { BellRing, FileClock, FolderSearch } from "lucide-react";
 import { DESKTOP_BREAKPOINT, STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
+import AmbientLoop from "../components/AmbientLoop";
 
 const cards = [
   {
@@ -74,6 +75,7 @@ export default function Monitoreo() {
           <p className="mt-6 max-w-xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
             Curia contrasta los expedientes registrados con los avisos obtenidos de Jalisco CJJ y concentra el resultado en el asunto correcto. El equipo revisa el movimiento con su procedencia, no como una alerta aislada.
           </p>
+          <AmbientLoop etiqueta="Recepción del despacho de la película" sala="recepcion" />
         </div>
 
         <motion.div
