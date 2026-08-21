@@ -101,7 +101,11 @@ export function createDespacho(
   });
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.02;
+  // Con albedo fotografico la escena se iba a 190 de luminancia media y el
+  // contraste caia a 33: demasiada luz sobre texturas que ya son claras. Bajar
+  // la exposicion comprime las altas y profundiza las sombras a la vez, que es
+  // justo lo que faltaba, y queda margen porque no habia ni un pixel quemado.
+  renderer.toneMappingExposure = 0.88;
   renderer.shadowMap.enabled = quality === "high";
   renderer.shadowMap.type = PCFSoftShadowMap;
 

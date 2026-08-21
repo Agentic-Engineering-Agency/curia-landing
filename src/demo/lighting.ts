@@ -21,8 +21,8 @@ export type Lighting = {
   dispose(): void;
 };
 
-const KEY_HIGH = 4.85;
-const KEY_LOW = 3.65;
+const KEY_HIGH = 6.9;
+const KEY_LOW = 5.1;
 const WINDOW_FILL_HIGH = 3.1;
 const WINDOW_FILL_LOW = 2.45;
 const FOCAL_HIGH = 1.15;
@@ -49,16 +49,22 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   // Con parches fotográficos la textura ya trae variación y sombra horneada:
   // la bruma sólo debe cerrar el enfilade lejano, no sumar otra capa gris sobre
   // el muro activo ni levantar negros que pertenecen a la foto.
-  scene.fog = new Fog(PALETTE.subtle, 14, 44);
+  // La niebla clara empezando a 14 m lavaba todo lo que se ve a traves de un
+  // arco hacia el tono del muro, que es otra forma de aplanar. Se aleja para que
+  // solo module el fondo del enfilade.
+  scene.fog = new Fog(PALETTE.subtle, 26, 62);
   const environment = createStudioEnvironment();
   scene.environment = environment;
-  scene.environmentIntensity = quality === "high" ? 0.42 : 0.36;
+  scene.environmentIntensity = quality === "high" ? 0.26 : 0.24;
 
-  // El rig anterior compensaba texturas dibujadas casi planas con una clave de
-  // mucho contraste. En las fotos ese contraste ya viene dentro del albedo, así
-  // que el volumen ahora descansa en un suelo ambiental suave y estable.
-  const ambient = new AmbientLight(0xe7eef0, quality === "high" ? 0.18 : 0.17);
-  const bounce = new HemisphereLight(0xe5eef4, 0x756447, quality === "high" ? 0.36 : 0.32);
+  // La compensación por el albedo fotográfico se pasó de mano: medido, el
+  // contraste de la escena cayó de una desviación de 56-77 a 20-39, y la
+  // evaluación ciega lo llamó lavado y sin vida. Una foto trae dentro su
+  // microcontraste, no el modelado del volumen: eso sigue siendo trabajo de la
+  // clave. Se recupera bajando el suelo ambiental y devolviendo fuerza al sol,
+  // sin volver al doble sombreado, que se controla con la penumbra ancha.
+  const ambient = new AmbientLight(0xe7eef0, quality === "high" ? 0.055 : 0.075);
+  const bounce = new HemisphereLight(0xe5eef4, 0x756447, quality === "high" ? 0.15 : 0.14);
 
   // Una sola luz fría sigue viajando al hueco activo para mantener la lectura de
   // ventana sin pagar cinco puntos por frame. Su intensidad sube apenas porque
@@ -86,7 +92,11 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   sun.shadow.camera.far = 17;
   sun.shadow.bias = -0.00038;
   sun.shadow.normalBias = 0.028;
-  sun.shadow.radius = quality === "high" ? 1.65 : 1.25;
+  // Canto de sombra mas ancho: la evaluacion llamo a las sombras
+  // "geometricamente correctas pero perceptualmente esteriles" por su borde
+  // duro. Una barra de parteluz de 6 cm a varios metros proyecta penumbra, no
+  // una linea. Cuesta cero: es un parametro del filtro PCF.
+  sun.shadow.radius = quality === "high" ? 3.4 : 2.0;
   sun.shadow.camera.updateProjectionMatrix();
 
   scene.add(ambient, bounce, windowFill, focalPool, sun, sun.target);
@@ -100,14 +110,18 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
     // El PMREM de `despacho-scene` se instala después de crear este rig. Con
     // materiales fotográficos lo dejamos más presente: aporta luz ambiental
     // especular de baja frecuencia, no una segunda dirección de sombra.
-    scene.environmentIntensity = (quality === "high" ? 0.36 : 0.31) * (0.9 + occlusion * 0.1);
+    scene.environmentIntensity = (quality === "high" ? 0.24 : 0.22) * (0.9 + occlusion * 0.1);
 
     // El sol sigue viajando con la cámara para concentrar el shadow map en la
-    // sala visible, pero su peso baja: el parteluz marca lugar y hora sin
-    // ensuciar el piso con una segunda sombra dura en otro ángulo.
-    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.12 + occlusion * 0.56);
-    sun.position.set(windowSide * (ROOM.width / 2 + 6.55), 2.55, cameraPosition.z + 1.72);
-    sun.target.position.set(-windowSide * 2.8, 0.58, cameraPosition.z - 3.75);
+    // sala visible. El ángulo cambió por una razón de composición: al girar los
+    // encuadres hacia el muro de contenido —que está enfrente de la ventana— las
+    // barras del parteluz caían al piso, fuera de cuadro. Ahora el sol entra más
+    // horizontal y apunta al muro opuesto a la altura de la placa, así que el
+    // dibujo del parteluz cruza justamente el plano que la cámara mira. Es
+    // además lo que hace un sol bajo de verdad.
+    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.1 + occlusion * 0.86);
+    sun.position.set(windowSide * (ROOM.width / 2 + 5.4), 2.68, cameraPosition.z + 1.1);
+    sun.target.position.set(-windowSide * 4.3, 1.72, cameraPosition.z - 1.9);
     sun.target.updateMatrixWorld();
 
     // Al cruzar un vano cae porque no hay fuente narrativa ahí, pero el mínimo
