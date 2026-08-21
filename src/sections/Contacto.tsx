@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
 import Reveal from "../components/Reveal";
 
 type RequiredField = "name" | "email" | "message";
@@ -49,7 +48,6 @@ export default function Contacto() {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({
     kind: "idle",
   });
-  const shouldReduceMotion = useReducedMotion();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -241,9 +239,7 @@ export default function Contacto() {
                   placeholder="Cuéntanos qué expedientes monitorean, cómo coordinan plazos o qué problema quieren resolver primero."
                   aria-invalid={isFieldInvalid("message") || undefined}
                   aria-describedby={
-                    isFieldInvalid("message")
-                      ? "contact-form-error"
-                      : undefined
+                    isFieldInvalid("message") ? "contact-form-error" : undefined
                   }
                 />
               </label>
@@ -258,13 +254,10 @@ export default function Contacto() {
                     ? "Recibimos tu mensaje. El equipo de Curia dará seguimiento por correo."
                     : "Al enviar, registraremos tu mensaje en nuestro CRM para darle seguimiento."}
                 </p>
-                <motion.button
+                <button
                   type="submit"
                   className="curia-button curia-button-primary"
                   aria-busy={submitStatus.kind === "submitting"}
-                  whileHover={shouldReduceMotion ? undefined : { y: -1 }}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
-                  transition={{ duration: 0.14 }}
                 >
                   {submitStatus.kind === "submitting" ? (
                     <>
@@ -285,7 +278,7 @@ export default function Contacto() {
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </>
                   )}
-                </motion.button>
+                </button>
               </div>
 
               {submitStatus.kind === "error" && (

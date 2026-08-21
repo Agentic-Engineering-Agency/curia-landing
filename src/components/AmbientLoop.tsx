@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
-import { useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { irACapituloPelicula } from "../sections/Pelicula";
 import { mediaUrl } from "./media";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 type Props = {
   /** Nombre base del loop en /media/loops (recepcion, oficina, archivo…). */
@@ -26,11 +26,32 @@ export default function AmbientLoop({
   capitulo,
   className,
 }: Props) {
-  const reducido = useReducedMotion();
+  const reducido = usePrefersReducedMotion();
+  const marcoRef = useRef<HTMLButtonElement | null>(null);
+  const [cerca, setCerca] = useState(false);
+  const [listo, setListo] = useState(false);
+
+  // No se emiten URLs de poster/video para las cinco salas al cargar. Se
+  // habilitan 800 px antes de entrar; el layout conserva su aspect-ratio.
+  useEffect(() => {
+    const marco = marcoRef.current;
+    if (!marco) return;
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) {
+          setCerca(true);
+          observador.disconnect();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    observador.observe(marco);
+    return () => observador.disconnect();
+  }, []);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (reducido) return;
+    if (reducido || !cerca) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -49,12 +70,13 @@ export default function AmbientLoop({
     );
     observador.observe(video);
     return () => observador.disconnect();
-  }, [reducido]);
+  }, [reducido, cerca]);
 
   const poster = mediaUrl(`/media/loops/${sala}-poster.jpg`);
 
   return (
     <button
+      ref={marcoRef}
       aria-label={`Ver ${etiqueta} en el recorrido`}
       className={`relative mt-8 block w-full cursor-pointer overflow-hidden rounded-2xl border border-[var(--curia-border)] text-left ${className ?? ""}`}
       onClick={() => irACapituloPelicula(capitulo)}
@@ -64,29 +86,46 @@ export default function AmbientLoop({
         <img
           alt=""
           className="curia-deriva block aspect-[21/9] w-full object-cover"
+          decoding="async"
+          loading="lazy"
           src={poster}
         />
       ) : (
-        <video
-          aria-hidden="true"
-          className="curia-deriva block aspect-[21/9] w-full object-cover"
-          disablePictureInPicture
-          loop
-          muted
-          playsInline
-          poster={poster}
-          preload="none"
-          ref={videoRef}
-        >
-          <source
-            src={mediaUrl(`/media/loops/${sala}-loop.webm`)}
-            type="video/webm"
-          />
-          <source
-            src={mediaUrl(`/media/loops/${sala}-loop.mp4`)}
-            type="video/mp4"
-          />
-        </video>
+        <>
+          {cerca && (
+            <img
+              alt=""
+              aria-hidden="true"
+              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-300 ${listo ? "opacity-0" : "opacity-100"}`}
+              decoding="async"
+              src={poster}
+            />
+          )}
+          <video
+            aria-hidden="true"
+            className="curia-deriva block aspect-[21/9] w-full object-cover"
+            disablePictureInPicture
+            loop
+            muted
+            onLoadedData={() => setListo(true)}
+            playsInline
+            preload="none"
+            ref={videoRef}
+          >
+            {cerca && (
+              <>
+                <source
+                  src={mediaUrl(`/media/loops/${sala}-loop.webm`)}
+                  type="video/webm"
+                />
+                <source
+                  src={mediaUrl(`/media/loops/${sala}-loop.mp4`)}
+                  type="video/mp4"
+                />
+              </>
+            )}
+          </video>
+        </>
       )}
       <span
         aria-hidden="true"

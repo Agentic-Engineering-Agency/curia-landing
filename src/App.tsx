@@ -1,8 +1,8 @@
-import { MotionConfig } from "motion/react";
+import { ClientOnly } from "@tanstack/react-router";
 import AmbientBackground from "./components/AmbientBackground";
 import DotField from "./components/DotField";
 import Header from "./sections/Header";
-import Pelicula from "./sections/Pelicula";
+import Pelicula, { PeliculaFallback } from "./sections/Pelicula";
 import Hero from "./sections/Hero";
 import EstadoActual from "./sections/EstadoActual";
 import Monitoreo from "./sections/Monitoreo";
@@ -19,33 +19,33 @@ import Footer from "./sections/Footer";
 
 export default function App() {
   return (
-    <MotionConfig reducedMotion="user">
-      <div className="relative isolate min-h-screen bg-[var(--curia-bg)] text-[var(--curia-text)]">
-        <DotField />
-        <AmbientBackground />
+    <div className="relative isolate min-h-screen bg-[var(--curia-bg)] text-[var(--curia-text)]">
+      <DotField />
+      <AmbientBackground />
 
-        <div className="relative z-10">
-          <Header />
+      <div className="relative z-10">
+        <Header />
 
-          <main>
+        <main>
+          <ClientOnly fallback={<PeliculaFallback />}>
             <Pelicula />
-            <Hero />
-            <EstadoActual />
-            <Monitoreo />
-            <PlazosOutlook />
-            <Biblioteca />
-            <Ocr />
-            <Asistentes />
-            <EvaluadorReferencias />
-            <Fuentes />
-            <Privacidad />
-            <Despacho />
-            <Contacto />
-          </main>
+          </ClientOnly>
+          <Hero />
+          <EstadoActual />
+          <Monitoreo />
+          <PlazosOutlook />
+          <Biblioteca />
+          <Ocr />
+          <Asistentes />
+          <EvaluadorReferencias />
+          <Fuentes />
+          <Privacidad />
+          <Despacho />
+          <Contacto />
+        </main>
 
-          <Footer />
-        </div>
+        <Footer />
       </div>
-    </MotionConfig>
+    </div>
   );
 }

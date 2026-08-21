@@ -133,10 +133,47 @@ export async function blobDeVideo(
   video: HTMLVideoElement,
 ): Promise<string | null> {
   const fuentes = [...video.querySelectorAll("source")];
-  const elegida = fuentes.find((f) => {
-    const tipo = f.getAttribute("type");
-    return tipo ? video.canPlayType(tipo) !== "" : true;
-  });
+  let elegida: HTMLSourceElement | undefined;
+
+  for (const fuente of fuentes) {
+    const tipo = fuente.getAttribute("type") ?? "";
+    if (tipo && video.canPlayType(tipo) === "") continue;
+
+    if (fuente.dataset.requirePowerEfficient === "true") {
+      const ua = navigator.userAgent;
+      const appleHardware =
+        /iP(?:hone|ad|od)/.test(ua) ||
+        (/Macintosh/.test(ua) &&
+          /Safari/.test(ua) &&
+          !/(?:Chrome|Chromium|Edg)/.test(ua));
+      let eficiente = false;
+      const capabilities = navigator.mediaCapabilities;
+      if (capabilities && tipo) {
+        try {
+          const info = await capabilities.decodingInfo({
+            type: "file",
+            video: {
+              contentType: tipo,
+              width: Number(fuente.dataset.width),
+              height: Number(fuente.dataset.height),
+              bitrate: Number(fuente.dataset.bitrate),
+              framerate: Number(fuente.dataset.framerate),
+            },
+          });
+          eficiente = info.supported && info.smooth && info.powerEfficient;
+        } catch {
+          eficiente = false;
+        }
+      }
+      // Safari/iOS sólo declara hvc1 cuando existe una ruta nativa. En otras
+      // plataformas exigimos confirmación explícita de MediaCapabilities.
+      if (!eficiente && !appleHardware) continue;
+    }
+
+    elegida = fuente;
+    break;
+  }
+
   const url = elegida?.getAttribute("src") ?? video.getAttribute("src");
   if (!url) return null;
 

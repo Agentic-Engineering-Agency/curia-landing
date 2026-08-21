@@ -1,7 +1,9 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Menu, X } from "lucide-react";
-import { DESKTOP_BREAKPOINT, STANDARD_EASE } from "../components/motion";
+
+// Tailwind `md`; rem mantiene matchMedia sincronizado con CSS si cambia la
+// fuente raíz del navegador.
+const DESKTOP_BREAKPOINT = "48rem";
 
 const navigation = [
   { label: "Curia hoy", href: "#estado-actual" },
@@ -20,7 +22,6 @@ export default function Header() {
   const menuPanelRef = useRef<HTMLDivElement>(null);
   const desktopNavRef = useRef<HTMLElement>(null);
   const skipScrollRestoreRef = useRef(false);
-  const shouldReduceMotion = useReducedMotion();
 
   const closeMenuForNavigation = () => {
     skipScrollRestoreRef.current = true;
@@ -51,7 +52,9 @@ export default function Header() {
     // Mirror Tailwind's `md` breakpoint exactly: the panel and toggle are
     // `md:hidden`, so a fixed pixel query would drift from the CSS whenever the
     // browser's root font size is not 16px and leave the menu state stuck open.
-    const desktopMediaQuery = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT})`);
+    const desktopMediaQuery = window.matchMedia(
+      `(min-width: ${DESKTOP_BREAKPOINT})`,
+    );
     if (desktopMediaQuery.matches) {
       setMenuOpen(false);
       return;
@@ -90,9 +93,8 @@ export default function Header() {
     }
 
     const focusableElements = Array.from(
-      menuPanelRef.current?.querySelectorAll<HTMLElement>(
-        FOCUSABLE_ELEMENTS,
-      ) ?? [],
+      menuPanelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENTS) ??
+        [],
     );
 
     focusableElements[0]?.focus({ preventScroll: true });
@@ -137,8 +139,7 @@ export default function Header() {
       const target = event.target;
       if (
         event.cancelable &&
-        (!(target instanceof Node) ||
-          !menuPanelRef.current?.contains(target))
+        (!(target instanceof Node) || !menuPanelRef.current?.contains(target))
       ) {
         event.preventDefault();
       }
@@ -208,7 +209,9 @@ export default function Header() {
             C
           </span>
           <span>
-            <span className="curia-display block text-[1.55rem] leading-none tracking-[-0.02em]">Curia</span>
+            <span className="curia-display block text-[1.55rem] leading-none tracking-[-0.02em]">
+              Curia
+            </span>
             <span className="mt-1 hidden text-[0.62rem] font-semibold uppercase tracking-[0.13em] text-[var(--curia-text-muted)] sm:block">
               Inteligencia legal
             </span>
@@ -231,7 +234,10 @@ export default function Header() {
           ))}
         </nav>
 
-        <a href="#contacto" className="curia-button curia-button-primary hidden! shrink-0 lg:inline-flex!">
+        <a
+          href="#contacto"
+          className="curia-button curia-button-primary hidden! shrink-0 lg:inline-flex!"
+        >
           Conversemos sobre tu operación
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </a>
@@ -251,80 +257,59 @@ export default function Header() {
         </button>
       </div>
 
-      <AnimatePresence
-        initial={false}
-        onExitComplete={() => {
-          if (!menuOpen) restoreFocusAfterClose();
-        }}
-      >
-        {menuOpen ? (
-          <motion.div
-            key="curia-mobile-menu"
-            ref={menuPanelRef}
-            id="curia-mobile-menu"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Navegación móvil"
-            tabIndex={-1}
-            className="absolute inset-x-0 top-full flex max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] flex-col overflow-hidden border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
-            initial={
-              shouldReduceMotion ? false : { opacity: 0, y: -8 }
-            }
-            animate={{ opacity: 1, y: 0 }}
-            exit={
-              shouldReduceMotion
-                ? { opacity: 1, y: 0 }
-                : { opacity: 0, y: -8 }
-            }
-            transition={{
-              duration: shouldReduceMotion ? 0 : 0.22,
-              ease: STANDARD_EASE,
-            }}
-          >
-            {/* `aria-modal` can hide the header toggle from assistive tech, and
+      {menuOpen ? (
+        <div
+          ref={menuPanelRef}
+          id="curia-mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navegación móvil"
+          tabIndex={-1}
+          className="absolute inset-x-0 top-full flex max-h-[calc(100dvh_-_var(--curia-header-h))] min-h-[calc(100dvh_-_var(--curia-header-h))] flex-col overflow-hidden border-y border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] shadow-[var(--curia-shadow-lg)] md:hidden"
+        >
+          {/* `aria-modal` can hide the header toggle from assistive tech, and
                 the focus trap only cycles elements inside this panel, so the
                 dialog carries its own close control. */}
-            <div className="curia-shell flex shrink-0 items-center justify-between pt-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)]">
-                Navegación
-              </span>
-              <button
-                type="button"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
-                aria-label="Cerrar menú"
-                onClick={() => setMenuOpen(false)}
-              >
-                Cerrar menú
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <nav
-              className="curia-shell flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-3 pt-2"
-              aria-label="Navegación móvil"
+          <div className="curia-shell flex shrink-0 items-center justify-between pt-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--curia-text-muted)]">
+              Navegación
+            </span>
+            <button
+              type="button"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[var(--curia-border-strong)] bg-white px-4 text-sm font-semibold text-[var(--curia-text)] shadow-sm"
+              aria-label="Cerrar menú"
+              onClick={() => setMenuOpen(false)}
             >
-              {navigation.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-xl border border-transparent bg-white/70 px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] transition-[background-color,border-color,color] hover:border-[var(--curia-border)] hover:bg-white hover:text-[var(--curia-text)]"
-                  onClick={closeMenuForNavigation}
-                >
-                  {item.label}
-                </a>
-              ))}
+              Cerrar menú
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+
+          <nav
+            className="curia-shell flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain pb-3 pt-2"
+            aria-label="Navegación móvil"
+          >
+            {navigation.map((item) => (
               <a
-                href="#contacto"
-                className="curia-button curia-button-primary mt-2 w-full shadow-[var(--curia-shadow-sm)]"
+                key={item.href}
+                href={item.href}
+                className="rounded-xl border border-transparent bg-white/70 px-4 py-3 text-base font-medium text-[var(--curia-text-secondary)] transition-[background-color,border-color,color] hover:border-[var(--curia-border)] hover:bg-white hover:text-[var(--curia-text)]"
                 onClick={closeMenuForNavigation}
               >
-                Conversemos sobre tu operación
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                {item.label}
               </a>
-            </nav>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+            ))}
+            <a
+              href="#contacto"
+              className="curia-button curia-button-primary mt-2 w-full shadow-[var(--curia-shadow-sm)]"
+              onClick={closeMenuForNavigation}
+            >
+              Conversemos sobre tu operación
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }

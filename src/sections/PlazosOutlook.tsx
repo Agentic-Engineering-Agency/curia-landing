@@ -1,7 +1,11 @@
-import { motion, useReducedMotion, type Variants } from "motion/react";
-import { BadgeAlert, Calculator, CalendarPlus, Clock3, MapPin } from "lucide-react";
+import {
+  BadgeAlert,
+  Calculator,
+  CalendarPlus,
+  Clock3,
+  MapPin,
+} from "lucide-react";
 import Reveal from "../components/Reveal";
-import { STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
 import AmbientLoop from "../components/AmbientLoop";
 
 const steps = [
@@ -25,28 +29,7 @@ const steps = [
   },
 ];
 
-const STEP_GROUP_VARIANTS: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.07,
-    },
-  },
-};
-const STEP_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.42,
-      ease: STANDARD_EASE,
-    },
-  },
-};
-
 export default function PlazosOutlook() {
-  const shouldReduceMotion = useReducedMotion();
   return (
     <section
       id="plazos-outlook"
@@ -61,34 +44,26 @@ export default function PlazosOutlook() {
             Del acuerdo a una fecha que el equipo puede revisar y calendarizar.
           </h2>
           <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--curia-text-secondary)] md:text-lg md:leading-8">
-            Curia convierte el movimiento judicial en contexto operativo: plazo calculado, urgencia, expediente y acceso a la fuente. Con Microsoft 365 conectado, esa información puede convertirse en un evento de Outlook.
+            Curia convierte el movimiento judicial en contexto operativo: plazo
+            calculado, urgencia, expediente y acceso a la fuente. Con Microsoft
+            365 conectado, esa información puede convertirse en un evento de
+            Outlook.
           </p>
-          <AmbientLoop capitulo={1} etiqueta="Oficina principal del despacho de la película" sala="oficina" />
+          <AmbientLoop
+            capitulo={1}
+            etiqueta="Oficina principal del despacho de la película"
+            sala="oficina"
+          />
         </div>
 
         <div className="relative mt-12">
-          <motion.div
+          <div
             aria-hidden="true"
             className="absolute top-6 right-[16.66%] left-[16.66%] hidden h-px bg-[var(--curia-border-strong)] md:block"
-            initial={shouldReduceMotion ? false : { scaleX: 0 }}
-            style={{ transformOrigin: "left center" }}
-            transition={{ duration: 0.42, ease: STANDARD_EASE }}
-            viewport={VIEWPORT_ONCE}
-            whileInView={shouldReduceMotion ? undefined : { scaleX: 1 }}
           />
-          <motion.ol
-            className="grid gap-5 md:grid-cols-3 md:gap-6"
-            initial={shouldReduceMotion ? false : "hidden"}
-            variants={STEP_GROUP_VARIANTS}
-            viewport={VIEWPORT_ONCE}
-            whileInView={shouldReduceMotion ? undefined : "visible"}
-          >
+          <ol className="grid gap-5 md:grid-cols-3 md:gap-6">
             {steps.map(({ label, icon: Icon, title, body }, index) => (
-              <motion.li
-                key={label}
-                className="relative z-10 flex flex-col"
-                variants={STEP_VARIANTS}
-              >
+              <li key={label} className="relative z-10 flex flex-col">
                 <div className="flex items-center gap-3 md:flex-col md:items-start">
                   <span className="flex size-12 items-center justify-center rounded-full border border-[var(--curia-primary)] bg-white text-sm font-semibold text-[var(--curia-primary-text)] shadow-[var(--curia-shadow-xs)]">
                     {String(index + 1).padStart(2, "0")}
@@ -110,9 +85,9 @@ export default function PlazosOutlook() {
                     {body}
                   </p>
                 </article>
-              </motion.li>
+              </li>
             ))}
-          </motion.ol>
+          </ol>
         </div>
 
         <Reveal delay={0.21} y={10}>
@@ -123,7 +98,11 @@ export default function PlazosOutlook() {
           >
             <div className="flex min-w-0 items-center gap-4">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#1468b7] text-white">
-                <CalendarPlus aria-hidden="true" className="size-5" strokeWidth={1.8} />
+                <CalendarPlus
+                  aria-hidden="true"
+                  className="size-5"
+                  strokeWidth={1.8}
+                />
               </span>
               <div className="min-w-0">
                 <p className="text-xs font-semibold tracking-[0.08em] text-[var(--curia-primary-text)] uppercase">

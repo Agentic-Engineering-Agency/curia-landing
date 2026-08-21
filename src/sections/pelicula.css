@@ -204,4 +204,9 @@
   .pel-pista {
     height: 100vh;
   }
+
+  .pel-marcas,
+  .pel-pie {
+    display: none;
+  }
 }

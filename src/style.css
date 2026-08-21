@@ -59,6 +59,58 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* La landing es muy larga y sus secciones inferiores contienen tarjetas,
+   videos y 3D. El navegador puede omitir layout/paint de lo que queda lejos
+   sin cambiar el DOM ni la accesibilidad. `auto` conserva la altura real una
+   vez medida; 900px es sólo el placeholder previo. */
+main > section:not(.pel-pista) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* Orbes ambientales: CSS puro; sólo se animan donde existe puntero fino.
+   En táctil quedan estáticos y no consumen el runtime de Motion. */
+@keyframes curia-orb-one {
+  50% {
+    transform: translate(42px, -28px) scale(1.07);
+  }
+  100% {
+    transform: translate(-18px, 16px) scale(0.98);
+  }
+}
+
+@keyframes curia-orb-two {
+  50% {
+    transform: translate(-36px, 34px) scale(0.96);
+  }
+  100% {
+    transform: translate(20px, -12px) scale(1.06);
+  }
+}
+
+@keyframes curia-orb-three {
+  50% {
+    transform: translate(28px, -22px) scale(1.05);
+  }
+  100% {
+    transform: translate(-24px, 30px) scale(0.97);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .curia-orb-one {
+    animation: curia-orb-one 22s ease-in-out infinite alternate;
+  }
+
+  .curia-orb-two {
+    animation: curia-orb-two 28s ease-in-out infinite alternate;
+  }
+
+  .curia-orb-three {
+    animation: curia-orb-three 18s ease-in-out infinite alternate;
+  }
+}
+
 a {
   color: inherit;
   text-decoration: none;

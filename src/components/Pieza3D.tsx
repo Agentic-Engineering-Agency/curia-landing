@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "motion/react";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 import { mediaUrl } from "./media";
 
 // model-viewer llega por CDN al entrar la primera pieza en viewport: three.js
@@ -50,7 +50,7 @@ export default function Pieza3D({
   distancia = "105%",
   className,
 }: Props) {
-  const reducido = useReducedMotion();
+  const reducido = usePrefersReducedMotion();
   const marcoRef = useRef<HTMLDivElement | null>(null);
   const visorRef = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -130,6 +130,8 @@ export default function Pieza3D({
         <img
           alt=""
           className="absolute inset-0 h-full w-full object-contain"
+          decoding="async"
+          loading="lazy"
           src={mediaUrl(poster)}
         />
       )}

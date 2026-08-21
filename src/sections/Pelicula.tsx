@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { useReducedMotion } from "motion/react";
 import { CAPITULOS, blobDeVideo, crearScrub } from "../components/scrub";
 import type { Scrub } from "../components/scrub";
+import { usePrefersReducedMotion } from "../components/usePrefersReducedMotion";
 import { mediaUrl } from "../components/media";
 import "./pelicula.css";
 
@@ -17,13 +17,10 @@ const ESTILO_PISTA = {
 // desmontar rompe el doble montaje de StrictMode (src a un blob muerto).
 const peliculaEnBlob = new Map<string, Promise<string | null>>();
 
-// Variante móvil: reencuadre 9:16 del mismo máster (608x1080, paneo medido
-// que sigue los giros), misma línea de tiempo — las marcas de capítulo valen
-// igual. Se elige al montar; un cambio de orientación posterior conserva la
-// variante inicial, que sigue siendo válida (el CSS recorta con cover).
-// El orden de fuentes importa: en retrato va primero el h264, que los
-// teléfonos decodifican por hardware — el scrub es una ráfaga de seeks y
-// VP9 por software se traba.
+// Variante móvil: reencuadre 9:16 del mismo máster (608x1080, paneo medido,
+// misma línea de tiempo). HEVC se ofrece primero, pero blobDeVideo sólo lo
+// acepta cuando MediaCapabilities confirma decode smooth + powerEfficient;
+// H264 con GOP 8 queda como ruta universal, VP9 como último fallback.
 const MEDIOS = {
   ancho: {
     poster: mediaUrl("/media/despacho-poster.jpg"),
@@ -36,6 +33,15 @@ const MEDIOS = {
     poster: mediaUrl("/media/despacho-poster-movil.jpg"),
     fuentes: [
       {
+        bitrate: 710_000,
+        framerate: 24,
+        height: 1080,
+        requirePowerEfficient: true,
+        src: mediaUrl("/media/despacho-scrub-movil-hevc.mp4"),
+        type: 'video/mp4; codecs="hvc1.1.6.L93.B0"',
+        width: 608,
+      },
+      {
         src: mediaUrl("/media/despacho-scrub-movil.mp4"),
         type: "video/mp4",
       },
@@ -46,6 +52,62 @@ const MEDIOS = {
     ],
   },
 };
+
+/**
+ * Fallback SSR estable de la isla cinematográfica. Conserva exactamente el
+ * presupuesto de scroll/sticky y usa <picture> para que el primer HTML ya
+ * entregue el poster correcto en 16:9 o 9:16 sin ejecutar JavaScript.
+ */
+export function PeliculaFallback() {
+  const cap = CAPITULOS[0];
+
+  return (
+    <section
+      aria-label="Recorrido del despacho"
+      className="pel-pista"
+      style={ESTILO_PISTA}
+    >
+      <div className="pel-escena">
+        <picture>
+          <source
+            media="(max-aspect-ratio: 1/1)"
+            srcSet={MEDIOS.retrato.poster}
+          />
+          <img
+            alt=""
+            aria-hidden="true"
+            className="pel-poster"
+            fetchPriority="high"
+            src={MEDIOS.ancho.poster}
+          />
+        </picture>
+        <div aria-hidden="true" className="pel-velo" />
+        <div className="pel-copia">
+          <p className="pel-kicker">{cap.kicker}</p>
+          <h2 className="pel-titulo">{cap.titulo}</h2>
+          <p className="pel-cuerpo">{cap.cuerpo}</p>
+          <p className="pel-cta">
+            <a className="curia-button curia-button-primary" href="#contacto">
+              Conversemos sobre tu operación
+            </a>
+          </p>
+        </div>
+        <div aria-hidden="true" className="pel-marcas">
+          {CAPITULOS.map((c, indice) => (
+            <span
+              className={`pel-marca ${indice === 0 ? "es-activa" : ""}`}
+              key={c.id}
+            />
+          ))}
+        </div>
+        <p className="pel-pie">
+          <span>01 / {String(CAPITULOS.length).padStart(2, "0")}</span>
+          <span>Preparando recorrido</span>
+        </p>
+      </div>
+    </section>
+  );
+}
 
 // Registro del scrub y la pista activos para que otras secciones (los
 // banners de sala) puedan saltar a un capítulo del recorrido.
@@ -62,11 +124,12 @@ export function irACapituloPelicula(indice: number) {
 }
 
 export default function Pelicula() {
-  const reducido = useReducedMotion();
+  const reducido = usePrefersReducedMotion();
   const pistaRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const scrubRef = useRef<Scrub | null>(null);
   const [capitulo, setCapitulo] = useState(0);
+  const [videoListo, setVideoListo] = useState(false);
   const [variante] = useState<keyof typeof MEDIOS>(() =>
     typeof window !== "undefined" &&
     window.matchMedia("(max-aspect-ratio: 1/1)").matches
@@ -89,10 +152,27 @@ export default function Pelicula() {
 
     let vivo = true;
 
-    // El blob se resuelve antes de arrancar: cambiar la fuente después
-    // reiniciaría los metadatos y el driver leería una duración que ya no
-    // vale. No es optimización: sin blob, hosts sin Range congelan el scrub.
-    (async () => {
+    // El poster/HTML SSR pintan primero. La descarga completa del blob comienza
+    // tras load+200 ms o en el primer gesto que indique intención de recorrer;
+    // con Data Saver sólo por gesto. Así los 3.43–10.7 MB no compiten con
+    // HTML, CSS, fuentes e hidratación.
+    let iniciado = false;
+    let temporizador = 0;
+    const eventos: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "touchstart",
+      "wheel",
+      "scroll",
+      "keydown",
+    ];
+
+    const limpiarDisparadores = () => {
+      window.clearTimeout(temporizador);
+      window.removeEventListener("load", alLoad);
+      eventos.forEach((evento) => window.removeEventListener(evento, iniciar));
+    };
+
+    const cargar = async () => {
       let pendiente = peliculaEnBlob.get(variante);
       if (!pendiente) {
         pendiente = blobDeVideo(video);
@@ -104,6 +184,14 @@ export default function Pelicula() {
         video.src = url;
         video.load();
       }
+      const marcarVideoListo = () => {
+        if (vivo) setVideoListo(true);
+      };
+      if (video.readyState >= 1) marcarVideoListo();
+      else
+        video.addEventListener("loadedmetadata", marcarVideoListo, {
+          once: true,
+        });
       const scrub = crearScrub({
         video,
         pista,
@@ -113,13 +201,8 @@ export default function Pelicula() {
       scrubActivo = scrub;
       scrub.arrancar();
 
-      // iOS/WebKit no pinta fotogramas de un video que nunca ha reproducido:
-      // al cambiar el src suelta el poster y la escena queda negra aunque los
-      // seeks escriban currentTime. Se ceba con play()->pause() en mudo, pero
-      // de forma imperceptible: pausa y regreso a 0 inmediatos para que la
-      // película nunca se mueva sola (el scrub es el único dueño del tiempo).
-      // Si el navegador rechaza el play() sin gesto (Ahorro de Energía, data
-      // saver), se reintenta una vez en el primer toque o scroll.
+      // iOS/WebKit no pinta fotogramas de un video que nunca ha reproducido.
+      // El cebado conserva el tiempo: nunca hay autoplay visible.
       const cebar = () => {
         if (!vivo) return;
         const previo = video.currentTime;
@@ -145,10 +228,34 @@ export default function Pelicula() {
       };
       if (video.readyState >= 2) cebar();
       else video.addEventListener("canplay", cebar, { once: true });
-    })();
+    };
+
+    function iniciar() {
+      if (iniciado || !vivo) return;
+      iniciado = true;
+      limpiarDisparadores();
+      void cargar();
+    }
+
+    function alLoad() {
+      temporizador = window.setTimeout(iniciar, 200);
+    }
+
+    eventos.forEach((evento) =>
+      window.addEventListener(evento, iniciar, { once: true, passive: true }),
+    );
+
+    const connection = (
+      navigator as Navigator & { connection?: { saveData?: boolean } }
+    ).connection;
+    if (!connection?.saveData) {
+      if (document.readyState === "complete") alLoad();
+      else window.addEventListener("load", alLoad, { once: true });
+    }
 
     return () => {
       vivo = false;
+      limpiarDisparadores();
       scrubRef.current?.detener();
       if (scrubActivo === scrubRef.current) scrubActivo = null;
       scrubRef.current = null;
@@ -186,7 +293,20 @@ export default function Pelicula() {
             ref={videoRef}
           >
             {medios.fuentes.map((f) => (
-              <source key={f.src} src={f.src} type={f.type} />
+              <source
+                data-bitrate={"bitrate" in f ? f.bitrate : undefined}
+                data-framerate={"framerate" in f ? f.framerate : undefined}
+                data-height={"height" in f ? f.height : undefined}
+                data-require-power-efficient={
+                  "requirePowerEfficient" in f
+                    ? String(f.requirePowerEfficient)
+                    : undefined
+                }
+                data-width={"width" in f ? f.width : undefined}
+                key={f.src}
+                src={f.src}
+                type={f.type}
+              />
             ))}
           </video>
         )}
@@ -224,7 +344,11 @@ export default function Pelicula() {
                 {String(capitulo + 1).padStart(2, "0")} /{" "}
                 {String(CAPITULOS.length).padStart(2, "0")}
               </span>
-              <span>Desplaza para recorrer el despacho</span>
+              <span>
+                {videoListo
+                  ? "Desplaza para recorrer el despacho"
+                  : "Preparando recorrido"}
+              </span>
             </p>
           </>
         )}

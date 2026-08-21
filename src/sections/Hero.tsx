@@ -11,29 +11,7 @@ import {
   ShieldCheck,
   Workflow,
 } from "lucide-react";
-import { motion, useReducedMotion, type Variants } from "motion/react";
 import Reveal from "../components/Reveal";
-import { STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
-
-const HERO_GROUP_VARIANTS: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.04,
-    },
-  },
-};
-const HERO_ITEM_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.48,
-      ease: STANDARD_EASE,
-    },
-  },
-};
 
 const highlights = [
   {
@@ -255,7 +233,6 @@ function ProductVisual() {
 }
 
 export default function Hero() {
-  const shouldReduceMotion = useReducedMotion();
   return (
     <section id="inicio" className="relative overflow-hidden py-16 md:py-24">
       <div
@@ -264,25 +241,14 @@ export default function Hero() {
       />
       <div className="curia-shell relative">
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(33rem,1.08fr)] lg:gap-14">
-          <motion.div
-            initial={shouldReduceMotion ? false : "hidden"}
-            whileInView={shouldReduceMotion ? undefined : "visible"}
-            variants={HERO_GROUP_VARIANTS}
-            viewport={VIEWPORT_ONCE}
-          >
-            <motion.p
-              className="curia-caption text-[var(--curia-primary-text)]"
-              variants={HERO_ITEM_VARIANTS}
-            >
+          <div>
+            <p className="curia-caption text-[var(--curia-primary-text)]">
               Inteligencia legal para despachos mexicanos
-            </motion.p>
-            <motion.h1
-              className="curia-display mt-5 max-w-3xl text-[3.25rem] leading-[0.94] tracking-[-0.035em] text-[var(--curia-text)] sm:text-[4.1rem] lg:text-[4.9rem]"
-              variants={HERO_ITEM_VARIANTS}
-            >
+            </p>
+            <h1 className="curia-display mt-5 max-w-3xl text-[3.25rem] leading-[0.94] tracking-[-0.035em] text-[var(--curia-text)] sm:text-[4.1rem] lg:text-[4.9rem]">
               Inteligencia legal que trabaja mientras tú no estás.
-            </motion.h1>
-            <motion.div variants={HERO_ITEM_VARIANTS}>
+            </h1>
+            <div>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--curia-text-secondary)]">
                 Curia reúne monitoreo judicial, gestión de plazos, calendario
                 Outlook cuando Microsoft 365 está conectado, análisis documental
@@ -300,11 +266,8 @@ export default function Hero() {
                   · toda salida requiere revisión profesional.
                 </p>
               </div>
-            </motion.div>
-            <motion.div
-              className="mt-7 flex flex-col gap-3 sm:flex-row"
-              variants={HERO_ITEM_VARIANTS}
-            >
+            </div>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <a href="#contacto" className="curia-button curia-button-primary">
                 Conversemos sobre tu operación
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -315,12 +278,9 @@ export default function Hero() {
               >
                 Ver Curia hoy
               </a>
-            </motion.div>
+            </div>
 
-            <motion.dl
-              className="mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3"
-              variants={HERO_ITEM_VARIANTS}
-            >
+            <dl className="mt-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
               {highlights.map((item) => (
                 <div
                   key={item.value}
@@ -334,8 +294,8 @@ export default function Hero() {
                   </dd>
                 </div>
               ))}
-            </motion.dl>
-          </motion.div>
+            </dl>
+          </div>
 
           <Reveal y={18} delay={0.1}>
             <ProductVisual />

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useReducedMotion } from "motion/react";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 /*
  * Port de la receta `dot-field` de motion-anything (canvas 2D, sin
@@ -37,7 +37,7 @@ const DOS_PI = Math.PI * 2;
 type Punto = { ax: number; ay: number; sx: number; sy: number };
 
 export default function DotField() {
-  const reducido = useReducedMotion();
+  const reducido = usePrefersReducedMotion();
   const lienzoRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {

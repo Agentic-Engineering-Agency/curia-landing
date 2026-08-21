@@ -5,8 +5,6 @@ import {
   ListChecks,
   MessagesSquare,
 } from "lucide-react";
-import { motion, useReducedMotion, type Variants } from "motion/react";
-import { STANDARD_EASE, VIEWPORT_ONCE } from "../components/motion";
 import AmbientLoop from "../components/AmbientLoop";
 
 const documents = [
@@ -46,20 +44,7 @@ const statusClass: Record<string, string> = {
   procesado: "bg-[var(--curia-primary-light)] text-[var(--curia-primary-text)]",
 };
 
-const FILE_PANEL_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.48,
-      ease: STANDARD_EASE,
-    },
-  },
-};
-
 export default function Biblioteca() {
-  const shouldReduceMotion = useReducedMotion();
   return (
     <section id="biblioteca" className="py-16 md:py-24">
       <div className="curia-shell">
@@ -84,14 +69,10 @@ export default function Biblioteca() {
         </div>
 
         <div className="mt-12 grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
-          <motion.div
+          <div
             role="group"
             aria-label="Ejemplo de archivos en la Biblioteca del expediente"
             className="curia-card-editorial overflow-hidden lg:sticky lg:top-28"
-            initial={shouldReduceMotion ? false : "hidden"}
-            variants={FILE_PANEL_VARIANTS}
-            viewport={VIEWPORT_ONCE}
-            whileInView={shouldReduceMotion ? undefined : "visible"}
           >
             <div className="border-b border-[var(--curia-border)] bg-[var(--curia-bg-subtle)] px-5 py-4 md:px-6">
               <h3 className="text-sm font-semibold">Archivos del expediente</h3>
@@ -128,7 +109,7 @@ export default function Biblioteca() {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {cards.map(({ icon: Icon, title, body }) => (
