@@ -31,6 +31,7 @@ export default function Balanza() {
   const marcoRef = useRef<HTMLDivElement | null>(null);
   const visorRef = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
+  const [cargado, setCargado] = useState(false);
 
   useEffect(() => {
     const marco = marcoRef.current;
@@ -80,8 +81,31 @@ export default function Balanza() {
     };
   }, [reducido, visible]);
 
+  // El GLB pesa 969 KB y el visor llega por CDN: sin poster, quien pasa
+  // rápido ve un hueco vacío. El render fijo se muestra al instante y se
+  // retira cuando el modelo real ya pinta.
+  useEffect(() => {
+    if (!visible) return;
+    const visor = visorRef.current;
+    if (!visor) return;
+    const alCargar = () => setCargado(true);
+    visor.addEventListener("load", alCargar);
+    return () => visor.removeEventListener("load", alCargar);
+  }, [visible]);
+
   return (
-    <div aria-hidden="true" className="mt-8 h-72 md:h-80" ref={marcoRef}>
+    <div
+      aria-hidden="true"
+      className="relative mt-8 h-72 md:h-80"
+      ref={marcoRef}
+    >
+      {!cargado && (
+        <img
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain"
+          src="/media/balanza-poster.webp"
+        />
+      )}
       {visible && (
         <model-viewer
           alt="Balanza de la justicia"
@@ -91,7 +115,7 @@ export default function Balanza() {
           ref={visorRef}
           shadow-intensity="1"
           src="/media/balanza.glb"
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", position: "relative" }}
         />
       )}
     </div>

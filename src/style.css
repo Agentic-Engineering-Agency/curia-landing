@@ -21,9 +21,12 @@
   --curia-text-secondary: #5e6668;
   --curia-text-muted: #636f79;
   --curia-shadow-xs: 0 1px 2px rgba(26, 32, 40, 0.04);
-  --curia-shadow-sm: 0 1px 2px rgba(26, 32, 40, 0.04), 0 1px 3px rgba(26, 32, 40, 0.05);
-  --curia-shadow-md: 0 2px 4px rgba(26, 32, 40, 0.04), 0 4px 8px rgba(26, 32, 40, 0.06);
-  --curia-shadow-lg: 0 8px 24px rgba(26, 32, 40, 0.12), 0 24px 64px rgba(26, 32, 40, 0.1);
+  --curia-shadow-sm:
+    0 1px 2px rgba(26, 32, 40, 0.04), 0 1px 3px rgba(26, 32, 40, 0.05);
+  --curia-shadow-md:
+    0 2px 4px rgba(26, 32, 40, 0.04), 0 4px 8px rgba(26, 32, 40, 0.06);
+  --curia-shadow-lg:
+    0 8px 24px rgba(26, 32, 40, 0.12), 0 24px 64px rgba(26, 32, 40, 0.1);
   --curia-radius: 1rem;
   --curia-radius-sm: 0.75rem;
   --curia-radius-pill: 999px;
@@ -40,10 +43,19 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at top left, rgba(13, 115, 119, 0.08), transparent 28%),
+    radial-gradient(
+      circle at top left,
+      rgba(13, 115, 119, 0.08),
+      transparent 28%
+    ),
     linear-gradient(180deg, #ffffff 0%, #fbfaf8 100%);
   color: var(--curia-text);
-  font-family: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    "Inter Variable",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   text-rendering: optimizeLegibility;
 }
 
@@ -106,8 +118,16 @@ button {
   height: 2.5rem;
   border-radius: 0.9rem;
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.24), transparent 58%),
-    linear-gradient(135deg, var(--curia-primary) 0%, var(--curia-primary-deep) 100%);
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.24),
+      transparent 58%
+    ),
+    linear-gradient(
+      135deg,
+      var(--curia-primary) 0%,
+      var(--curia-primary-deep) 100%
+    );
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
@@ -131,16 +151,24 @@ button {
 }
 
 .curia-card-editorial {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(253, 252, 249, 0.96) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(253, 252, 249, 0.96) 100%
+  );
   box-shadow: var(--curia-shadow-sm);
 }
 
 .curia-dossier-card {
-  border: 1px solid color-mix(in srgb, var(--curia-primary) 16%, var(--curia-border));
+  border: 1px solid
+    color-mix(in srgb, var(--curia-primary) 16%, var(--curia-border));
   border-radius: 1.6rem;
   padding: 1.5rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(243, 239, 231, 0.72) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(243, 239, 231, 0.72) 100%
+  );
   box-shadow: var(--curia-shadow-md);
 }
 
@@ -196,7 +224,11 @@ button {
 .curia-contact-card:hover {
   transform: translateY(-1px);
   box-shadow: var(--curia-shadow-md);
-  border-color: color-mix(in srgb, var(--curia-primary) 18%, var(--curia-border));
+  border-color: color-mix(
+    in srgb,
+    var(--curia-primary) 18%,
+    var(--curia-border)
+  );
 }
 
 .curia-button {
@@ -224,13 +256,21 @@ button {
 }
 
 .curia-button-primary {
-  background: linear-gradient(135deg, var(--curia-primary) 0%, var(--curia-primary-deep) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--curia-primary) 0%,
+    var(--curia-primary-deep) 100%
+  );
   color: var(--curia-primary-fg);
   box-shadow: 0 12px 28px rgba(8, 62, 64, 0.18);
 }
 
 .curia-button-primary:hover {
-  background: linear-gradient(135deg, var(--curia-primary-hover) 0%, var(--curia-primary-deep) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--curia-primary-hover) 0%,
+    var(--curia-primary-deep) 100%
+  );
 }
 
 .curia-button-secondary {
@@ -244,7 +284,6 @@ button {
   border-color: var(--curia-primary);
   color: var(--curia-primary-text);
 }
-
 
 .curia-field {
   display: grid;
@@ -297,9 +336,29 @@ button {
   }
 }
 
+/* Deriva lenta de los loops ambientales: los clips son casi estáticos por
+   diseño (quietud medida) y sin este paneo se leen como fotografías. */
+@keyframes curia-deriva {
+  from {
+    transform: scale(1.06) translateX(-1.2%);
+  }
+  to {
+    transform: scale(1.12) translateX(1.2%);
+  }
+}
+
+.curia-deriva {
+  animation: curia-deriva 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .curia-deriva {
+    animation: none;
   }
 
   .curia-button,

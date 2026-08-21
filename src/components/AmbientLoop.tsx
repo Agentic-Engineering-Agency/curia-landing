@@ -45,13 +45,13 @@ export default function AmbientLoop({ sala, etiqueta, className }: Props) {
       {reducido ? (
         <img
           alt=""
-          className="block aspect-[21/9] w-full object-cover"
+          className="curia-deriva block aspect-[21/9] w-full object-cover"
           src={poster}
         />
       ) : (
         <video
           aria-hidden="true"
-          className="block aspect-[21/9] w-full object-cover"
+          className="curia-deriva block aspect-[21/9] w-full object-cover"
           disablePictureInPicture
           loop
           muted
