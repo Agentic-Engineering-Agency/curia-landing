@@ -1,6 +1,6 @@
 // Entrada de la versión en video. Escribe el DOM sólo al cambiar de capítulo.
 
-import { CAPITULOS, crearScrub } from "./scrub";
+import { CAPITULOS, crearScrub, servirPorBlob } from "./scrub";
 
 const pista = document.querySelector<HTMLElement>("[data-pista]");
 const video = document.querySelector<HTMLVideoElement>("[data-video]");
@@ -11,7 +11,16 @@ const cuerpo = document.querySelector<HTMLElement>("[data-cuerpo]");
 const contador = document.querySelector<HTMLElement>("[data-contador]");
 const marcas = document.querySelector<HTMLElement>("[data-marcas]");
 
-if (pista && video && copia && kicker && titulo && cuerpo && contador && marcas) {
+if (
+  pista &&
+  video &&
+  copia &&
+  kicker &&
+  titulo &&
+  cuerpo &&
+  contador &&
+  marcas
+) {
   // La pista mide un viewport por sala más el margen de los tránsitos: es el
   // presupuesto de scroll, el mismo criterio que en la versión WebGL.
   pista.style.setProperty("--viewports", String(CAPITULOS.length * 2));
@@ -39,6 +48,10 @@ if (pista && video && copia && kicker && titulo && cuerpo && contador && marcas)
       else b.removeAttribute("aria-current");
     });
   }
+
+  // El blob se resuelve antes de arrancar: cambiar la fuente despues reiniciaria
+  // los metadatos y el driver leeria una duracion que ya no vale.
+  await servirPorBlob(video);
 
   const scrub = crearScrub({ video, pista, alCambiarCapitulo: pintar });
   pintar(0);

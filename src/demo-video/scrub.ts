@@ -93,6 +93,42 @@ export function tiempoPara(progreso: number, duracion: number): number {
   return Math.min(ritmo(progreso) * duracion, duracion - 0.05);
 }
 
+/**
+ * Sirve el video desde un blob en memoria en vez de la URL del host.
+ *
+ * No es una optimización, es lo que hace que el scrub funcione en producción:
+ * muchos hosts estáticos no responden peticiones Range, y sin Range el
+ * navegador deja `video.seekable` en [0,0]. Con ese rango cada `currentTime`
+ * que pedimos se recorta a cero y el video se ve congelado en el primer
+ * fotograma, aunque en desarrollo funcione. Un blob siempre es completamente
+ * seekable, así que el scrub deja de depender de lo que sirva el host.
+ *
+ * Devuelve la función que libera el objeto; si algo falla se queda con la
+ * fuente original, que al menos pinta.
+ */
+export async function servirPorBlob(
+  video: HTMLVideoElement,
+): Promise<() => void> {
+  const sinCambio = () => {};
+  const fuentes = [...video.querySelectorAll("source")];
+  const elegida = fuentes.find((f) => {
+    const tipo = f.getAttribute("type");
+    return tipo ? video.canPlayType(tipo) !== "" : true;
+  });
+  const url = elegida?.getAttribute("src") ?? video.getAttribute("src");
+  if (!url) return sinCambio;
+
+  try {
+    const respuesta = await fetch(url);
+    if (!respuesta.ok) return sinCambio;
+    const objeto = URL.createObjectURL(await respuesta.blob());
+    video.src = objeto;
+    return () => URL.revokeObjectURL(objeto);
+  } catch {
+    return sinCambio;
+  }
+}
+
 type Opciones = {
   video: HTMLVideoElement;
   pista: HTMLElement;
@@ -118,7 +154,6 @@ export function crearScrub({ video, pista, alCambiarCapitulo }: Opciones) {
     const p = y / alto;
     return p < 0 ? 0 : p > 1 ? 1 : p;
   }
-
 
   /**
    * Visibilidad por rectángulo en vez de IntersectionObserver. Medido: en un
@@ -175,7 +210,8 @@ export function crearScrub({ video, pista, alCambiarCapitulo }: Opciones) {
       duracion = video.duration || 0;
     };
     if (video.readyState >= 1) tomarDuracion();
-    else video.addEventListener("loadedmetadata", tomarDuracion, { once: true });
+    else
+      video.addEventListener("loadedmetadata", tomarDuracion, { once: true });
     cuadro = requestAnimationFrame(bucle);
   }
 
@@ -185,17 +221,24 @@ export function crearScrub({ video, pista, alCambiarCapitulo }: Opciones) {
     cuadro = 0;
   }
 
-  return { arrancar, detener, irACapitulo: (i: number) => {
-    const alto = pista.offsetHeight - window.innerHeight;
-    // Inversa aproximada del ritmo: se busca por bisección porque la quíntica
-    // no tiene inversa cerrada y diez iteraciones sobran para un píxel.
-    let lo = 0;
-    let hi = 1;
-    for (let k = 0; k < 20; k += 1) {
-      const mid = (lo + hi) / 2;
-      if (ritmo(mid) < CAPITULOS[i].marca) lo = mid;
-      else hi = mid;
-    }
-    window.scrollTo({ top: pista.offsetTop + ((lo + hi) / 2) * alto, behavior: "smooth" });
-  } };
+  return {
+    arrancar,
+    detener,
+    irACapitulo: (i: number) => {
+      const alto = pista.offsetHeight - window.innerHeight;
+      // Inversa aproximada del ritmo: se busca por bisección porque la quíntica
+      // no tiene inversa cerrada y diez iteraciones sobran para un píxel.
+      let lo = 0;
+      let hi = 1;
+      for (let k = 0; k < 20; k += 1) {
+        const mid = (lo + hi) / 2;
+        if (ritmo(mid) < CAPITULOS[i].marca) lo = mid;
+        else hi = mid;
+      }
+      window.scrollTo({
+        top: pista.offsetTop + ((lo + hi) / 2) * alto,
+        behavior: "smooth",
+      });
+    },
+  };
 }
