@@ -13,6 +13,9 @@ export default defineConfig({
         // Demo de validación de la secuencia del despacho. Aislada: no
         // comparte bundle ni estilos con la landing.
         demo: "demo/index.html",
+        // Alternativa en video de la misma secuencia. Entrada aparte para que
+        // ninguna de las dos demos pese sobre la landing.
+        "demo-video": "demo-video/index.html",
       },
     },
   },

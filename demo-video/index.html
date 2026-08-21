@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Curia — secuencia del despacho, versión video</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/demo-video/video.css" />
+  </head>
+  <body>
+    <p class="aviso">
+      Alternativa en video de la secuencia del despacho. El recorrido WebGL vive
+      en <a href="/demo/">/demo/</a>. Los fotogramas de esta versión son
+      ilustrativos mientras se generan los clips definitivos.
+    </p>
+
+    <section class="pista" data-pista>
+      <div class="escena">
+        <video
+          data-video
+          playsinline
+          muted
+          preload="auto"
+          disablepictureinpicture
+          aria-hidden="true"
+        >
+          <source src="/media/despacho-scrub.webm" type="video/webm" />
+          <source src="/media/despacho-scrub.mp4" type="video/mp4" />
+        </video>
+
+        <div class="velo" aria-hidden="true"></div>
+
+        <div class="copia" data-copia>
+          <p class="kicker" data-kicker></p>
+          <h2 class="titulo" data-titulo></h2>
+          <p class="cuerpo" data-cuerpo></p>
+        </div>
+
+        <nav class="marcas" aria-label="Capítulos del recorrido" data-marcas></nav>
+
+        <p class="pie">
+          <span data-contador>01 / 05</span>
+          <span class="pista-texto">Desplaza para recorrer el despacho</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="cierre">
+      <h2>Aquí continúa la landing</h2>
+      <p>
+        La secuencia ocupa la apertura; el resto del documento sigue en flujo
+        normal, con las secciones intactas.
+      </p>
+    </section>
+
+    <script type="module" src="/src/demo-video/main.ts"></script>
+  </body>
+</html>
