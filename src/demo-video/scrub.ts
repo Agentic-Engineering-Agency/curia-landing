@@ -15,47 +15,48 @@ export type Capitulo = {
   marca: number;
 };
 
-// Las marcas son el centro de cada sala como fracción del VIDEO, y las salas
-// no ocupan tramos iguales: apertura de 121 fotogramas, tramo conservado de 25,
-// tres piernas de 121 y el remate al monitor de 121, con los cruces medidos en
-// los fotogramas 121, ~211, ~369 y ~458 de 630. La marca del capítulo final cae
-// sobre el monitor con la UI compuesta. Si se regenera una pierna hay que
-// volver a medir, no repartir a ojo.
+// Las marcas son el centro medido de cada sala como fracción del VIDEO, y las
+// salas no ocupan tramos iguales: apertura de 121 fotogramas, tramo conservado
+// de 25 y tres piernas de 121, con los cruces de puerta medidos en los
+// fotogramas 121, ~211, ~369 y ~458 de 509. Con salas desiguales los puntos
+// medios entre marcas no pueden clavar todas las fronteras (el sistema sale no
+// monótono), así que la copia anticipa el cruce como máximo medio segundo. Si
+// se regenera una pierna hay que volver a medir, no repartir a ojo.
 export const CAPITULOS: Capitulo[] = [
   {
     id: "monitoreo",
     kicker: "Monitoreo judicial",
     titulo: "Movimientos del expediente",
     cuerpo: "Cada aviso conserva fuente y contexto.",
-    marca: 0.095,
+    marca: 0.118,
   },
   {
     id: "plazos",
     kicker: "Plazos y Outlook",
     titulo: "Una fecha revisable",
     cuerpo: "Curia calcula el plazo y conserva la fuente.",
-    marca: 0.263,
+    marca: 0.326,
   },
   {
     id: "biblioteca",
     kicker: "Biblioteca y OCR",
     titulo: "Fuentes elegidas",
     cuerpo: "Sólo documentos procesados alimentan la consulta.",
-    marca: 0.46,
+    marca: 0.57,
   },
   {
     id: "asistentes",
     kicker: "Asistentes con contexto",
     titulo: "Borradores con respaldo",
     cuerpo: "Cada apoyo cita el expediente que lo sostiene.",
-    marca: 0.656,
+    marca: 0.811,
   },
   {
     id: "evaluador",
     kicker: "Reference Evaluator",
     titulo: "De la respuesta al escrito",
     cuerpo: "La confianza de una cita se ve antes de usarla.",
-    marca: 0.863,
+    marca: 0.949,
   },
 ];
 
