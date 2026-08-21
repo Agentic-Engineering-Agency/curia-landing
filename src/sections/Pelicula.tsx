@@ -93,7 +93,10 @@ export default function Pelicula() {
       }
       const url = await pendiente;
       if (!vivo) return;
-      if (url) video.src = url;
+      if (url) {
+        video.src = url;
+        video.load();
+      }
       const scrub = crearScrub({
         video,
         pista,
@@ -102,6 +105,20 @@ export default function Pelicula() {
       scrubRef.current = scrub;
       scrubActivo = scrub;
       scrub.arrancar();
+
+      // iOS/WebKit no pinta fotogramas de un video que nunca ha reproducido:
+      // al cambiar el src suelta el poster y la escena queda negra aunque los
+      // seeks escriban currentTime. Un play()->pause() en mudo (permitido sin
+      // gesto) arranca la tubería de decodificación y los seeks ya pintan.
+      const cebar = () => {
+        if (!vivo) return;
+        void video
+          .play()
+          .then(() => video.pause())
+          .catch(() => {});
+      };
+      if (video.readyState >= 2) cebar();
+      else video.addEventListener("canplay", cebar, { once: true });
     })();
 
     return () => {
