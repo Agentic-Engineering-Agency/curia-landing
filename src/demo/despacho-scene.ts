@@ -334,7 +334,7 @@ export function createDespacho(
   );
   const wallContent =
     cssRenderer && wallPanels.length
-      ? createWallContent(cssScene, wallPanels, { scene, kit })
+      ? createWallContent(cssScene, wallPanels)
       : null;
 
   const position = new Vector3();
