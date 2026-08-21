@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
+import { mediaUrl } from "./media";
 
 // model-viewer llega por CDN al entrar la primera pieza en viewport: three.js
 // queda fuera del bundle principal y la landing no paga el visor si nadie
@@ -60,13 +61,14 @@ export default function Pieza3D({
     if (!marco) return;
     const observador = new IntersectionObserver(
       ([entrada]) => {
-        if (entrada.isIntersecting) {
-          pedirVisor();
-          setVisible(true);
-          observador.disconnect();
-        }
+        const cerca = entrada.isIntersecting;
+        if (cerca) pedirVisor();
+        else setCargado(false);
+        setVisible(cerca);
       },
-      { rootMargin: "240px" },
+      // 800 px da tiempo a descargar antes de que la pieza entre al viewport,
+      // pero la desmonta al alejarse: sólo 1–2 escenas conservan memoria GPU.
+      { rootMargin: "800px 0px" },
     );
     observador.observe(marco);
     return () => observador.disconnect();
@@ -104,14 +106,17 @@ export default function Pieza3D({
   }, [reducido, visible, acimutBase, giro, elevacion, distancia]);
 
   // Sin poster, quien pasa rápido ve un hueco mientras llegan visor y GLB.
-  // El render fijo pinta al instante y se retira cuando el modelo real ya
-  // está en pantalla.
   useEffect(() => {
     if (!visible) return;
-    const visor = visorRef.current;
+    const visor = visorRef.current as
+      | (HTMLElement & { loaded?: boolean })
+      | null;
     if (!visor) return;
     const alCargar = () => setCargado(true);
-    visor.addEventListener("load", alCargar);
+    // En reentrada el GLB puede venir de cache y completar antes de que React
+    // adjunte el listener; consultar `loaded` evita dejar el poster encima.
+    if (visor.loaded) alCargar();
+    else visor.addEventListener("load", alCargar, { once: true });
     return () => visor.removeEventListener("load", alCargar);
   }, [visible]);
 
@@ -125,7 +130,7 @@ export default function Pieza3D({
         <img
           alt=""
           className="absolute inset-0 h-full w-full object-contain"
-          src={poster}
+          src={mediaUrl(poster)}
         />
       )}
       {visible && (
@@ -136,8 +141,8 @@ export default function Pieza3D({
           loading="eager"
           ref={visorRef}
           shadow-intensity="1"
-          src={src}
           style={{ width: "100%", height: "100%", position: "relative" }}
+          src={mediaUrl(src)}
         />
       )}
     </div>

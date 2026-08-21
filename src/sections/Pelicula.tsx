@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { useReducedMotion } from "motion/react";
 import { CAPITULOS, blobDeVideo, crearScrub } from "../components/scrub";
 import type { Scrub } from "../components/scrub";
+import { mediaUrl } from "../components/media";
 import "./pelicula.css";
 
 // El alto de la pista es el presupuesto de scroll: un viewport por sala más
@@ -25,17 +26,23 @@ const peliculaEnBlob = new Map<string, Promise<string | null>>();
 // VP9 por software se traba.
 const MEDIOS = {
   ancho: {
-    poster: "/media/despacho-poster.jpg",
+    poster: mediaUrl("/media/despacho-poster.jpg"),
     fuentes: [
-      { src: "/media/despacho-scrub.webm", type: "video/webm" },
-      { src: "/media/despacho-scrub.mp4", type: "video/mp4" },
+      { src: mediaUrl("/media/despacho-scrub.webm"), type: "video/webm" },
+      { src: mediaUrl("/media/despacho-scrub.mp4"), type: "video/mp4" },
     ],
   },
   retrato: {
-    poster: "/media/despacho-poster-movil.jpg",
+    poster: mediaUrl("/media/despacho-poster-movil.jpg"),
     fuentes: [
-      { src: "/media/despacho-scrub-movil.mp4", type: "video/mp4" },
-      { src: "/media/despacho-scrub-movil.webm", type: "video/webm" },
+      {
+        src: mediaUrl("/media/despacho-scrub-movil.mp4"),
+        type: "video/mp4",
+      },
+      {
+        src: mediaUrl("/media/despacho-scrub-movil.webm"),
+        type: "video/webm",
+      },
     ],
   },
 };
@@ -162,13 +169,11 @@ export default function Pelicula() {
       <div
         className={`pel-escena ${capitulo === CAPITULOS.length - 1 ? "es-final" : ""}`}
       >
-        {/* Poster persistente bajo el video: un <video> sin fotograma pinta
-            transparente, así que la imagen evita cualquier cuadro negro
-            (iOS suelta el atributo poster al cambiar el src al blob). */}
         <img
           alt=""
           aria-hidden="true"
           className="pel-poster"
+          fetchPriority="high"
           src={medios.poster}
         />
         {!reducido && (
@@ -177,7 +182,7 @@ export default function Pelicula() {
             disablePictureInPicture
             muted
             playsInline
-            preload="auto"
+            preload="none"
             ref={videoRef}
           >
             {medios.fuentes.map((f) => (

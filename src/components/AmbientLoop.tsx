@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "motion/react";
 import { irACapituloPelicula } from "../sections/Pelicula";
+import { mediaUrl } from "./media";
 
 type Props = {
   /** Nombre base del loop en /media/loops (recepcion, oficina, archivo…). */
@@ -33,10 +34,16 @@ export default function AmbientLoop({
     const video = videoRef.current;
     if (!video) return;
 
+    video.style.animationPlayState = "paused";
     const observador = new IntersectionObserver(
       ([entrada]) => {
-        if (entrada.isIntersecting) void video.play().catch(() => {});
-        else video.pause();
+        if (entrada.isIntersecting) {
+          video.style.animationPlayState = "running";
+          void video.play().catch(() => {});
+        } else {
+          video.pause();
+          video.style.animationPlayState = "paused";
+        }
       },
       { rootMargin: "80px" },
     );
@@ -44,7 +51,7 @@ export default function AmbientLoop({
     return () => observador.disconnect();
   }, [reducido]);
 
-  const poster = `/media/loops/${sala}-poster.jpg`;
+  const poster = mediaUrl(`/media/loops/${sala}-poster.jpg`);
 
   return (
     <button
@@ -71,8 +78,14 @@ export default function AmbientLoop({
           preload="none"
           ref={videoRef}
         >
-          <source src={`/media/loops/${sala}-loop.webm`} type="video/webm" />
-          <source src={`/media/loops/${sala}-loop.mp4`} type="video/mp4" />
+          <source
+            src={mediaUrl(`/media/loops/${sala}-loop.webm`)}
+            type="video/webm"
+          />
+          <source
+            src={mediaUrl(`/media/loops/${sala}-loop.mp4`)}
+            type="video/mp4"
+          />
         </video>
       )}
       <span

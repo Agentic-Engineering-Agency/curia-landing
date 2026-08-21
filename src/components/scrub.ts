@@ -141,7 +141,10 @@ export async function blobDeVideo(
   if (!url) return null;
 
   try {
-    const respuesta = await fetch(url);
+    // Las URLs llevan versión y /media se sirve immutable: force-cache evita
+    // una revalidación innecesaria en visitas repetidas. El blob sigue siendo
+    // obligatorio porque Workers Static Assets no entrega Range (medido).
+    const respuesta = await fetch(url, { cache: "force-cache" });
     if (!respuesta.ok) return null;
     return URL.createObjectURL(await respuesta.blob());
   } catch {
@@ -175,6 +178,7 @@ export function crearScrub({
   let corriendo = false;
   let visible = false;
   let cuadro = 0;
+  let escuchando = false;
 
   const paso = () => 1 / 30;
 
@@ -199,19 +203,24 @@ export function crearScrub({
     return r.bottom > -margen && r.top < window.innerHeight + margen;
   }
 
+  function despertar() {
+    if (!corriendo || cuadro) return;
+    cuadro = requestAnimationFrame(bucle);
+  }
+
   function bucle() {
-    cuadro = corriendo ? requestAnimationFrame(bucle) : 0;
+    cuadro = 0;
     if (!corriendo) return;
 
     visible = enCuadro();
+    // Fuera de cuadro el bucle se apaga por completo. Scroll/resize/
+    // visibilitychange lo despiertan de inmediato; no queda un rAF a 60 Hz
+    // leyendo layout durante las otras once secciones.
     if (!visible || !duracion) return;
 
-    // Se muestrea el scroll en cada frame en vez de escuchar el evento: es una
-    // lectura de layout barata y no depende de que el evento se emita.
+    // Se muestrea el scroll en cada frame mientras la película está cerca:
+    // así el scrub no depende de la frecuencia de eventos de cada navegador.
     deseado = progresoScroll();
-
-    // La cola necesita margen: pedir exactamente `duration` deja el video en un
-    // estado donde algunos navegadores no vuelven a pintar.
     const objetivo = tiempoPara(deseado, duracion);
 
     // Escribir currentTime cuesta un seek. Sin este umbral el navegador encola
@@ -221,17 +230,12 @@ export function crearScrub({
       ultimoEscrito = objetivo;
     }
 
-    // El capítulo se elige por la posición dentro del VIDEO, no por la del
-    // scroll. Son espacios distintos: `ritmo` es no lineal, así que en scroll
-    // 0.30 el video va en 3.9s, que todavía es la primera sala. Alimentar el
-    // scroll crudo hacía aparecer la copia de la sala 2 sobre la imagen de la
-    // sala 1. Las salas ocupan tramos iguales del video, así que su fracción es
-    // la referencia correcta.
     const indice = capituloDe(ritmo(deseado));
     if (indice !== capituloActivo) {
       capituloActivo = indice;
       alCambiarCapitulo?.(indice);
     }
+    cuadro = requestAnimationFrame(bucle);
   }
 
   function arrancar() {
@@ -239,17 +243,30 @@ export function crearScrub({
     corriendo = true;
     const tomarDuracion = () => {
       duracion = video.duration || 0;
+      despertar();
     };
     if (video.readyState >= 1) tomarDuracion();
     else
       video.addEventListener("loadedmetadata", tomarDuracion, { once: true });
-    cuadro = requestAnimationFrame(bucle);
+    if (!escuchando) {
+      window.addEventListener("scroll", despertar, { passive: true });
+      window.addEventListener("resize", despertar, { passive: true });
+      document.addEventListener("visibilitychange", despertar);
+      escuchando = true;
+    }
+    despertar();
   }
 
   function detener() {
     corriendo = false;
     if (cuadro) cancelAnimationFrame(cuadro);
     cuadro = 0;
+    if (escuchando) {
+      window.removeEventListener("scroll", despertar);
+      window.removeEventListener("resize", despertar);
+      document.removeEventListener("visibilitychange", despertar);
+      escuchando = false;
+    }
   }
 
   return {
@@ -266,6 +283,7 @@ export function crearScrub({
         if (ritmo(mid) < CAPITULOS[i].marca) lo = mid;
         else hi = mid;
       }
+      despertar();
       window.scrollTo({
         top: pista.offsetTop + ((lo + hi) / 2) * alto,
         behavior: "smooth",

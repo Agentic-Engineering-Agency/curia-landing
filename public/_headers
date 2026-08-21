@@ -1,0 +1,13 @@
+# Vite genera nombres con hash para JS/CSS/fuentes: pueden vivir un año.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Los consumidores de /media anexan VERSION_MEDIOS a la URL. Al cambiar un
+# binario se sube esa versión y el navegador recibe una URL nueva.
+/media/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Los previews son para revisión privada; el dominio de producción conserva su
+# indexación normal.
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
