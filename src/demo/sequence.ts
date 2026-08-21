@@ -43,8 +43,8 @@ export type Timeline = {
 
 const clamp01 = (value: number) => (value < 0 ? 0 : value > 1 ? 1 : value);
 
-/** Smoothstep: arranca y termina sin tirón, que es lo que hace legible un tránsito. */
-const smoothstep = (t: number) => t * t * (3 - 2 * t);
+/** Smootherstep: velocidad y aceleración llegan a cero para que el viaje no corte en seco. */
+const travelEase = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
 
 /**
  * Construye la línea de tiempo alternando meseta y tránsito. Las paradas se
@@ -127,7 +127,7 @@ export function resolveSequence(
   frame.pathT =
     segment.kind === "hold"
       ? segment.fromT
-      : segment.fromT + (segment.toT - segment.fromT) * smoothstep(local);
+      : segment.fromT + (segment.toT - segment.fromT) * travelEase(local);
 
   return frame;
 }

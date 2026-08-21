@@ -333,7 +333,9 @@ export function createDespacho(
     document.querySelectorAll<HTMLElement>("[data-wall-panel]"),
   );
   const wallContent =
-    cssRenderer && wallPanels.length ? createWallContent(cssScene, wallPanels) : null;
+    cssRenderer && wallPanels.length
+      ? createWallContent(cssScene, wallPanels, { scene, kit })
+      : null;
 
   const position = new Vector3();
   const target = new Vector3();

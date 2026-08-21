@@ -98,11 +98,14 @@ body {
 }
 
 .stage[data-safe="right"] .mark__label {
-  transform: translateX(-0.4rem);
+  transform: translateX(-0.3rem);
 }
 
 .stage[data-safe="right"] .mark:hover .mark__label,
-.stage[data-safe="right"] .mark.is-active .mark__label {
+.stage[data-safe="right"] .mark:focus .mark__label,
+.stage[data-safe="right"] .mark:focus-visible .mark__label,
+.stage[data-safe="right"] .panel:hover .mark.is-active .mark__label,
+.stage[data-safe="right"] .panel:focus-within .mark.is-active .mark__label {
   transform: translateX(0);
 }
 
@@ -113,16 +116,14 @@ body {
   height: 900px;
   display: grid;
   align-content: center;
-  gap: 54px;
-  padding: 96px 118px 104px 132px;
+  gap: 38px;
+  padding: 104px 128px 108px 146px;
   border: 2px solid var(--curia-border-strong);
-  border-left: 26px solid var(--accent);
+  border-left: 30px solid var(--accent);
+  /* Sin sombra exterior: la placa debe sentirse atornillada al muro, no como HUD. */
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 6%, transparent), transparent 30%),
     var(--curia-bg-subtle);
-  box-shadow:
-    inset 0 0 0 14px color-mix(in srgb, var(--curia-border) 72%, transparent),
-    inset 0 -18px 0 color-mix(in srgb, var(--curia-border) 42%, transparent);
   color: var(--curia-text);
   font-family: "Inter Variable", Inter, system-ui, sans-serif;
   overflow: hidden;
@@ -140,28 +141,28 @@ body {
 
 .wall-copy__kicker {
   margin: 0;
-  font-size: 32px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent);
 }
 
 .wall-copy__title {
   margin: 0;
-  max-width: 1180px;
+  max-width: 1260px;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: 116px;
-  line-height: 0.94;
-  letter-spacing: -0.018em;
+  font-size: 164px;
+  line-height: 0.86;
+  letter-spacing: -0.025em;
 }
 
 .wall-copy__body {
   margin: 0;
-  max-width: 1050px;
-  font-size: 40px;
-  line-height: 1.38;
+  max-width: 900px;
+  font-size: 38px;
+  line-height: 1.28;
   color: var(--curia-text-secondary);
 }
 
@@ -196,72 +197,101 @@ body {
 
 .panel {
   position: absolute;
-  right: clamp(1rem, 3vw, 2.75rem);
+  right: clamp(0.75rem, 2.2vw, 2rem);
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 0.35rem;
   align-items: flex-end;
 }
 
 .panel__counter {
   margin: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  color: color-mix(in srgb, var(--curia-text-secondary) 54%, transparent);
+  transition: color 240ms ease;
+}
+
+.panel:hover .panel__counter,
+.panel:focus-within .panel__counter {
   color: var(--curia-text-secondary);
 }
 
 .panel__marks {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.18rem;
   align-items: flex-end;
 }
 
 .mark {
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.25rem 0;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
   font: inherit;
-  color: var(--curia-text-secondary);
+  color: color-mix(in srgb, var(--curia-text-secondary) 58%, transparent);
+}
+
+.mark:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 62%, var(--curia-border-strong));
+  outline-offset: 2px;
 }
 
 .mark__label {
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   opacity: 0;
-  transform: translateX(0.4rem);
-  transition: opacity 320ms ease, transform 320ms ease;
+  transition: color 180ms ease;
   white-space: nowrap;
 }
 
+/* Sólo al explorar o enfocar aparece la guía verbal; en reposo queda diegética. */
 .mark:hover .mark__label,
-.mark.is-active .mark__label {
+.mark:focus .mark__label,
+.mark:focus-visible .mark__label,
+.panel:hover .mark.is-active .mark__label,
+.panel:focus-within .mark.is-active .mark__label {
   opacity: 1;
   transform: translateX(0);
 }
 
-.mark.is-active .mark__label {
+.mark:hover .mark__label,
+.mark:focus .mark__label,
+.mark:focus-visible .mark__label,
+.panel:hover .mark.is-active .mark__label,
+.panel:focus-within .mark.is-active .mark__label {
   color: var(--curia-text);
 }
 
 .mark__dot {
-  width: 1.6rem;
-  height: 2px;
-  background: var(--curia-border-strong);
-  transition: background 320ms ease, width 320ms ease;
+  width: 0.78rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--curia-border-strong) 58%, transparent);
+  transition: background 240ms ease, width 240ms ease;
+}
+
+.mark:hover .mark__dot,
+.mark:focus .mark__dot,
+.mark:focus-visible .mark__dot {
+  width: 1.7rem;
+  background: var(--accent);
 }
 
 .mark.is-active .mark__dot {
-  width: 2.6rem;
-  background: var(--accent);
+  width: 1.25rem;
+  background: color-mix(in srgb, var(--accent) 62%, var(--curia-border-strong));
 }
 
 .hint {
@@ -311,61 +341,159 @@ body {
 
 @media (max-width: 860px) {
   .wall-copy {
-    width: 2200px;
-    height: 1420px;
-    gap: 70px;
-    padding: 148px 160px 154px 178px;
-    border-left-width: 34px;
+    /* La escala 3D depende de 1600x900; en móvil sólo subimos tipo y aire interno. */
+    width: 1600px;
+    height: 900px;
+    gap: 34px;
+    padding: 92px 104px 96px 122px;
+    border-left-width: 30px;
   }
 
   .wall-copy__kicker {
-    font-size: 42px;
+    font-size: 44px;
   }
 
   .wall-copy__title {
-    max-width: 1660px;
-    font-size: 154px;
+    max-width: 1420px;
+    font-size: 220px;
+    line-height: 0.84;
   }
 
   .wall-copy__body {
-    max-width: 1580px;
-    font-size: 58px;
-    line-height: 1.34;
+    max-width: 1300px;
+    font-size: 64px;
+    line-height: 1.18;
+  }
+
+  .copy-state[hidden] {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(0.75rem + 44px + 0.85rem);
+    z-index: 9;
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem 1.05rem 1.05rem 1.15rem;
+    border: 1px solid var(--curia-border-strong);
+    border-left: 0.42rem solid var(--accent);
+    background: var(--curia-bg-subtle);
+    color: var(--curia-text);
+  }
+
+  /* Respaldo de retrato: si la perspectiva corta la placa, la cartela repite
+     la misma afirmación sin convertirse en tarjeta flotante ni HUD. */
+  .copy-state span {
+    display: block;
+  }
+
+  .copy-state [data-kicker] {
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .copy-state [data-title],
+  .copy-state [data-body] {
+    font-size: 0;
+  }
+
+  .copy-state [data-title]::after {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(2.35rem, 12vw, 3.15rem);
+    line-height: 0.88;
+    letter-spacing: -0.025em;
+  }
+
+  .copy-state [data-body]::after {
+    display: block;
+    max-width: 20rem;
+    color: var(--curia-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  .stage[data-chapter="monitoreo"] .copy-state [data-title]::after {
+    content: "Movimientos del expediente";
+  }
+
+  .stage[data-chapter="monitoreo"] .copy-state [data-body]::after {
+    content: "Cada aviso conserva fuente y contexto.";
+  }
+
+  .stage[data-chapter="plazos"] .copy-state [data-title]::after {
+    content: "Una fecha revisable";
+  }
+
+  .stage[data-chapter="plazos"] .copy-state [data-body]::after {
+    content: "Curia calcula el plazo y conserva la fuente para cotejo.";
+  }
+
+  .stage[data-chapter="biblioteca"] .copy-state [data-title]::after {
+    content: "Fuentes elegidas";
+  }
+
+  .stage[data-chapter="biblioteca"] .copy-state [data-body]::after {
+    content: "Sólo documentos procesados y seleccionados alimentan la consulta.";
+  }
+
+  .stage[data-chapter="asistentes"] .copy-state [data-title]::after {
+    content: "Límites explícitos";
+  }
+
+  .stage[data-chapter="asistentes"] .copy-state [data-body]::after {
+    content: "Cada modalidad respeta expediente, despacho y contexto.";
+  }
+
+  .stage[data-chapter="evaluador"] .copy-state [data-title]::after {
+    content: "Confianza visible";
+  }
+
+  .stage[data-chapter="evaluador"] .copy-state [data-body]::after {
+    content: "Sólo una coincidencia con el SJF puede verificar una cita.";
   }
 
   .panel {
     top: auto;
-    bottom: 1.1rem;
+    bottom: 0.75rem;
     right: 50%;
     transform: translateX(50%);
     flex-direction: row-reverse;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.45rem;
+  }
+
+  .panel__counter {
+    font-size: 0.58rem;
   }
 
   .panel__marks {
     flex-direction: row;
-    gap: 0.4rem;
+    gap: 0.1rem;
   }
 
   .mark__label {
     display: none;
   }
 
-  /* El punto se ve fino pero el area tactil debe llegar a 44px. */
+  /* El trazo casi desaparece, pero cada botón conserva el área táctil de 44px. */
   .mark {
     min-height: 44px;
     min-width: 44px;
     justify-content: center;
-    padding: 0;
   }
 
   .mark__dot {
-    width: 1.1rem;
+    width: 0.65rem;
   }
 
+  .mark:hover .mark__dot,
+  .mark:focus .mark__dot,
+  .mark:focus-visible .mark__dot,
   .mark.is-active .mark__dot {
-    width: 1.9rem;
+    width: 1rem;
   }
 
   .hint {

@@ -21,12 +21,12 @@ export type Lighting = {
   dispose(): void;
 };
 
-const KEY_HIGH = 8.2;
-const KEY_LOW = 6.1;
-const WINDOW_FILL_HIGH = 4.8;
-const WINDOW_FILL_LOW = 3.35;
+const KEY_HIGH = 10.15;
+const KEY_LOW = 7.15;
+const WINDOW_FILL_HIGH = 2.15;
+const WINDOW_FILL_LOW = 1.75;
 const FOCAL_HIGH = 3.15;
-const FOCAL_LOW = 2.15;
+const FOCAL_LOW = 2.25;
 const MAX_ROOM_INDEX = CHAPTERS.length - 1;
 const FOCUS_BLEND_HALF_WIDTH = 0.12;
 const INTERIOR_WARM = new Color(PALETTE.amber).lerp(new Color(PALETTE.bone), 0.36);
@@ -59,22 +59,24 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   scene.environment = environment;
   scene.environmentIntensity = quality === "high" ? 0.36 : 0.3;
 
-  // El ambiente queda como suelo de lectura, no como luz protagonista. Bajar
-  // estos valores es gratis en GPU y permite que la clave lateral y el realce
-  // focal modelen volumen en vez de sumar una capa gris uniforme.
-  const ambient = new AmbientLight(0xdce6ea, quality === "high" ? 0.075 : 0.105);
-  const bounce = new HemisphereLight(0xdceaf3, 0x5f513e, quality === "high" ? 0.16 : 0.15);
+  // El ambiente queda como suelo de lectura, no como luz protagonista. En esta
+  // ronda lo bajamos otro escalón porque la crítica ya no era "falta detalle",
+  // sino "todo vale lo mismo": el volumen nace de una clave lateral con relleno
+  // frío mínimo, no de subir la exposición global.
+  const ambient = new AmbientLight(0xdce6ea, quality === "high" ? 0.035 : 0.065);
+  const bounce = new HemisphereLight(0xdceaf3, 0x4d3f2f, quality === "high" ? 0.09 : 0.1);
 
   // Antes había un PointLight por sala. Aunque la escena esté quieta, cada luz
   // dinámica entra al sombreado de todos los fragmentos visibles. Una sola luz
-  // fría viaja a la ventana activa: misma lectura de cielo, cinco veces menos
-  // luces puntuales en el shader y menos relleno plano hacia los bordes.
-  const windowFill = new PointLight(0xdcecff, quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW, 8.8, 2.55);
+  // fría viaja a la ventana activa: conserva lectura de cielo, pero con menos
+  // alcance para no borrar la mitad en sombra ni lavar las barras del parteluz.
+  const windowFill = new PointLight(0xdcecff, quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW, 6.65, 2.85);
 
-  // Se paga exactamente una luz dinámica nueva, puntual y sin sombra. Su alcance
-  // corto crea jerarquía de luminancia sobre el sujeto de cada capítulo sin un
-  // pass de viñeta ni cinco luminarias residentes en el shader.
-  const focalPool = new PointLight(INTERIOR_WARM, quality === "high" ? FOCAL_HIGH : FOCAL_LOW, 4.15, 2.7);
+  // Se paga exactamente una luz dinámica nueva, puntual y sin sombra. En vez de
+  // funcionar como lámpara frontal, viaja cerca del lado de ventana y recorta en
+  // cálido los cantos de muebles y marcos: coste igual que la ronda anterior,
+  // más jerarquía por colocación, sin pass de viñeta ni cinco luces residentes.
+  const focalPool = new PointLight(INTERIOR_WARM, quality === "high" ? FOCAL_HIGH : FOCAL_LOW, 3.35, 3.45);
   focalPool.castShadow = false;
 
   // La oclusión ambiental de pantalla completa costaba justo lo que el cliente
@@ -85,15 +87,15 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
   const sun = new DirectionalLight(0xffe2ba, quality === "high" ? KEY_HIGH : KEY_LOW);
   sun.castShadow = quality === "high";
   sun.shadow.mapSize.set(quality === "high" ? 2048 : 1024, quality === "high" ? 2048 : 1024);
-  sun.shadow.camera.left = -6.6;
-  sun.shadow.camera.right = 6.6;
-  sun.shadow.camera.top = 4.8;
-  sun.shadow.camera.bottom = -4.8;
-  sun.shadow.camera.near = 4;
-  sun.shadow.camera.far = 18;
-  sun.shadow.bias = -0.0003;
-  sun.shadow.normalBias = 0.045;
-  sun.shadow.radius = quality === "high" ? 2.25 : 1.35;
+  sun.shadow.camera.left = -6.15;
+  sun.shadow.camera.right = 6.15;
+  sun.shadow.camera.top = 4.35;
+  sun.shadow.camera.bottom = -4.35;
+  sun.shadow.camera.near = 3.5;
+  sun.shadow.camera.far = 17;
+  sun.shadow.bias = -0.00038;
+  sun.shadow.normalBias = 0.028;
+  sun.shadow.radius = quality === "high" ? 0.8 : 0.65;
   sun.shadow.camera.updateProjectionMatrix();
 
   scene.add(ambient, bounce, windowFill, focalPool, sun, sun.target);
@@ -104,24 +106,36 @@ export function createLighting(scene: Scene, quality: "high" | "low"): Lighting 
     const occlusion = Math.max(0.24, Math.min(1, crossing));
     const roomProgress = activeRoomProgress(cameraPosition.z);
     const roomZ = -roomProgress * PITCH;
+    // El PMREM de `despacho-scene` se instala después de crear este rig y
+    // vuelve a subir `environmentIntensity`; lo fijamos aquí porque el reflejo
+    // ambiental debe dar material, no actuar como una segunda luz plana.
+    scene.environmentIntensity = (quality === "high" ? 0.28 : 0.24) * (0.82 + occlusion * 0.18);
 
     // El sol sigue a la cámara para que los 2048px del shadow map caigan en la
-    // sala visible, no repartidos por todo el enfilade. La clave queda más
-    // lateral: no añade coste, pero separa una mitad de ventana y una mitad en
-    // sombra para que los planos de madera, metal y papel tengan lectura.
-    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * occlusion;
-    sun.position.set(windowSide * (ROOM.width / 2 + 6.15), 3.18, cameraPosition.z + 2.1);
-    sun.target.position.set(-windowSide * 2.45, 0.72, cameraPosition.z - 3.45);
+    // sala visible, no repartidos por todo el enfilade. Lo bajamos y lo hacemos
+    // más oblicuo: el techo sigue sin proyectar, pero el parteluz sí dibuja
+    // barras más legibles y los estantes dejan sombra bajo cada repisa.
+    sun.intensity = (quality === "high" ? KEY_HIGH : KEY_LOW) * (0.08 + occlusion * 0.92);
+    sun.position.set(windowSide * (ROOM.width / 2 + 6.55), 2.55, cameraPosition.z + 1.72);
+    sun.target.position.set(-windowSide * 2.8, 0.58, cameraPosition.z - 3.75);
     sun.target.updateMatrixWorld();
 
-    // El relleno azul sólo recupera material del lado de ventana. Al acortar
-    // alcance e intensidad evitamos que lave la pared opuesta; cuando se cruza
-    // un vano cae porque allí no hay fuente narrativa.
-    windowFill.intensity = (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) * (0.2 + occlusion * 0.55);
-    windowFill.position.set(windowSide * (ROOM.width / 2 - 0.92), 2.12, roomZ + 0.35);
+    // El relleno azul sólo rescata material del lado de ventana. La caída al
+    // cruzar un vano queda marcada porque allí no hay fuente narrativa; si se
+    // mantiene alto, el render vuelve a verse cenital y sin dirección.
+    windowFill.intensity = (quality === "high" ? WINDOW_FILL_HIGH : WINDOW_FILL_LOW) * (0.06 + occlusion * 0.58);
+    windowFill.position.set(windowSide * (ROOM.width / 2 - 0.84), 2.28, roomZ + 0.12);
 
     focalPointAt(roomProgress, focalPosition);
-    focalPool.intensity = (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.34 + occlusion * 0.66);
+    // La luz de borde usa la misma luminaria dinámica de la ronda anterior:
+    // se desplaza hacia la ventana y un poco hacia el fondo para que el brillo
+    // rasante se lea en cantos, no como un foco plano sobre el centro.
+    focalPosition.set(
+      focalPosition.x * 0.24 + windowSide * (ROOM.width / 2 - 0.72) * 0.76,
+      Math.min(ROOM.height - 0.68, focalPosition.y + 0.18),
+      focalPosition.z - 0.58,
+    );
+    focalPool.intensity = (quality === "high" ? FOCAL_HIGH : FOCAL_LOW) * (0.12 + occlusion * 0.88);
     focalPool.position.copy(focalPosition);
   }
 

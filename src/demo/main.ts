@@ -26,6 +26,11 @@ const marksHost = document.querySelector<HTMLElement>("[data-marks]")!;
 const counter = document.querySelector<HTMLElement>("[data-counter]")!;
 
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// El tránsito debe responder al dedo, pero las paradas necesitan cerrarse con
+// autoridad para leerse como pausa y no como una cámara flotando.
+const TRAVEL_RESPONSE = 12;
+const HOLD_RESPONSE = 20;
+const HOLD_LOCK_EPSILON = 0.00035;
 const timeline = buildTimeline(CHAPTERS.length);
 
 track.style.height = `${timeline.viewportSpan * 100}vh`;
@@ -99,11 +104,13 @@ function paintChapter(index: number) {
     mark.setAttribute("aria-current", markIndex === index ? "true" : "false");
   });
 
-  // Reinicia la animación de entrada del texto sin duplicar nodos.
-  const copy = stage.querySelector<HTMLElement>("[data-copy]")!;
-  copy.classList.remove("is-entering");
-  void copy.offsetWidth;
-  copy.classList.add("is-entering");
+  if (!reducedMotion) {
+    // Reinicia la animación de entrada del texto sin duplicar nodos.
+    const copy = stage.querySelector<HTMLElement>("[data-copy]")!;
+    copy.classList.remove("is-entering");
+    void copy.offsetWidth;
+    copy.classList.add("is-entering");
+  }
 }
 
 function readProgress(): number {
@@ -120,19 +127,24 @@ function tick(time: number) {
   resolveSequence(timeline, readProgress(), frame);
   paintChapter(frame.chapterIndex);
 
-  // Amortiguación exponencial independiente del framerate: es lo que hace que
-  // el movimiento se sienta pesado en vez de pegado al pixel del scroll.
+  // Amortiguación exponencial independiente del framerate. En tránsito es más
+  // directa para que el dedo mande; en meseta cierra más rápido y se bloquea en
+  // el punto exacto para que la sala se lea como una pausa intencionada.
   if (reducedMotion) {
     smoothedPathT = frame.pathT;
   } else {
-    const factor = 1 - Math.exp(-delta * 7.5);
+    const response = frame.holding ? HOLD_RESPONSE : TRAVEL_RESPONSE;
+    const factor = 1 - Math.exp(-delta * response);
     smoothedPathT += (frame.pathT - smoothedPathT) * factor;
+    if (frame.holding && Math.abs(frame.pathT - smoothedPathT) < HOLD_LOCK_EPSILON) {
+      smoothedPathT = frame.pathT;
+    }
   }
 
-  despacho.update(smoothedPathT, time / 1000, !reducedMotion && frame.holding);
+  const settled = Math.abs(frame.pathT - smoothedPathT) < 0.00012;
+  despacho.update(smoothedPathT, time / 1000, !reducedMotion && frame.holding && settled);
   despacho.render();
 
-  const settled = Math.abs(frame.pathT - smoothedPathT) < 0.00012;
   if (!settled || (!reducedMotion && visible)) schedule();
 }
 

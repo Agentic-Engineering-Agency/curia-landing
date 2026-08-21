@@ -85,6 +85,13 @@ export type SceneKit = {
   emissive(width: number, height: number, color: number): Mesh;
   /** Sombra de contacto bajo un mueble. Ancla el objeto al piso a coste cero. */
   contact(width: number, depth: number, x: number, z: number): Mesh;
+  /**
+   * Sombra suave sin orientar, en el plano XY. Para lo que se monta en un muro:
+   * el sol entra rasante por un solo costado, así que una pieza colgada en el
+   * muro de ese mismo lado queda a contraluz y su sombra cae detrás, invisible.
+   * Esta mancha la despega del yeso sin pagar otra luz.
+   */
+  softShadow(width: number, height: number): Mesh;
   /** Registra algo para liberar al destruir la escena. */
   track(item: { dispose(): void }): void;
   dispose(): void;
@@ -208,13 +215,18 @@ export function createSceneKit(quality: "high" | "low"): SceneKit {
     },
 
     contact(width, depth, x, z) {
+      const mesh = this.softShadow(width, depth);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(x, 0.014, z);
+      return mesh;
+    },
+
+    softShadow(width, height) {
       const mesh = new Mesh(
         UNIT_PLANE,
         new MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false }),
       );
-      mesh.rotation.x = -Math.PI / 2;
-      mesh.scale.set(width, depth, 1);
-      mesh.position.set(x, 0.014, z);
+      mesh.scale.set(width, height, 1);
       return mesh;
     },
 
