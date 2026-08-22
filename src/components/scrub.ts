@@ -243,6 +243,7 @@ export function crearScrub({
   let escuchandoSeek = false;
   let seekEnVuelo = false;
   let seekToken = 0;
+  let seekIniciadoEn = 0;
   let frameCallback = 0;
   let watchdog = 0;
   let rvfcConfiable = "requestVideoFrameCallback" in video;
@@ -281,11 +282,13 @@ export function crearScrub({
     frameCallback = 0;
     seekEnVuelo = false;
 
-    const processingDuration = metadata?.processingDuration ?? 0;
-    if (processingDuration > 0.03) {
+    const reportada = metadata?.processingDuration ?? 0;
+    const duracionDecoder =
+      reportada > 0 ? reportada : (performance.now() - seekIniciadoEn) / 1_000;
+    if (duracionDecoder > 0.03) {
       saltoFrames = 2;
       framesRapidos = 0;
-    } else if (processingDuration > 0 && processingDuration < 0.018) {
+    } else if (duracionDecoder < 0.018) {
       framesRapidos += 1;
       if (framesRapidos >= 12) saltoFrames = 1;
     } else {
@@ -333,6 +336,7 @@ export function crearScrub({
     seekEnVuelo = true;
     seekToken += 1;
     ultimoEscrito = objetivo;
+    seekIniciadoEn = performance.now();
     video.currentTime = objetivo;
   }
 
