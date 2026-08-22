@@ -170,12 +170,36 @@ export async function blobDeVideo(
       if (!eficiente && !appleHardware) continue;
     }
 
+    if (fuente.dataset.requireFastNetwork === "true") {
+      const network = (
+        navigator as Navigator & {
+          connection?: { effectiveType?: string; saveData?: boolean };
+          deviceMemory?: number;
+        }
+      ).connection;
+      const deviceMemory =
+        (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+      const hardware = navigator.hardwareConcurrency || 4;
+      const redLenta = ["slow-2g", "2g", "3g"].includes(
+        network?.effectiveType ?? "",
+      );
+      if (
+        network?.saveData ||
+        redLenta ||
+        hardware < Number(fuente.dataset.minHardwareConcurrency) ||
+        deviceMemory < Number(fuente.dataset.minDeviceMemory)
+      ) {
+        continue;
+      }
+    }
+
     elegida = fuente;
     break;
   }
 
   const url = elegida?.getAttribute("src") ?? video.getAttribute("src");
   if (!url) return null;
+  video.dataset.selectedSource = url;
 
   try {
     // Las URLs llevan versión y /media se sirve immutable: force-cache evita
@@ -216,8 +240,18 @@ export function crearScrub({
   let visible = false;
   let cuadro = 0;
   let escuchando = false;
+  let escuchandoSeek = false;
+  let seekEnVuelo = false;
+  let seekToken = 0;
+  let frameCallback = 0;
+  let watchdog = 0;
+  let rvfcConfiable = "requestVideoFrameCallback" in video;
+  let saltoFrames = 1;
+  let framesRapidos = 0;
 
-  const paso = () => 1 / 30;
+  // Parte en 24 fps y baja temporalmente a 12 si el decoder demuestra que no
+  // alcanza; resolución/bitrate espacial no cambian.
+  const paso = () => saltoFrames / 24;
 
   function progresoScroll(): number {
     const alto = pista.offsetHeight - window.innerHeight;
@@ -227,12 +261,6 @@ export function crearScrub({
     return p < 0 ? 0 : p > 1 ? 1 : p;
   }
 
-  /**
-   * Visibilidad por rectángulo en vez de IntersectionObserver. Medido: en un
-   * navegador sin pantalla el observer no entrega callback y los eventos de
-   * scroll tampoco llegan, así que un driver colgado de cualquiera de los dos
-   * se queda mudo. El rectángulo se lee del layout, que sí es fiable.
-   */
   function enCuadro(): boolean {
     if (document.hidden) return false;
     const r = pista.getBoundingClientRect();
@@ -245,39 +273,98 @@ export function crearScrub({
     cuadro = requestAnimationFrame(bucle);
   }
 
+  function liberarSeek(token: number, metadata?: VideoFrameCallbackMetadata) {
+    // Un watchdog viejo nunca debe liberar un seek posterior.
+    if (token !== seekToken) return;
+    window.clearTimeout(watchdog);
+    watchdog = 0;
+    frameCallback = 0;
+    seekEnVuelo = false;
+
+    const processingDuration = metadata?.processingDuration ?? 0;
+    if (processingDuration > 0.03) {
+      saltoFrames = 2;
+      framesRapidos = 0;
+    } else if (processingDuration > 0 && processingDuration < 0.018) {
+      framesRapidos += 1;
+      if (framesRapidos >= 12) saltoFrames = 1;
+    } else {
+      framesRapidos = 0;
+    }
+    pista.dataset.scrubFps = String(24 / saltoFrames);
+
+    // Durante el decode, `deseado` pudo cambiar muchas veces. Se salta todo
+    // estado obsoleto y el próximo seek va directo al objetivo más reciente.
+    despertar();
+  }
+
+  function alSeeked() {
+    const token = seekToken;
+    if (rvfcConfiable) {
+      frameCallback = video.requestVideoFrameCallback((_now, metadata) =>
+        liberarSeek(token, metadata),
+      );
+      // Algunos WebViews no notifican rVFC para video pausado. Se prueba una
+      // vez; si falla, `seeked` es la señal estable para el resto de la sesión.
+      watchdog = window.setTimeout(() => {
+        rvfcConfiable = false;
+        if (
+          frameCallback &&
+          "cancelVideoFrameCallback" in video &&
+          token === seekToken
+        ) {
+          video.cancelVideoFrameCallback(frameCallback);
+        }
+        liberarSeek(token);
+      }, 50);
+    } else {
+      liberarSeek(token);
+    }
+  }
+
+  function escribirSeek(objetivo: number) {
+    if (
+      seekEnVuelo ||
+      video.seeking ||
+      Math.abs(objetivo - ultimoEscrito) <= paso()
+    ) {
+      return;
+    }
+    seekEnVuelo = true;
+    seekToken += 1;
+    ultimoEscrito = objetivo;
+    video.currentTime = objetivo;
+  }
+
   function bucle() {
     cuadro = 0;
     if (!corriendo) return;
 
     visible = enCuadro();
-    // Fuera de cuadro el bucle se apaga por completo. Scroll/resize/
-    // visibilitychange lo despiertan de inmediato; no queda un rAF a 60 Hz
-    // leyendo layout durante las otras once secciones.
     if (!visible || !duracion) return;
 
-    // Se muestrea el scroll en cada frame mientras la película está cerca:
-    // así el scrub no depende de la frecuencia de eventos de cada navegador.
     deseado = progresoScroll();
     const objetivo = tiempoPara(deseado, duracion);
-
-    // Escribir currentTime cuesta un seek. Sin este umbral el navegador encola
-    // seeks que nunca alcanza y el scrub se siente pegajoso.
-    if (Math.abs(objetivo - ultimoEscrito) > paso()) {
-      video.currentTime = objetivo;
-      ultimoEscrito = objetivo;
-    }
+    escribirSeek(objetivo);
 
     const indice = capituloDe(ritmo(deseado));
     if (indice !== capituloActivo) {
       capituloActivo = indice;
       alCambiarCapitulo?.(indice);
     }
-    cuadro = requestAnimationFrame(bucle);
+
+    // Mientras el decoder trabaja, scroll events actualizan `deseado`, pero no
+    // queda otro rAF girando. El frame pintado o watchdog despierta el driver.
+    if (!seekEnVuelo) cuadro = requestAnimationFrame(bucle);
   }
 
   function arrancar() {
     if (corriendo) return;
     corriendo = true;
+    if (!escuchandoSeek) {
+      video.addEventListener("seeked", alSeeked);
+      escuchandoSeek = true;
+    }
     const tomarDuracion = () => {
       duracion = video.duration || 0;
       despertar();
@@ -298,6 +385,17 @@ export function crearScrub({
     corriendo = false;
     if (cuadro) cancelAnimationFrame(cuadro);
     cuadro = 0;
+    if (escuchandoSeek) {
+      video.removeEventListener("seeked", alSeeked);
+      escuchandoSeek = false;
+    }
+    if (frameCallback && "cancelVideoFrameCallback" in video) {
+      video.cancelVideoFrameCallback(frameCallback);
+    }
+    window.clearTimeout(watchdog);
+    frameCallback = 0;
+    watchdog = 0;
+    seekEnVuelo = false;
     if (escuchando) {
       window.removeEventListener("scroll", despertar);
       window.removeEventListener("resize", despertar);
@@ -311,8 +409,8 @@ export function crearScrub({
     detener,
     irACapitulo: (i: number) => {
       const alto = pista.offsetHeight - window.innerHeight;
-      // Inversa aproximada del ritmo: se busca por bisección porque la quíntica
-      // no tiene inversa cerrada y diez iteraciones sobran para un píxel.
+      // Inversa aproximada del ritmo: bisección evita depender de una
+      // expresión cerrada para la quíntica.
       let lo = 0;
       let hi = 1;
       for (let k = 0; k < 20; k += 1) {

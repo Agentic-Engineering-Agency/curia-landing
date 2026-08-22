@@ -33,13 +33,20 @@ const MEDIOS = {
     poster: mediaUrl("/media/despacho-poster-movil.jpg"),
     fuentes: [
       {
-        bitrate: 710_000,
+        bitrate: 1_100_000,
         framerate: 24,
         height: 1080,
         requirePowerEfficient: true,
         src: mediaUrl("/media/despacho-scrub-movil-hevc.mp4"),
         type: 'video/mp4; codecs="hvc1.1.6.L93.B0"',
         width: 608,
+      },
+      {
+        minDeviceMemory: 4,
+        minHardwareConcurrency: 6,
+        requireFastNetwork: true,
+        src: mediaUrl("/media/despacho-scrub-movil-fast.mp4"),
+        type: 'video/mp4; codecs="avc1.4D401F"',
       },
       {
         src: mediaUrl("/media/despacho-scrub-movil.mp4"),
@@ -297,6 +304,19 @@ export default function Pelicula() {
                 data-bitrate={"bitrate" in f ? f.bitrate : undefined}
                 data-framerate={"framerate" in f ? f.framerate : undefined}
                 data-height={"height" in f ? f.height : undefined}
+                data-min-device-memory={
+                  "minDeviceMemory" in f ? f.minDeviceMemory : undefined
+                }
+                data-min-hardware-concurrency={
+                  "minHardwareConcurrency" in f
+                    ? f.minHardwareConcurrency
+                    : undefined
+                }
+                data-require-fast-network={
+                  "requireFastNetwork" in f
+                    ? String(f.requireFastNetwork)
+                    : undefined
+                }
                 data-require-power-efficient={
                   "requirePowerEfficient" in f
                     ? String(f.requirePowerEfficient)
