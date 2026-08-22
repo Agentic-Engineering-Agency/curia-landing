@@ -160,9 +160,9 @@ export default function Pelicula() {
     let vivo = true;
 
     // El poster/HTML SSR pintan primero. La descarga completa del blob comienza
-    // tras load+200 ms o en el primer gesto que indique intención de recorrer;
-    // con Data Saver sólo por gesto. Así los 3.43–10.7 MB no compiten con
-    // HTML, CSS, fuentes e hidratación.
+    // tras load+1.2 s o en el primer gesto que indique intención de recorrer;
+    // con Data Saver sólo por gesto. El margen permite un paint antes de que
+    // la conversión a Blob compita con fuentes e hidratación en CPU/red lentas.
     let iniciado = false;
     let temporizador = 0;
     const eventos: Array<keyof WindowEventMap> = [
@@ -245,7 +245,7 @@ export default function Pelicula() {
     }
 
     function alLoad() {
-      temporizador = window.setTimeout(iniciar, 200);
+      temporizador = window.setTimeout(iniciar, 1_200);
     }
 
     eventos.forEach((evento) =>
