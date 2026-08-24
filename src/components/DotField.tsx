@@ -21,9 +21,9 @@ import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 // El radio de la receta (1.5, que dibuja 0.75 px) se calibró contra un fondo
 // casi negro, donde un punto diminuto ya destaca. Medido sobre blanco: sólo
 // 1.4% de píxeles con tinta y la retícula quedaba al límite de lo visible.
-// Se agranda el punto en vez de subir el alfa, que los volvería duros. Se
-// probó una versión más marcada (radio 3.2, alfas 0.62/0.42) y el cliente
-// prefirió esta: la separación de 14 px del original no se toca.
+// Se agranda el punto en vez de subir el alfa, que los volvería duros. La
+// separación base sigue en 14 px; sólo crece en viewports que superarían el
+// presupuesto fijo de puntos.
 const RADIO_PUNTO = 2.2;
 const SEPARACION = 14;
 const RADIO_CURSOR = 500;
@@ -33,6 +33,9 @@ const DEGRADADO_DESDE = "rgba(13, 115, 119, 0.42)";
 const DEGRADADO_HASTA = "rgba(10, 94, 97, 0.26)";
 const COLOR_HALO = "rgba(13, 115, 119, 0.10)";
 const DOS_PI = Math.PI * 2;
+const MAX_PUNTOS = 6_000;
+const MAX_PUNTOS_LIMITADO = 2_000;
+const MAX_DPR = 1.5;
 
 type Punto = { ax: number; ay: number; sx: number; sy: number };
 
@@ -49,15 +52,25 @@ export default function DotField() {
     const punteroFino = window.matchMedia(
       "(hover: hover) and (pointer: fine)",
     ).matches;
-    const animar = punteroFino && !reducido;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const memoria =
+      (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+    const limitado = navigator.hardwareConcurrency < 6 || memoria < 4;
+    const animar = punteroFino && !reducido && !limitado;
+    lienzo.dataset.dotMode = animar ? "dynamic" : "static";
+    const maxPuntos = limitado ? MAX_PUNTOS_LIMITADO : MAX_PUNTOS;
+    const dpr = Math.min(window.devicePixelRatio || 1, limitado ? 1 : MAX_DPR);
     let puntos: Punto[] = [];
     let ancho = 0;
     let alto = 0;
 
     function construir() {
-      const paso = RADIO_PUNTO + SEPARACION;
+      // La separación original se conserva hasta 6,000 puntos. En 4K/5K se
+      // abre lo mínimo necesario: el costo deja de crecer con cada píxel.
+      const paso = Math.max(
+        RADIO_PUNTO + SEPARACION,
+        Math.sqrt((ancho * alto) / maxPuntos),
+      );
       const columnas = Math.floor(ancho / paso);
       const filas = Math.floor(alto / paso);
       const margenX = (ancho % paso) / 2;
@@ -70,6 +83,7 @@ export default function DotField() {
           puntos.push({ ax, ay, sx: ax, sy: ay });
         }
       }
+      lienzo!.dataset.dotPoints = String(puntos.length);
     }
 
     function redimensionar() {
@@ -83,7 +97,14 @@ export default function DotField() {
 
     redimensionar();
 
-    const raton = { x: -9999, y: -9999, prevX: -9999, prevY: -9999, speed: 0 };
+    const raton = {
+      x: -9999,
+      y: -9999,
+      prevX: -9999,
+      prevY: -9999,
+      speed: 0,
+      ultimoMovimiento: performance.now(),
+    };
     let interaccion = 0;
     let opacidadHalo = 0;
     let cuadro = 0;
@@ -165,23 +186,24 @@ export default function DotField() {
     }
 
     const alMover = (e: PointerEvent) => {
+      const ahora = performance.now();
+      if (raton.prevX > -9000) {
+        const dx = e.clientX - raton.prevX;
+        const dy = e.clientY - raton.prevY;
+        const transcurrido = Math.max(ahora - raton.ultimoMovimiento, 1);
+        // Normaliza a la ventana de 20 ms de la receta original sin mantener
+        // un interval que despierte el proceso 50 veces/s durante el reposo.
+        const velocidad = (Math.sqrt(dx * dx + dy * dy) * 20) / transcurrido;
+        raton.speed += (velocidad - raton.speed) * 0.5;
+      }
       raton.x = e.clientX;
       raton.y = e.clientY;
+      raton.prevX = e.clientX;
+      raton.prevY = e.clientY;
+      raton.ultimoMovimiento = ahora;
       despertar();
     };
     window.addEventListener("pointermove", alMover, { passive: true });
-
-    // La velocidad se muestrea en intervalo fijo, como el original: es lo que
-    // hace que la retícula reaccione al gesto y no a la simple presencia.
-    const velocimetro = window.setInterval(() => {
-      const dx = raton.prevX - raton.x;
-      const dy = raton.prevY - raton.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      raton.speed += (dist - raton.speed) * 0.5;
-      if (raton.speed < 0.001) raton.speed = 0;
-      raton.prevX = raton.x;
-      raton.prevY = raton.y;
-    }, 20);
 
     let temporizador = 0;
     const rebote = () => {
@@ -190,12 +212,13 @@ export default function DotField() {
     };
     window.addEventListener("resize", rebote);
 
-    // El bucle sólo corre cuando hay algo que animar. Repintar un lienzo del
-    // tamaño del viewport cada frame cuesta compositing aunque los 4,800
-    // arcos se dibujen en 0.4 ms, y la retícula está quieta la mayor parte
-    // del tiempo: al asentarse se pinta un último cuadro y se detiene, y el
-    // siguiente movimiento del puntero lo vuelve a arrancar.
+    // El bucle sólo corre en hardware capaz y queda acotado a 6,000 puntos;
+    // 4K no multiplica el trabajo por cinco frente a 1440p.
     const bucle = () => {
+      if (performance.now() - raton.ultimoMovimiento > 32) {
+        raton.speed *= 0.82;
+        if (raton.speed < 0.001) raton.speed = 0;
+      }
       const objetivo = Math.min(raton.speed / 5, 1);
       interaccion += (objetivo - interaccion) * 0.06;
       if (interaccion < 0.001) interaccion = 0;
@@ -216,7 +239,6 @@ export default function DotField() {
 
     return () => {
       cancelAnimationFrame(cuadro);
-      window.clearInterval(velocimetro);
       window.removeEventListener("pointermove", alMover);
       window.removeEventListener("resize", rebote);
       window.clearTimeout(temporizador);

@@ -17,16 +17,35 @@ const ESTILO_PISTA = {
 // desmontar rompe el doble montaje de StrictMode (src a un blob muerto).
 const peliculaEnBlob = new Map<string, Promise<string | null>>();
 
-// Variante móvil: reencuadre 9:16 del mismo máster (608x1080, paneo medido,
-// misma línea de tiempo). HEVC se ofrece primero, pero blobDeVideo sólo lo
-// acepta cuando MediaCapabilities confirma decode smooth + powerEfficient;
-// H264 con GOP 8 queda como ruta universal, VP9 como último fallback.
+// Ambas orientaciones eligen codec por capacidad real. Desktop conserva 1080p:
+// HEVC/VP9 sólo cuando MediaCapabilities confirma decode eficiente; H264
+// GOP4/B0 queda como ruta universal sin degradar resolución ni detalle.
 const MEDIOS = {
   ancho: {
     poster: mediaUrl("/media/despacho-poster.jpg"),
     fuentes: [
-      { src: mediaUrl("/media/despacho-scrub.webm"), type: "video/webm" },
-      { src: mediaUrl("/media/despacho-scrub.mp4"), type: "video/mp4" },
+      {
+        bitrate: 3_012_000,
+        framerate: 24,
+        height: 1080,
+        requirePowerEfficient: true,
+        src: mediaUrl("/media/despacho-scrub-hevc.mp4"),
+        type: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
+        width: 1920,
+      },
+      {
+        bitrate: 4_054_000,
+        framerate: 24,
+        height: 1080,
+        requirePowerEfficient: true,
+        src: mediaUrl("/media/despacho-scrub.webm"),
+        type: 'video/webm; codecs="vp9"',
+        width: 1920,
+      },
+      {
+        src: mediaUrl("/media/despacho-scrub.mp4"),
+        type: 'video/mp4; codecs="avc1.4D4029"',
+      },
     ],
   },
   retrato: {

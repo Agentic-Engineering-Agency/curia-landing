@@ -31,19 +31,14 @@ export default function AmbientLoop({
   const [cerca, setCerca] = useState(false);
   const [listo, setListo] = useState(false);
 
-  // No se emiten URLs de poster/video para las cinco salas al cargar. Se
-  // habilitan 800 px antes de entrar; el layout conserva su aspect-ratio.
+  // Poster y fuentes existen sólo cerca del viewport. Al salir se desmontan
+  // otra vez: la caché conserva bytes, pero el decoder libera sus buffers.
   useEffect(() => {
     const marco = marcoRef.current;
     if (!marco) return;
     const observador = new IntersectionObserver(
-      ([entrada]) => {
-        if (entrada.isIntersecting) {
-          setCerca(true);
-          observador.disconnect();
-        }
-      },
-      { rootMargin: "800px 0px" },
+      ([entrada]) => setCerca(entrada.isIntersecting),
+      { rootMargin: "400px 0px" },
     );
     observador.observe(marco);
     return () => observador.disconnect();
@@ -51,9 +46,15 @@ export default function AmbientLoop({
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (reducido || !cerca) return;
+    if (reducido) return;
     const video = videoRef.current;
     if (!video) return;
+    if (!cerca) {
+      video.pause();
+      video.load();
+      setListo(false);
+      return;
+    }
 
     video.style.animationPlayState = "paused";
     const observador = new IntersectionObserver(
@@ -69,7 +70,11 @@ export default function AmbientLoop({
       { rootMargin: "80px" },
     );
     observador.observe(video);
-    return () => observador.disconnect();
+    return () => {
+      observador.disconnect();
+      video.pause();
+      video.style.animationPlayState = "paused";
+    };
   }, [reducido, cerca]);
 
   const poster = mediaUrl(`/media/loops/${sala}-poster.jpg`);

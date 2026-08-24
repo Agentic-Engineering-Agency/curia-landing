@@ -141,11 +141,12 @@ export async function blobDeVideo(
 
     if (fuente.dataset.requirePowerEfficient === "true") {
       const ua = navigator.userAgent;
-      const appleHardware =
-        /iP(?:hone|ad|od)/.test(ua) ||
-        (/Macintosh/.test(ua) &&
-          /Safari/.test(ua) &&
-          !/(?:Chrome|Chromium|Edg)/.test(ua));
+      const appleHevc =
+        tipo.includes("hvc1") &&
+        (/iP(?:hone|ad|od)/.test(ua) ||
+          (/Macintosh/.test(ua) &&
+            /Safari/.test(ua) &&
+            !/(?:Chrome|Chromium|Edg)/.test(ua)));
       let eficiente = false;
       const capabilities = navigator.mediaCapabilities;
       if (capabilities && tipo) {
@@ -165,9 +166,9 @@ export async function blobDeVideo(
           eficiente = false;
         }
       }
-      // Safari/iOS sólo declara hvc1 cuando existe una ruta nativa. En otras
-      // plataformas exigimos confirmación explícita de MediaCapabilities.
-      if (!eficiente && !appleHardware) continue;
+      // WebKit sólo declara hvc1 cuando existe ruta nativa. El atajo Apple no
+      // aplica a VP9/otros codecs: éstos sí necesitan MediaCapabilities.
+      if (!eficiente && !appleHevc) continue;
     }
 
     if (fuente.dataset.requireFastNetwork === "true") {
