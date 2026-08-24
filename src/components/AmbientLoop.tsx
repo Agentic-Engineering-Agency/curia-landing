@@ -28,6 +28,7 @@ export default function AmbientLoop({
 }: Props) {
   const reducido = usePrefersReducedMotion();
   const marcoRef = useRef<HTMLButtonElement | null>(null);
+  const [enZona, setEnZona] = useState(false);
   const [cerca, setCerca] = useState(false);
   const [listo, setListo] = useState(false);
 
@@ -37,12 +38,32 @@ export default function AmbientLoop({
     const marco = marcoRef.current;
     if (!marco) return;
     const observador = new IntersectionObserver(
-      ([entrada]) => setCerca(entrada.isIntersecting),
+      ([entrada]) => setEnZona(entrada.isIntersecting),
       { rootMargin: "400px 0px" },
     );
     observador.observe(marco);
     return () => observador.disconnect();
   }, []);
+
+  // Un scroll rápido puede cruzar varias salas en un segundo. Sólo se montan
+  // poster/decoder cuando el usuario lleva 180 ms quieto dentro de la zona.
+  useEffect(() => {
+    if (!enZona) {
+      setCerca(false);
+      return;
+    }
+    let temporizador = 0;
+    const alReposar = () => {
+      window.clearTimeout(temporizador);
+      temporizador = window.setTimeout(() => setCerca(true), 180);
+    };
+    window.addEventListener("scroll", alReposar, { passive: true });
+    alReposar();
+    return () => {
+      window.clearTimeout(temporizador);
+      window.removeEventListener("scroll", alReposar);
+    };
+  }, [enZona]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
