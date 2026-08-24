@@ -11,6 +11,13 @@
   "vars": {
     "CONTACT_SOURCE": "agenticengineering.online",
   },
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "curia-landing-media",
+      "remote": true,
+    },
+  ],
 
   "routes": [
     {

@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { CAPITULOS, blobDeVideo, crearScrub } from "../components/scrub";
+import {
+  CAPITULOS,
+  resolverFuenteVideo,
+  crearScrub,
+} from "../components/scrub";
 import type { Scrub } from "../components/scrub";
 import { usePrefersReducedMotion } from "../components/usePrefersReducedMotion";
 import { mediaUrl } from "../components/media";
@@ -12,10 +16,12 @@ const ESTILO_PISTA = {
   "--pel-viewports": String(CAPITULOS.length * 2),
 } as CSSProperties;
 
-// La URL de blob se cachea por variante a nivel de módulo y nunca se revoca:
-// la película es la apertura de la página y vive lo que ella. Revocar al
-// desmontar rompe el doble montaje de StrictMode (src a un blob muerto).
-const peliculaEnBlob = new Map<string, Promise<string | null>>();
+// La fuente resuelta se cachea por variante: normalmente es la URL Range de
+// R2; si el objeto falta, el endpoint redirige al asset estático compatible.
+const peliculaPreparada = new Map<string, Promise<string | null>>();
+
+const scrubMediaUrl = (filename: string) =>
+  mediaUrl(`/media-range/${filename}`);
 
 // Ambas orientaciones eligen codec por capacidad real. Desktop conserva 1080p:
 // HEVC/VP9 sólo cuando MediaCapabilities confirma decode eficiente; H264
@@ -25,25 +31,28 @@ const MEDIOS = {
     poster: mediaUrl("/media/despacho-poster.jpg"),
     fuentes: [
       {
+        rangeSource: true,
         bitrate: 3_012_000,
         framerate: 24,
         height: 1080,
         requirePowerEfficient: true,
-        src: mediaUrl("/media/despacho-scrub-hevc.mp4"),
+        src: scrubMediaUrl("despacho-scrub-hevc.mp4"),
         type: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
         width: 1920,
       },
       {
+        rangeSource: true,
         bitrate: 4_054_000,
         framerate: 24,
         height: 1080,
         requirePowerEfficient: true,
-        src: mediaUrl("/media/despacho-scrub.webm"),
+        src: scrubMediaUrl("despacho-scrub.webm"),
         type: 'video/webm; codecs="vp9"',
         width: 1920,
       },
       {
-        src: mediaUrl("/media/despacho-scrub.mp4"),
+        rangeSource: true,
+        src: scrubMediaUrl("despacho-scrub.mp4"),
         type: 'video/mp4; codecs="avc1.4D4029"',
       },
     ],
@@ -52,27 +61,31 @@ const MEDIOS = {
     poster: mediaUrl("/media/despacho-poster-movil.jpg"),
     fuentes: [
       {
+        rangeSource: true,
         bitrate: 1_100_000,
         framerate: 24,
         height: 1080,
         requirePowerEfficient: true,
-        src: mediaUrl("/media/despacho-scrub-movil-hevc.mp4"),
+        src: scrubMediaUrl("despacho-scrub-movil-hevc.mp4"),
         type: 'video/mp4; codecs="hvc1.1.6.L93.B0"',
         width: 608,
       },
       {
+        rangeSource: true,
         minDeviceMemory: 4,
         minHardwareConcurrency: 6,
         requireFastNetwork: true,
-        src: mediaUrl("/media/despacho-scrub-movil-fast.mp4"),
+        src: scrubMediaUrl("despacho-scrub-movil-fast.mp4"),
         type: 'video/mp4; codecs="avc1.4D401F"',
       },
       {
-        src: mediaUrl("/media/despacho-scrub-movil.mp4"),
+        rangeSource: true,
+        src: scrubMediaUrl("despacho-scrub-movil.mp4"),
         type: "video/mp4",
       },
       {
-        src: mediaUrl("/media/despacho-scrub-movil.webm"),
+        rangeSource: true,
+        src: scrubMediaUrl("despacho-scrub-movil.webm"),
         type: "video/webm",
       },
     ],
@@ -199,10 +212,10 @@ export default function Pelicula() {
     };
 
     const cargar = async () => {
-      let pendiente = peliculaEnBlob.get(variante);
+      let pendiente = peliculaPreparada.get(variante);
       if (!pendiente) {
-        pendiente = blobDeVideo(video);
-        peliculaEnBlob.set(variante, pendiente);
+        pendiente = resolverFuenteVideo(video);
+        peliculaPreparada.set(variante, pendiente);
       }
       const url = await pendiente;
       if (!vivo) return;
@@ -320,6 +333,9 @@ export default function Pelicula() {
           >
             {medios.fuentes.map((f) => (
               <source
+                data-range-source={
+                  "rangeSource" in f ? String(f.rangeSource) : undefined
+                }
                 data-bitrate={"bitrate" in f ? f.bitrate : undefined}
                 data-framerate={"framerate" in f ? f.framerate : undefined}
                 data-height={"height" in f ? f.height : undefined}

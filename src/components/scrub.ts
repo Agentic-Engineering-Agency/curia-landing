@@ -101,35 +101,11 @@ export function tiempoPara(progreso: number, duracion: number): number {
 }
 
 /**
- * Sirve el video desde un blob en memoria en vez de la URL del host.
- *
- * No es una optimización, es lo que hace que el scrub funcione en producción:
- * muchos hosts estáticos no responden peticiones Range, y sin Range el
- * navegador deja `video.seekable` en [0,0]. Con ese rango cada `currentTime`
- * que pedimos se recorta a cero y el video se ve congelado en el primer
- * fotograma, aunque en desarrollo funcione. Un blob siempre es completamente
- * seekable, así que el scrub deja de depender de lo que sirva el host.
- *
- * Devuelve la función que libera el objeto; si algo falla se queda con la
- * fuente original, que al menos pinta.
+ * Elige codec según capacidad. En 2G/3G o Data Saver, R2 entrega chunks Range
+ * para reducir espera y bytes iniciales. En red rápida se conserva el Blob
+ * completo: el scrub aleatorio/reverso no puede pagar un RTT en cada GOP.
  */
-export async function servirPorBlob(
-  video: HTMLVideoElement,
-): Promise<() => void> {
-  const objeto = await blobDeVideo(video);
-  if (!objeto) return () => {};
-  video.src = objeto;
-  return () => URL.revokeObjectURL(objeto);
-}
-
-/**
- * Resuelve la fuente reproducible del video a un object URL, sin tocar el
- * elemento. Separado de `servirPorBlob` para que un consumidor con montajes
- * repetidos (StrictMode de React) pueda cachear la URL y decidir él cuándo
- * asignarla: asignar y revocar dentro de la misma función pierde la carrera
- * del doble montaje y deja el `src` apuntando a un blob muerto.
- */
-export async function blobDeVideo(
+export async function resolverFuenteVideo(
   video: HTMLVideoElement,
 ): Promise<string | null> {
   const fuentes = [...video.querySelectorAll("source")];
@@ -201,11 +177,23 @@ export async function blobDeVideo(
   const url = elegida?.getAttribute("src") ?? video.getAttribute("src");
   if (!url) return null;
   video.dataset.selectedSource = url;
+  const network = (
+    navigator as Navigator & {
+      connection?: { effectiveType?: string; saveData?: boolean };
+    }
+  ).connection;
+  const rangeDirecto =
+    network?.saveData ||
+    ["slow-2g", "2g", "3g"].includes(network?.effectiveType ?? "");
+  if (elegida?.dataset.rangeSource === "true" && rangeDirecto) {
+    video.dataset.mediaDelivery = "range";
+    return url;
+  }
+  video.dataset.mediaDelivery = "blob";
 
   try {
-    // Las URLs llevan versión y /media se sirve immutable: force-cache evita
-    // una revalidación innecesaria en visitas repetidas. El blob sigue siendo
-    // obligatorio porque Workers Static Assets no entrega Range (medido).
+    // En red rápida descarga una vez desde R2/cache immutable y crea el Blob:
+    // random/reverse seeks quedan locales y no acumulan latencia de red.
     const respuesta = await fetch(url, { cache: "force-cache" });
     if (!respuesta.ok) return null;
     return URL.createObjectURL(await respuesta.blob());

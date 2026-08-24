@@ -5,6 +5,7 @@
 declare namespace Cloudflare {
   interface Env {
     CONTACT_SOURCE: string;
+    MEDIA: import("../server/media").MediaBucket;
     TWENTY_API_KEY?: string;
     TWENTY_BASE_URL?: string;
   }

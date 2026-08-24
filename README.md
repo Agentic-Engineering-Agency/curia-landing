@@ -39,6 +39,17 @@ Before using the contact form, create these custom fields on the Twenty `Person`
 
 The complete request-to-Person mapping lives in [`src/server/contact.ts`](src/server/contact.ts); the HTTP boundary is [`src/routes/api/contact.ts`](src/routes/api/contact.ts).
 
+### Scrub media delivery
+
+The cinematic scrub videos are served through `GET /media-range/$filename` from the R2 bucket `curia-landing-media` (`MEDIA` binding). Fast connections still receive a complete Blob for local random/reverse seeks; 2G/3G and Data Saver use bounded 512 KiB `206 Partial Content` reads. The copies in [`public/media`](public/media) remain the static fallback if an R2 object is missing.
+
+When replacing a scrub binary:
+
+1. Upload the same filename under `scrub/` in `curia-landing-media` with its correct `Content-Type` and immutable cache metadata.
+2. Keep the static fallback in `public/media` synchronized.
+3. Bump `VERSION_MEDIOS` in [`src/components/media.ts`](src/components/media.ts).
+4. Run the release verification below before deploying the version that references it.
+
 ## Verification and deployment
 
 Run the checks that cover both application surfaces:

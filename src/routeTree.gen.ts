@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiContactRouteImport } from './routes/api/contact'
+import { Route as MediaRangeFilenameRouteImport } from './routes/media-range/$filename'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiContactRoute = ApiContactRouteImport.update({
   path: '/api/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MediaRangeFilenameRoute = MediaRangeFilenameRouteImport.update({
+  id: '/media-range/$filename',
+  path: '/media-range/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/contact': typeof ApiContactRoute
+  '/media-range/$filename': typeof MediaRangeFilenameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/contact': typeof ApiContactRoute
+  '/media-range/$filename': typeof MediaRangeFilenameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/contact': typeof ApiContactRoute
+  '/media-range/$filename': typeof MediaRangeFilenameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/contact'
+  fullPaths: '/' | '/api/contact' | '/media-range/$filename'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/contact'
-  id: '__root__' | '/' | '/api/contact'
+  to: '/' | '/api/contact' | '/media-range/$filename'
+  id: '__root__' | '/' | '/api/contact' | '/media-range/$filename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiContactRoute: typeof ApiContactRoute
+  MediaRangeFilenameRoute: typeof MediaRangeFilenameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media-range/$filename': {
+      id: '/media-range/$filename'
+      path: '/media-range/$filename'
+      fullPath: '/media-range/$filename'
+      preLoaderRoute: typeof MediaRangeFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiContactRoute: ApiContactRoute,
+  MediaRangeFilenameRoute: MediaRangeFilenameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
