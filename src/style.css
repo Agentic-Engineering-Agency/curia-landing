@@ -211,15 +211,15 @@ button {
   box-shadow: var(--curia-shadow-sm);
 }
 
-.curia-dossier-card {
+.curia-demo {
+  overflow: hidden;
   border: 1px solid
-    color-mix(in srgb, var(--curia-primary) 16%, var(--curia-border));
+    color-mix(in srgb, var(--curia-primary) 18%, var(--curia-border));
   border-radius: 1.6rem;
-  padding: 1.5rem;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(243, 239, 231, 0.72) 100%
+    rgba(255, 255, 255, 0.99) 0%,
+    rgba(248, 246, 242, 0.96) 100%
   );
   box-shadow: var(--curia-shadow-md);
 }
@@ -239,25 +239,312 @@ button {
   white-space: nowrap;
 }
 
-.curia-dossier-step {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.9rem;
-  align-items: start;
+.curia-demo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1.1rem;
 }
 
-.curia-dossier-marker {
+.curia-demo-case {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 1.5rem 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--curia-border);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.curia-demo-case > div {
+  min-width: 0;
+  padding: 0.75rem 0.9rem;
+}
+
+.curia-demo-case > div + div {
+  border-left: 1px solid var(--curia-border);
+}
+
+.curia-demo-case span,
+.curia-demo-case strong {
+  display: block;
+}
+
+.curia-demo-case span {
+  color: var(--curia-text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.curia-demo-case strong {
+  margin-top: 0.25rem;
+  overflow: hidden;
+  color: var(--curia-text);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curia-demo-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-block: 1px solid var(--curia-border);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.curia-demo-tab {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  padding: 0.8rem 0.25rem 0.72rem;
+  background: transparent;
+  color: var(--curia-text-muted);
+  font-size: 0.64rem;
+  font-weight: 650;
+  line-height: 1.2;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.curia-demo-tab + .curia-demo-tab {
+  border-left: 1px solid var(--curia-border);
+}
+
+.curia-demo-tab::after {
+  position: absolute;
+  right: 18%;
+  bottom: -1px;
+  left: 18%;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+}
+
+.curia-demo-tab:hover {
+  background: rgba(13, 115, 119, 0.045);
+  color: var(--curia-primary-text);
+}
+
+.curia-demo-tab[data-active="true"] {
+  background: rgba(13, 115, 119, 0.075);
+  color: var(--curia-primary-text);
+}
+
+.curia-demo-tab[data-active="true"]::after {
+  background: var(--curia-primary);
+}
+
+.curia-demo-tab-icon {
   display: inline-flex;
+  width: 1.85rem;
+  height: 1.85rem;
   align-items: center;
   justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  border: 1px solid var(--curia-border);
   border-radius: 999px;
-  background: rgba(13, 115, 119, 0.1);
+  background: white;
+}
+
+.curia-demo-tab-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.curia-demo-tab[data-active="true"] .curia-demo-tab-icon {
+  border-color: color-mix(
+    in srgb,
+    var(--curia-primary) 34%,
+    var(--curia-border)
+  );
+  background: var(--curia-primary);
+  color: white;
+}
+
+.curia-demo-panel {
+  padding: 1.5rem;
+}
+
+.curia-demo-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.curia-demo-panel-icon {
+  display: inline-flex;
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.8rem;
+  background: var(--curia-primary-deep);
+  box-shadow: 0 6px 16px rgba(8, 62, 64, 0.16);
+  color: white;
+}
+
+.curia-demo-panel-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.curia-demo-step-status {
   color: var(--curia-primary-text);
-  font-size: 0.76rem;
+  font-size: 0.67rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.curia-demo-panel h4 {
+  margin-top: 0.3rem;
+  color: var(--curia-text);
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.curia-demo-body {
+  min-height: 4.5rem;
+  margin-top: 1rem;
+  color: var(--curia-text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.curia-demo-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.curia-demo-facts > div {
+  min-width: 0;
+  border: 1px solid var(--curia-border);
+  border-radius: 0.8rem;
+  padding: 0.72rem 0.8rem;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.curia-demo-facts dt {
+  color: var(--curia-text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.curia-demo-facts dd {
+  margin-top: 0.28rem;
+  overflow-wrap: anywhere;
+  color: var(--curia-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.curia-demo-evidence {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  border: 1px solid;
+  border-radius: 0.8rem;
+  padding: 0.75rem 0.8rem;
+  background: rgba(13, 115, 119, 0.06);
+  color: var(--curia-primary-text);
+}
+
+.curia-demo-evidence[data-tone="source"] {
+  border-color: rgba(41, 91, 134, 0.2);
+  background: rgba(41, 91, 134, 0.06);
+  color: #295b86;
+}
+
+.curia-demo-evidence[data-tone="attention"] {
+  border-color: rgba(154, 97, 0, 0.22);
+  background: rgba(154, 97, 0, 0.065);
+  color: #875500;
+}
+
+.curia-demo-evidence[data-tone="ready"] {
+  border-color: rgba(13, 115, 119, 0.2);
+}
+
+.curia-demo-evidence[data-tone="verified"] {
+  border-color: rgba(47, 109, 74, 0.22);
+  background: rgba(47, 109, 74, 0.07);
+  color: #2f6d4a;
+}
+
+.curia-demo-evidence > svg {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  margin-top: 0.05rem;
+}
+
+.curia-demo-evidence p {
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.curia-demo-evidence span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--curia-text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.curia-demo-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--curia-border);
+  padding: 1rem 1.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.curia-demo-footer > p {
+  max-width: 15rem;
+  color: var(--curia-text-muted);
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+
+.curia-demo-footer > div {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.curia-demo-control {
+  min-height: 2.35rem;
+  padding: 0.58rem 0.75rem;
+  font-size: 0.72rem;
+}
+
+.curia-demo-control svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.curia-demo-control:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  transform: none;
 }
 
 .curia-contact-card {
@@ -383,8 +670,76 @@ button {
 @media (max-width: 767px) {
   .curia-contact-card,
   .curia-card,
-  .curia-card-editorial {
+  .curia-card-editorial,
+  .curia-demo {
     border-radius: 1.25rem;
+  }
+
+  .curia-demo-header {
+    display: block;
+    padding: 1.15rem 1rem 1rem;
+  }
+
+  .curia-demo-header .curia-status-badge {
+    margin-top: 0.75rem;
+  }
+
+  .curia-demo-case {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0 1rem 1rem;
+  }
+
+  .curia-demo-case > div {
+    padding: 0.68rem 0.75rem;
+  }
+
+  .curia-demo-case > div:nth-child(3) {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--curia-border);
+    border-left: 0;
+  }
+
+  .curia-demo-tab {
+    gap: 0.35rem;
+    padding: 0.68rem 0.1rem 0.62rem;
+    font-size: 0.55rem;
+    letter-spacing: -0.01em;
+  }
+
+  .curia-demo-tab-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .curia-demo-panel {
+    padding: 1.15rem 1rem;
+  }
+
+  .curia-demo-body {
+    min-height: 0;
+  }
+
+  .curia-demo-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .curia-demo-footer {
+    display: block;
+    padding: 0.9rem 1rem 1rem;
+  }
+
+  .curia-demo-footer > p {
+    max-width: none;
+  }
+
+  .curia-demo-footer > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 0.8rem;
+  }
+
+  .curia-demo-control {
+    width: 100%;
   }
 }
 
@@ -414,7 +769,8 @@ button {
   }
 
   .curia-button,
-  .curia-contact-card {
+  .curia-contact-card,
+  .curia-demo-tab {
     animation: none;
     transition: none;
   }

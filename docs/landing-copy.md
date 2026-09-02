@@ -85,6 +85,45 @@ Copy en español de México, organizado por los identificadores de sección acor
 5. **Título:** De la respuesta al escrito — Confianza visible
    - **Cuerpo:** Cuando una referencia pasa por Reference Evaluator, Curia muestra su estado antes de que el equipo decida usarla.
 
+### Demo guiada `expedienteDemo`
+
+- **Etiqueta:** Demostración interactiva
+- **Título:** Un expediente. Cinco pasos. El contexto siempre a la vista.
+- **Aviso:** Demostración con datos simulados. No contiene información de clientes ni realiza actuaciones reales.
+- **Expediente:** `123/2026`
+- **Materia:** Civil
+- **Fuente activa:** Jalisco CJJ
+
+1. **Paso:** Movimiento
+   - **Estado:** Detectado
+   - **Título:** El aviso llega al expediente correcto.
+   - **Cuerpo:** Curia relaciona el movimiento con el expediente registrado y conserva la fuente para que el equipo pueda revisarla.
+   - **Evidencia:** Acuerdo publicado · Documento de origen conservado.
+2. **Paso:** Plazo
+   - **Estado:** Revisión requerida
+   - **Título:** El plazo se propone con su contexto.
+   - **Cuerpo:** Curia presenta una fecha de trabajo y los datos usados para obtenerla. La persona abogada debe cotejarla contra el documento original y la legislación aplicable.
+   - **Evidencia:** Vencimiento propuesto · 09 sep 2026.
+3. **Paso:** Outlook
+   - **Estado:** Listo para confirmar
+   - **Título:** El evento conserva la referencia del asunto.
+   - **Cuerpo:** Con Microsoft 365 conectado y los permisos necesarios, el equipo revisa el evento antes de crearlo en Outlook.
+   - **Evidencia:** Revisar acuerdo · Recordatorio 24 horas antes.
+4. **Paso:** Biblioteca
+   - **Estado:** Procesado
+   - **Título:** El documento se vuelve una fuente elegible.
+   - **Cuerpo:** La Biblioteca muestra el estado del OCR y permite seleccionar explícitamente el archivo que podrá usar el asistente del expediente.
+   - **Evidencia:** `acuerdo-123-2026.pdf` · Fuente seleccionada.
+5. **Paso:** Referencias
+   - **Estado:** Confianza visible
+   - **Título:** La respuesta llega con evidencia y límites.
+   - **Cuerpo:** Curia responde desde las fuentes seleccionadas y muestra por separado el estado de las referencias evaluadas antes de que el equipo decida usarlas.
+   - **Evidencia:** Documento del expediente · Coincidencia simulada con SJF: verificada.
+
+- **Control anterior:** Anterior
+- **Control siguiente:** Continuar
+- **Control final:** Reiniciar recorrido
+
 ---
 
 ## `monitoreo`

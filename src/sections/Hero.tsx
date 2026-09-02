@@ -12,6 +12,7 @@ import {
   Workflow,
 } from "lucide-react";
 import Reveal from "../components/Reveal";
+import CuriaWorkflowDemo from "../components/CuriaWorkflowDemo";
 
 const highlights = [
   {
@@ -44,29 +45,6 @@ const capabilities = [
     icon: Workflow,
     title: "Una sola cadena operativa",
     body: "Monitoreo, calendario, documentos e investigación permanecen ligados al mismo asunto para reducir la fragmentación del trabajo.",
-  },
-] as const;
-
-const morningSequence = [
-  {
-    title: "Cada mañana — Monitoreo con contexto",
-    body: "El objetivo es presentar los movimientos detectados en Jalisco CJJ junto con el expediente y la fuente que corresponde.",
-  },
-  {
-    title: "Del aviso al plazo — Revisión antes de actuar",
-    body: "El acuerdo conserva su contexto mientras el equipo revisa el plazo calculado contra el documento judicial original y la legislación aplicable.",
-  },
-  {
-    title: "Del plazo a Outlook — Evento con referencia",
-    body: "Cuando Microsoft 365 está conectado y cuenta con los permisos necesarios, el equipo puede crear el evento de calendario con la referencia del expediente y su enlace de origen.",
-  },
-  {
-    title: "Del documento a la consulta — Fuentes elegidas",
-    body: "La Biblioteca procesa los documentos del expediente; sólo los archivos procesados que selecciona la persona abogada se usan como fuentes para responder.",
-  },
-  {
-    title: "De la respuesta al escrito — Confianza visible",
-    body: "Cuando una referencia pasa por Reference Evaluator, Curia muestra su estado antes de que el equipo decida usarla.",
   },
 ] as const;
 
@@ -318,36 +296,7 @@ export default function Hero() {
             </p>
           </div>
 
-          <div className="curia-dossier-card">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--curia-border)] pb-4">
-              <div>
-                <p className="text-sm font-semibold text-[var(--curia-text)]">
-                  Secuencia de la mañana
-                </p>
-                <p className="mt-1 text-xs text-[var(--curia-text-muted)]">
-                  Del monitoreo a una decisión revisada
-                </p>
-              </div>
-              <span className="curia-status-badge">Flujo operativo</span>
-            </div>
-            <div className="mt-5 space-y-5">
-              {morningSequence.map((item, index) => (
-                <article key={item.title} className="curia-dossier-step">
-                  <div className="curia-dossier-marker" aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold leading-6 text-[var(--curia-text)]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-[var(--curia-text-secondary)]">
-                      {item.body}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+          <CuriaWorkflowDemo />
         </div>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
