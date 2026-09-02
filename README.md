@@ -8,6 +8,7 @@ Marketing landing page for [Curia](https://agenticengineering.online), an intell
 - [`src/App.tsx`](src/App.tsx) composes the landing. Page-level content is split into sections, while shared presentation and behavior belong in the component layer.
 - [`src/server/contact.ts`](src/server/contact.ts) owns contact validation and the Twenty CRM handoff; its adjacent test never calls a live CRM.
 - [`docs/landing-copy.md`](docs/landing-copy.md) is the source of truth for approved public copy and product-claim boundaries.
+- [`docs/demo-local-gradio.md`](docs/demo-local-gradio.md) records the future plan for a local, stateless, interactive Gradio demo using synthetic legal fixtures.
 - [`docs/klgv-meeting-brief.md`](docs/klgv-meeting-brief.md) contains the public KLGV meeting agenda, demo script, questions, objection handling, commercials, and follow-up actions.
 - [`wrangler.jsonc`](wrangler.jsonc) owns Cloudflare bindings, public variables, routes, and deployment configuration.
 
