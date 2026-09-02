@@ -247,6 +247,51 @@ button {
   padding: 1.5rem 1.5rem 1.1rem;
 }
 
+.curia-demo-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.curia-demo-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--curia-border);
+  border-radius: 999px;
+  padding: 0.42rem 0.68rem;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--curia-text-secondary);
+  font-size: 0.68rem;
+  font-weight: 650;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.curia-demo-mode:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--curia-primary) 34%,
+    var(--curia-border)
+  );
+  background: white;
+  color: var(--curia-primary-text);
+}
+
+.curia-demo-mode:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.curia-demo-mode svg {
+  width: 0.78rem;
+  height: 0.78rem;
+}
+
 .curia-demo-case {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -288,85 +333,186 @@ button {
   white-space: nowrap;
 }
 
-.curia-demo-tabs {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-block: 1px solid var(--curia-border);
-  background: rgba(255, 255, 255, 0.62);
+@keyframes curia-flow-pulse {
+  from {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    left: 100%;
+    transform: translateX(0);
+  }
 }
 
-.curia-demo-tab {
-  position: relative;
+@keyframes curia-flow-pulse-y {
+  from {
+    top: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    top: 100%;
+    transform: translateY(0);
+  }
+}
+
+.curia-demo-canvas {
+  overflow: hidden;
+  border-block: 1px solid var(--curia-border);
+  padding: 1.2rem 1.1rem;
+  background-color: rgba(242, 241, 239, 0.56);
+  background-image: radial-gradient(
+    circle,
+    rgba(13, 115, 119, 0.16) 0.7px,
+    transparent 0.8px
+  );
+  background-size: 12px 12px;
+}
+
+.curia-demo-flow {
+  display: flex;
+  align-items: center;
+}
+
+.curia-demo-flow-unit {
   display: flex;
   min-width: 0;
+  flex: 1 1 0;
+  align-items: center;
+}
+
+.curia-demo-flow-unit:last-child {
+  flex: 0 0 auto;
+}
+
+.curia-demo-node {
+  position: relative;
+  display: flex;
+  width: 5.5rem;
+  min-height: 5.7rem;
+  flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  border: 0;
-  padding: 0.8rem 0.25rem 0.72rem;
-  background: transparent;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--curia-border-strong);
+  border-radius: 0.85rem;
+  padding: 0.58rem 0.35rem 0.5rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--curia-shadow-xs);
   color: var(--curia-text-muted);
-  font-size: 0.64rem;
-  font-weight: 650;
-  line-height: 1.2;
   transition:
-    background-color 160ms ease,
-    color 160ms ease;
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
 
-.curia-demo-tab + .curia-demo-tab {
-  border-left: 1px solid var(--curia-border);
+.curia-demo-node:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--curia-primary) 36%,
+    var(--curia-border)
+  );
+  color: var(--curia-primary-text);
+  transform: translateY(-1px);
 }
 
-.curia-demo-tab::after {
-  position: absolute;
-  right: 18%;
-  bottom: -1px;
-  left: 18%;
-  height: 2px;
-  border-radius: 999px;
-  background: transparent;
-  content: "";
-}
-
-.curia-demo-tab:hover {
-  background: rgba(13, 115, 119, 0.045);
+.curia-demo-node[data-state="complete"] {
+  border-color: rgba(13, 115, 119, 0.28);
+  background: rgba(239, 248, 247, 0.97);
   color: var(--curia-primary-text);
 }
 
-.curia-demo-tab[data-active="true"] {
-  background: rgba(13, 115, 119, 0.075);
+.curia-demo-node[data-state="active"] {
+  border-color: var(--curia-primary);
+  background: white;
+  box-shadow:
+    0 0 0 3px rgba(13, 115, 119, 0.1),
+    0 8px 18px rgba(8, 62, 64, 0.12);
   color: var(--curia-primary-text);
+  transform: translateY(-2px);
 }
 
-.curia-demo-tab[data-active="true"]::after {
-  background: var(--curia-primary);
+.curia-demo-node-role {
+  color: var(--curia-text-muted);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.curia-demo-tab-icon {
+.curia-demo-node-icon {
   display: inline-flex;
   width: 1.85rem;
   height: 1.85rem;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--curia-border);
-  border-radius: 999px;
-  background: white;
+  border-radius: 0.55rem;
+  background: var(--curia-bg-subtle);
 }
 
-.curia-demo-tab-icon svg {
-  width: 0.9rem;
-  height: 0.9rem;
+.curia-demo-node-icon svg {
+  width: 0.92rem;
+  height: 0.92rem;
 }
 
-.curia-demo-tab[data-active="true"] .curia-demo-tab-icon {
-  border-color: color-mix(
-    in srgb,
-    var(--curia-primary) 34%,
-    var(--curia-border)
-  );
+.curia-demo-node[data-state="complete"] .curia-demo-node-icon {
+  border-color: rgba(13, 115, 119, 0.18);
+  background: var(--curia-primary-light);
+}
+
+.curia-demo-node[data-state="active"] .curia-demo-node-icon {
+  border-color: var(--curia-primary);
   background: var(--curia-primary);
   color: white;
+}
+
+.curia-demo-node-label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.61rem;
+  font-weight: 680;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curia-demo-connector {
+  position: relative;
+  height: 2px;
+  min-width: 0.7rem;
+  flex: 1 1 auto;
+  overflow: hidden;
+  background: var(--curia-border-strong);
+}
+
+.curia-demo-connector[data-state="complete"] {
+  background: var(--curia-primary);
+}
+
+.curia-demo-connector[data-state="running"] {
+  background: color-mix(in srgb, var(--curia-primary) 26%, var(--curia-border));
+}
+
+.curia-demo-connector > span {
+  display: none;
+}
+
+.curia-demo-connector[data-state="running"] > span {
+  position: absolute;
+  top: 0;
+  display: block;
+  width: 38%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--curia-primary) 64%,
+    var(--curia-primary-deep) 100%
+  );
+  animation: curia-flow-pulse 1.45s linear infinite;
 }
 
 .curia-demo-panel {
@@ -680,8 +826,11 @@ button {
     padding: 1.15rem 1rem 1rem;
   }
 
-  .curia-demo-header .curia-status-badge {
-    margin-top: 0.75rem;
+  .curia-demo-header-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.8rem;
   }
 
   .curia-demo-case {
@@ -699,16 +848,63 @@ button {
     border-left: 0;
   }
 
-  .curia-demo-tab {
-    gap: 0.35rem;
-    padding: 0.68rem 0.1rem 0.62rem;
-    font-size: 0.55rem;
-    letter-spacing: -0.01em;
+  .curia-demo-canvas {
+    padding: 1rem;
   }
 
-  .curia-demo-tab-icon {
-    width: 1.7rem;
-    height: 1.7rem;
+  .curia-demo-flow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .curia-demo-flow-unit,
+  .curia-demo-flow-unit:last-child {
+    flex: 0 0 auto;
+    flex-direction: column;
+  }
+
+  .curia-demo-node {
+    display: grid;
+    width: 100%;
+    min-height: 0;
+    grid-template-areas: "icon label role";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    padding: 0.62rem 0.75rem;
+    text-align: left;
+  }
+
+  .curia-demo-node-role {
+    grid-area: role;
+    justify-self: end;
+  }
+
+  .curia-demo-node-icon {
+    grid-area: icon;
+  }
+
+  .curia-demo-node-label {
+    grid-area: label;
+    font-size: 0.7rem;
+  }
+
+  .curia-demo-connector {
+    width: 2px;
+    height: 1rem;
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
+  .curia-demo-connector[data-state="running"] > span {
+    width: 2px;
+    height: 38%;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      var(--curia-primary) 64%,
+      var(--curia-primary-deep) 100%
+    );
+    animation-name: curia-flow-pulse-y;
   }
 
   .curia-demo-panel {
@@ -770,13 +966,17 @@ button {
 
   .curia-button,
   .curia-contact-card,
-  .curia-demo-tab {
+  .curia-demo-mode,
+  .curia-demo-node,
+  .curia-demo-connector > span {
     animation: none;
     transition: none;
   }
 
   .curia-button:hover,
-  .curia-contact-card:hover {
+  .curia-contact-card:hover,
+  .curia-demo-node:hover,
+  .curia-demo-node[data-state="active"] {
     transform: none;
   }
 }

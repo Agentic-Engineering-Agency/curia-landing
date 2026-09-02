@@ -1,4 +1,4 @@
-import { useId, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -7,6 +7,8 @@ import {
   CheckCircle2,
   CircleAlert,
   FileCheck2,
+  Pause,
+  Play,
   RotateCcw,
   ScanText,
   ShieldCheck,
@@ -19,6 +21,7 @@ import {
   type CuriaDemoScenario,
   type CuriaDemoStepKind,
 } from "../data/curia-demo";
+import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
 export interface CuriaWorkflowDemoProps {
   readonly scenario?: CuriaDemoScenario;
@@ -40,6 +43,8 @@ const EVIDENCE_ICONS: Record<CuriaDemoEvidenceTone, LucideIcon> = {
   verified: ShieldCheck,
 };
 
+const AUTO_STEP_DELAY_MS = 3_800;
+
 function boundedIndex(index: number, length: number) {
   return Math.max(0, Math.min(index, length - 1));
 }
@@ -49,7 +54,13 @@ export default function CuriaWorkflowDemo({
   dataSource = "local",
 }: CuriaWorkflowDemoProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [automaticRequested, setAutomaticRequested] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
+  const demoRef = useRef<HTMLElement>(null);
   const idPrefix = useId();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const automatic = automaticRequested && !prefersReducedMotion;
   const steps =
     scenario.steps.length > 0
       ? scenario.steps
@@ -59,6 +70,46 @@ export default function CuriaWorkflowDemo({
   const ActiveIcon = STEP_ICONS[activeStep.kind];
   const EvidenceIcon = EVIDENCE_ICONS[activeStep.evidence.tone];
   const isLastStep = safeIndex === steps.length - 1;
+
+  useEffect(() => {
+    const element = demoRef.current;
+    if (!element) return;
+    if (!("IntersectionObserver" in window)) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.35 },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const updateVisibility = () =>
+      setPageVisible(document.visibilityState === "visible");
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    if (!automatic || !isVisible || !pageVisible) return;
+    const timeout = window.setTimeout(() => {
+      setActiveIndex(
+        (index) => (boundedIndex(index, steps.length) + 1) % steps.length,
+      );
+    }, AUTO_STEP_DELAY_MS);
+    return () => window.clearTimeout(timeout);
+  }, [automatic, isVisible, pageVisible, safeIndex, steps.length]);
+
+  function selectManually(index: number) {
+    setAutomaticRequested(false);
+    setActiveIndex(boundedIndex(index, steps.length));
+  }
 
   function selectFromKeyboard(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -78,9 +129,9 @@ export default function CuriaWorkflowDemo({
 
     if (nextIndex === null) return;
     event.preventDefault();
-    setActiveIndex(nextIndex);
+    selectManually(nextIndex);
     const tabs =
-      event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+      event.currentTarget.parentElement?.parentElement?.querySelectorAll<HTMLButtonElement>(
         '[role="tab"]',
       );
     tabs?.[nextIndex]?.focus();
@@ -88,15 +139,17 @@ export default function CuriaWorkflowDemo({
 
   return (
     <article
+      ref={demoRef}
       className="curia-demo"
       data-demo-source={dataSource}
       data-demo-step={activeStep.id}
+      data-demo-mode={automatic ? "automatic" : "manual"}
       aria-labelledby={`${idPrefix}-title`}
     >
       <header className="curia-demo-header">
         <div>
           <p className="curia-caption text-[var(--curia-primary-text)]">
-            Demostración interactiva
+            Workflow del expediente
           </p>
           <h3
             id={`${idPrefix}-title`}
@@ -105,7 +158,27 @@ export default function CuriaWorkflowDemo({
             Un expediente. Cinco pasos. El contexto siempre a la vista.
           </h3>
         </div>
-        <span className="curia-status-badge">Datos simulados</span>
+        <div className="curia-demo-header-actions">
+          <span className="curia-status-badge">Datos simulados</span>
+          <button
+            type="button"
+            className="curia-demo-mode"
+            aria-pressed={automatic}
+            disabled={prefersReducedMotion}
+            onClick={() => setAutomaticRequested((running) => !running)}
+          >
+            {automatic ? (
+              <Pause aria-hidden="true" />
+            ) : (
+              <Play aria-hidden="true" />
+            )}
+            {prefersReducedMotion
+              ? "Modo manual"
+              : automatic
+                ? "Pausar automático"
+                : "Reanudar automático"}
+          </button>
+        </div>
       </header>
 
       <div className="curia-demo-case" aria-label="Expediente de demostración">
@@ -123,35 +196,65 @@ export default function CuriaWorkflowDemo({
         </div>
       </div>
 
-      <div
-        className="curia-demo-tabs"
-        role="tablist"
-        aria-label="Etapas del flujo de Curia"
-      >
-        {steps.map((step, index) => {
-          const StepIcon = STEP_ICONS[step.kind];
-          const selected = index === safeIndex;
-          return (
-            <button
-              key={step.id}
-              id={`${idPrefix}-tab-${step.id}`}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              aria-controls={`${idPrefix}-panel`}
-              tabIndex={selected ? 0 : -1}
-              className="curia-demo-tab"
-              data-active={selected ? "true" : "false"}
-              onClick={() => setActiveIndex(index)}
-              onKeyDown={(event) => selectFromKeyboard(event, index)}
-            >
-              <span className="curia-demo-tab-icon" aria-hidden="true">
-                <StepIcon />
-              </span>
-              <span>{step.label}</span>
-            </button>
-          );
-        })}
+      <div className="curia-demo-canvas">
+        <div
+          className="curia-demo-flow"
+          role="tablist"
+          aria-label="Workflow del expediente"
+        >
+          {steps.map((step, index) => {
+            const StepIcon = STEP_ICONS[step.kind];
+            const selected = index === safeIndex;
+            const nodeState = selected
+              ? "active"
+              : index < safeIndex
+                ? "complete"
+                : "pending";
+            const role =
+              index === 0
+                ? "Entrada"
+                : index === steps.length - 1
+                  ? "Resultado"
+                  : "Proceso";
+            return (
+              <div className="curia-demo-flow-unit" key={step.id}>
+                <button
+                  id={`${idPrefix}-tab-${step.id}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  aria-controls={`${idPrefix}-panel`}
+                  tabIndex={selected ? 0 : -1}
+                  className="curia-demo-node"
+                  data-state={nodeState}
+                  onClick={() => selectManually(index)}
+                  onKeyDown={(event) => selectFromKeyboard(event, index)}
+                >
+                  <span className="curia-demo-node-role">{role}</span>
+                  <span className="curia-demo-node-icon" aria-hidden="true">
+                    <StepIcon />
+                  </span>
+                  <span className="curia-demo-node-label">{step.label}</span>
+                </button>
+                {index < steps.length - 1 ? (
+                  <span
+                    className="curia-demo-connector"
+                    data-state={
+                      index < safeIndex
+                        ? "complete"
+                        : automatic && index === safeIndex
+                          ? "running"
+                          : "pending"
+                    }
+                    aria-hidden="true"
+                  >
+                    <span />
+                  </span>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div
@@ -159,7 +262,7 @@ export default function CuriaWorkflowDemo({
         role="tabpanel"
         aria-labelledby={`${idPrefix}-tab-${activeStep.id}`}
         className="curia-demo-panel"
-        aria-live="polite"
+        aria-live={automatic ? "off" : "polite"}
       >
         <div className="curia-demo-panel-heading">
           <span className="curia-demo-panel-icon" aria-hidden="true">
@@ -203,9 +306,7 @@ export default function CuriaWorkflowDemo({
             type="button"
             className="curia-button curia-button-secondary curia-demo-control"
             disabled={safeIndex === 0}
-            onClick={() =>
-              setActiveIndex((index) => boundedIndex(index - 1, steps.length))
-            }
+            onClick={() => selectManually(safeIndex - 1)}
           >
             <ArrowLeft aria-hidden="true" />
             Anterior
@@ -213,7 +314,7 @@ export default function CuriaWorkflowDemo({
           <button
             type="button"
             className="curia-button curia-button-primary curia-demo-control"
-            onClick={() => setActiveIndex(isLastStep ? 0 : safeIndex + 1)}
+            onClick={() => selectManually(isLastStep ? 0 : safeIndex + 1)}
           >
             {isLastStep ? (
               <>

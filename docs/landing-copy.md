@@ -90,6 +90,9 @@ Copy en español de México, organizado por los identificadores de sección acor
 - **Etiqueta:** Demostración interactiva
 - **Título:** Un expediente. Cinco pasos. El contexto siempre a la vista.
 - **Aviso:** Demostración con datos simulados. No contiene información de clientes ni realiza actuaciones reales.
+- **Comportamiento inicial:** El workflow avanza automáticamente mientras permanece visible.
+- **Intervención:** Seleccionar un nodo o usar los controles cambia la demo a modo manual; el usuario puede reanudar el recorrido automático de forma explícita.
+- **Movimiento reducido:** Con `prefers-reduced-motion`, la demo permanece en modo manual.
 - **Expediente:** `123/2026`
 - **Materia:** Civil
 - **Fuente activa:** Jalisco CJJ
@@ -123,6 +126,8 @@ Copy en español de México, organizado por los identificadores de sección acor
 - **Control anterior:** Anterior
 - **Control siguiente:** Continuar
 - **Control final:** Reiniciar recorrido
+- **Control automático:** Pausar automático
+- **Control manual:** Reanudar automático
 
 ---
 
