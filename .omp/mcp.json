@@ -4,6 +4,13 @@
     "cloudflare-docs": {
       "type": "http",
       "url": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "jevmem": {
+      "type": "stdio",
+      "command": "jevmem",
+      "args": [
+        "mcp"
+      ]
     }
   },
   "disabledServers": [

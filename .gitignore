@@ -9,3 +9,5 @@ node_modules/
 .wrangler/
 worker-configuration.d.ts
 /.omp/skills
+.jevmem/
+.cursor/hooks/state/
